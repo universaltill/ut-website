@@ -140,3 +140,13 @@ img { max-width: 100%; }
   .nav nav a:not(.btn) { display: none; }
   .nav nav .btn, .lang-switch { display: inline-flex; }
 }
+
+/* Get-started steps */
+.grid.steps { grid-template-columns: repeat(3, 1fr); }
+.step { position: relative; padding-top: 2.4rem; }
+.step-n { position: absolute; top: -18px; inset-inline-start: 1.3rem;
+  width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff; font-weight: 700; }
+.get-cta { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; }
+.btn.ghost.big { background: transparent; }
+@media (max-width: 900px) { .grid.steps { grid-template-columns: 1fr; } }

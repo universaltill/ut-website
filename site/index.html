@@ -25,7 +25,8 @@
     <a href="#hardware" data-i18n="nav.hardware">Hardware</a>
     <a href="#plugins" data-i18n="nav.plugins">Plugins</a>
     <a href="#store" data-i18n="nav.store">Store</a>
-    <a class="btn" href="https://github.com/universaltill/universal-till">GitHub</a>
+    <a href="#about" data-i18n="nav.about">About</a>
+    <a class="btn" href="#get-started" data-i18n="nav.get">Get started</a>
     <span class="lang-switch" aria-label="Language"></span>
   </nav>
 </header>
@@ -36,7 +37,7 @@
       <h1 data-i18n="hero.title">The point of sale that's actually yours.</h1>
       <p class="lede" data-i18n="hero.lede">Free, open source and offline-first — a full sale completes with no internet at all. Runs on a Raspberry Pi, an old laptop, or a proper touch terminal. No monthly fee for the core. Ever.</p>
       <div class="cta">
-        <a class="btn primary" href="https://github.com/universaltill/universal-till#-quick-start" data-i18n="hero.cta1">Get started</a>
+        <a class="btn primary" href="#get-started" data-i18n="hero.cta1">Get started</a>
         <a class="btn ghost" href="https://github.com/universaltill/universal-till" data-i18n="hero.cta2">See the source</a>
       </div>
       <p class="hero-note" data-i18n="hero.note">MIT licensed · one small binary · works today</p>
@@ -139,10 +140,27 @@
     <div class="photo-slot"><span data-i18n="hw.photo">Product photo</span></div>
   </section>
 
-  <section class="section cta-band">
-    <h2 data-i18n="cta.title">Start selling on your own terms</h2>
-    <p class="lede" data-i18n="cta.lede">Free forever for a single till. Download it today.</p>
-    <a class="btn primary big" href="https://github.com/universaltill/universal-till#-quick-start" data-i18n="cta.btn">Get started</a>
+  <section id="get-started" class="section">
+    <div class="section-head">
+      <h2 data-i18n="get.title">Up and running in three steps</h2>
+      <p class="section-sub" data-i18n="get.sub">No technical setup. If you can use a phone, you can run your till.</p>
+    </div>
+    <div class="grid steps">
+      <div class="card step"><div class="step-n">1</div><h3 data-i18n="get.s1.t">Get a device</h3><p data-i18n="get.s1.d">Use a Raspberry Pi, an old laptop or a touch terminal you already have — or buy a ready-made kit from our store.</p></div>
+      <div class="card step"><div class="step-n">2</div><h3 data-i18n="get.s2.t">Install Universal Till</h3><p data-i18n="get.s2.d">Download the ready-made installer for your device and open it. One small app — nothing complicated to configure.</p></div>
+      <div class="card step"><div class="step-n">3</div><h3 data-i18n="get.s3.t">Follow the setup wizard</h3><p data-i18n="get.s3.d">Pick your language and currency, set a PIN, and start selling. The whole thing takes a few minutes.</p></div>
+    </div>
+    <div class="get-cta">
+      <a class="btn primary big" href="https://github.com/universaltill/universal-till/releases" data-i18n="get.download">Download for your device</a>
+      <a class="btn ghost big" href="https://store.universaltill.com" data-i18n="get.buy">Or buy a ready-made kit</a>
+    </div>
+  </section>
+
+  <section id="about" class="section band">
+    <div class="section-head">
+      <h2 data-i18n="about.title">About us</h2>
+      <p class="section-sub" data-i18n="about.body">Universal Till is built by <strong>Task Runner Technology LTD</strong>, a British company. We believe every shop — anywhere in the world — deserves a point of sale it truly owns: free, open, and free of lock-in. That's the whole reason we exist.</p>
+    </div>
   </section>
 </main>
 
