@@ -4,7 +4,13 @@
   <meta charset="utf-8">
   <!-- Canonical host: send the bare apex to www before anything paints. -->
   <script>if(location.hostname==="universaltill.com"){location.replace("https://www.universaltill.com"+location.pathname+location.search+location.hash);}</script>
-  <link rel="canonical" href="https://www.universaltill.com/">
+  <link rel="canonical" id="canonical" href="https://www.universaltill.com/">
+  <!-- hreflang: each language has its own crawlable URL for SEO. -->
+  <link rel="alternate" hreflang="en" href="https://www.universaltill.com/">
+  <link rel="alternate" hreflang="tr" href="https://www.universaltill.com/tr">
+  <link rel="alternate" hreflang="zh" href="https://www.universaltill.com/zh">
+  <link rel="alternate" hreflang="fa" href="https://www.universaltill.com/fa">
+  <link rel="alternate" hreflang="x-default" href="https://www.universaltill.com/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Universal Till — the free, offline-first point of sale</title>
   <meta name="description" content="Universal Till is a free, open-source, offline-first POS for every kind of shop. No contracts, no proprietary hardware, no payment lock-in. Runs on a Raspberry Pi, an old PC, or anything in between.">

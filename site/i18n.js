@@ -202,7 +202,17 @@ const I18N = {
 
 (function () {
   const supported = Object.keys(I18N);
+  const ORIGIN = "https://www.universaltill.com";
+  // Each language has its own URL path (/tr, /zh, /fa; English at root) so
+  // crawlers index a distinct, hreflang-linked page per language.
+  function langFromPath() {
+    const seg = location.pathname.split("/").filter(Boolean)[0];
+    return supported.includes(seg) ? seg : null;
+  }
+  function pathFor(lang) { return lang === "en" ? "/" : "/" + lang; }
   function pick() {
+    const p = langFromPath();
+    if (p) return p;
     const saved = localStorage.getItem("ut_lang");
     if (saved && supported.includes(saved)) return saved;
     const nav = (navigator.language || "en").slice(0, 2);
@@ -219,7 +229,17 @@ const I18N = {
     document.querySelectorAll(".lang-switch button").forEach(function (b) {
       b.setAttribute("aria-pressed", b.dataset.lang === lang);
     });
+    // Canonical points at THIS language's URL.
+    const c = document.getElementById("canonical");
+    if (c) c.setAttribute("href", ORIGIN + pathFor(lang));
     localStorage.setItem("ut_lang", lang);
+  }
+  function go(lang) {
+    // Reflect the language in the URL (crawlable) without a reload.
+    if (langFromPath() !== (lang === "en" ? null : lang)) {
+      history.pushState({ lang: lang }, "", pathFor(lang));
+    }
+    apply(lang);
   }
   function buildSwitcher() {
     const host = document.querySelector(".lang-switch");
@@ -228,10 +248,11 @@ const I18N = {
       const b = document.createElement("button");
       b.dataset.lang = lang;
       b.textContent = I18N[lang]._name;
-      b.addEventListener("click", function () { apply(lang); });
+      b.addEventListener("click", function () { go(lang); });
       host.appendChild(b);
     });
   }
+  window.addEventListener("popstate", function () { apply(pick()); });
   document.addEventListener("DOMContentLoaded", function () {
     buildSwitcher();
     apply(pick());
