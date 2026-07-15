@@ -26,6 +26,7 @@
   <section class="section" style="text-align:center">
     <h1 data-i18n="dl.title">Download Universal Till</h1>
     <p class="lede" style="margin-inline:auto" data-i18n="dl.sub">Free and offline-first. Pick your device — we've guessed the best one for you.</p>
+    <p class="muted" id="dl-version" style="margin:-.6rem 0 0"></p>
 
     <!-- Primary: best guess for the visitor's OS (filled by JS). -->
     <div id="primary" class="dl-primary card" style="max-width:34rem;margin:1.5rem auto;display:none">
@@ -94,6 +95,12 @@
       document.getElementById("primary-note").textContent = best.note;
       document.getElementById("primary").style.display = "block";
     }
+    // Live version from the manifest the release pipeline publishes.
+    fetch("/downloads/latest.json", { cache: "no-cache" }).then(function (r) {
+      return r.ok ? r.json() : null;
+    }).then(function (m) {
+      if (m && m.version) document.getElementById("dl-version").textContent = "Latest version: " + m.version;
+    }).catch(function () {});
   })();
 </script>
 </body>

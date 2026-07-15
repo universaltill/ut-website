@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Fired by the universal-till release pipeline (repository_dispatch
+  # type: new-release) so a new release refreshes the download manifest
+  # and installers automatically — no website commit needed.
+  repository_dispatch:
+    types: [new-release]
 
 jobs:
   deploy:
@@ -14,21 +19,36 @@ jobs:
       # version stripped) so /download links to www.universaltill.com/…
       # and shop owners never touch GitHub. Non-fatal if a release is
       # missing (the download page still ships).
-      - name: Stage release installers
+      - name: Stage release installers + write latest.json manifest
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p site/downloads
-          if gh release download --repo universaltill/universal-till --pattern 'unitill-pos_*' --dir /tmp/rel 2>/dev/null; then
+          VER=$(gh release view --repo universaltill/universal-till --json tagName --jq '.tagName' 2>/dev/null | sed 's/^v//')
+          if [ -n "$VER" ] && gh release download "v$VER" --repo universaltill/universal-till --pattern 'unitill-pos_*' --dir /tmp/rel 2>/dev/null; then
             for f in /tmp/rel/unitill-pos_*; do
-              base=$(basename "$f")
-              # strip the version: unitill-pos_0.1.0_linux_arm64.deb -> unitill-pos_linux_arm64.deb
-              stable=$(echo "$base" | sed -E 's/_[0-9]+\.[0-9]+\.[0-9]+_/_/')
+              stable=$(basename "$f" | sed -E 's/_[0-9]+\.[0-9]+\.[0-9]+_/_/')
               cp "$f" "site/downloads/$stable"
             done
-            ls -la site/downloads/
+            # Manifest the /download page reads at runtime — version + our-domain URLs.
+            cat > site/downloads/latest.json <<JSON
+          {
+            "version": "$VER",
+            "released": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "downloads": {
+              "windows_amd64": "/downloads/unitill-pos_windows_amd64.zip",
+              "darwin_arm64":  "/downloads/unitill-pos_darwin_arm64.tar.gz",
+              "linux_arm64_deb": "/downloads/unitill-pos_linux_arm64.deb",
+              "linux_arm64_tar": "/downloads/unitill-pos_linux_arm64.tar.gz",
+              "linux_amd64_deb": "/downloads/unitill-pos_linux_amd64.deb",
+              "linux_amd64_tar": "/downloads/unitill-pos_linux_amd64.tar.gz"
+            }
+          }
+          JSON
+            echo "staged installers for v$VER"; ls -la site/downloads/
           else
-            echo "no release assets found — shipping download page without installers"
+            echo '{"version":null}' > site/downloads/latest.json
+            echo "no release assets found — download page ships, manifest empty"
           fi
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
