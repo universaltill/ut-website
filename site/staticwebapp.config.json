@@ -6,7 +6,8 @@
       "/logo.svg",
       "/i18n.js",
       "/downloads/*",
-      "/download.html"
+      "/download.html",
+      "/start.html"
     ]
   },
   "globalHeaders": {
@@ -18,6 +19,10 @@
     {
       "route": "/download",
       "rewrite": "/download.html"
+    },
+    {
+      "route": "/start",
+      "rewrite": "/start.html"
     }
   ]
 }

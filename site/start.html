@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>if(location.hostname==="universaltill.com"){location.replace("https://www.universaltill.com"+location.pathname+location.search+location.hash);}</script>
+  <link rel="canonical" id="canonical" href="https://www.universaltill.com/start">
+  <link rel="alternate" hreflang="en" href="https://www.universaltill.com/start">
+  <link rel="alternate" hreflang="tr" href="https://www.universaltill.com/tr/start">
+  <link rel="alternate" hreflang="zh" href="https://www.universaltill.com/zh/start">
+  <link rel="alternate" hreflang="fa" href="https://www.universaltill.com/fa/start">
+  <link rel="alternate" hreflang="x-default" href="https://www.universaltill.com/start">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Getting started — Universal Till</title>
+  <meta name="description" content="Install Universal Till on Windows, macOS, a Raspberry Pi or Linux and set up your shop in minutes. Step-by-step, in your language.">
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <script defer src="/i18n.js"></script>
+</head>
+<body>
+
+<header class="nav">
+  <a class="brand" href="/">
+    <img src="/logo.svg" alt="" width="34" height="30">
+    <span>Universal <strong>Till</strong></span>
+  </a>
+  <nav>
+    <a href="/#solutions" data-i18n="nav.solutions">Solutions</a>
+    <a href="/#tour" data-i18n="nav.tour">Tour</a>
+    <a href="/start" data-i18n="nav.start">Get started</a>
+    <a class="btn" href="/download" data-i18n="nav.download">Download</a>
+    <span class="lang-switch" aria-label="Language"></span>
+  </nav>
+</header>
+
+<main>
+  <section class="hero" style="grid-template-columns:1fr">
+    <div class="hero-text">
+      <h1 data-i18n="start.title">Get started in minutes</h1>
+      <p class="lede" data-i18n="start.lede">Pick a device, install one small app, and follow the setup wizard. If you can use a phone, you can run your till — no technical setup, no contracts.</p>
+      <div class="cta">
+        <a class="btn primary" href="/download" data-i18n="start.cta">Download for your device</a>
+        <a class="btn ghost" href="https://store.universaltill.com" data-i18n="start.buy">Buy a ready-made kit</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2 data-i18n="start.s1.t">1 · Choose a device</h2>
+      <p class="section-sub" data-i18n="start.s1.d">Universal Till is one small app that runs on hardware you already own — or a ready-made kit from our store.</p>
+    </div>
+    <div class="grid solutions">
+      <article class="card sol"><h3 data-i18n="start.dev.pi.t">Raspberry Pi</h3><p data-i18n="start.dev.pi.d">A Pi 4 or 5 with a touch screen makes a tidy, low-cost till.</p></article>
+      <article class="card sol"><h3 data-i18n="start.dev.pc.t">An old PC or laptop</h3><p data-i18n="start.dev.pc.d">Any 64-bit Windows or Linux machine works — give it a second life.</p></article>
+      <article class="card sol"><h3 data-i18n="start.dev.mac.t">A Mac</h3><p data-i18n="start.dev.mac.d">Apple Silicon Macs (M1 and newer) run it natively.</p></article>
+      <article class="card sol"><h3 data-i18n="start.dev.term.t">A touch terminal</h3><p data-i18n="start.dev.term.d">Proper POS terminals work too. Or buy an assembled kit from our store.</p></article>
+    </div>
+  </section>
+
+  <section class="section band">
+    <div class="section-head">
+      <h2 data-i18n="start.s2.t">2 · Install the app</h2>
+      <p class="section-sub" data-i18n="start.s2.d">Download the version for your device from the download page, then follow the steps for your system. Every install opens the setup screen in your browser automatically.</p>
+    </div>
+    <div class="grid two">
+      <div class="card">
+        <h3 data-i18n="start.win.t">🪟 Windows</h3>
+        <ol class="steps-list">
+          <li data-i18n="start.win.1">Download the Windows installer (.exe).</li>
+          <li data-i18n="start.win.2">Double-click it and follow the wizard — it adds Start-menu and desktop shortcuts.</li>
+          <li data-i18n="start.win.3">Open Universal Till from the shortcut. Your browser shows the setup screen.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3 data-i18n="start.mac.t">🍎 macOS</h3>
+        <ol class="steps-list">
+          <li data-i18n="start.mac.1">Download the macOS file and unzip it.</li>
+          <li data-i18n="start.mac.2">Double-click “run-unitill.command”. The first time, right-click it and choose Open, then Open again (a one-time macOS step).</li>
+          <li data-i18n="start.mac.3">Your browser opens the setup screen.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3 data-i18n="start.pi.t">🥧 Raspberry Pi / Debian</h3>
+        <ol class="steps-list">
+          <li data-i18n="start.pi.1">Download the .deb package for your board.</li>
+          <li data-i18n="start.pi.2">Install it: sudo apt install ./unitill-pos_*.deb</li>
+          <li data-i18n="start.pi.3">Open http://localhost:8080 to reach the setup screen.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3 data-i18n="start.lx.t">🐧 Other Linux</h3>
+        <ol class="steps-list">
+          <li data-i18n="start.lx.1">Download the .tar.gz for your CPU and extract it.</li>
+          <li data-i18n="start.lx.2">Run ./run-unitill.sh from the extracted folder.</li>
+          <li data-i18n="start.lx.3">Your browser opens the setup screen.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2 data-i18n="start.s3.t">3 · Follow the setup wizard</h2>
+      <p class="section-sub" data-i18n="start.s3.d">The first time it opens, a short wizard gets your shop ready.</p>
+    </div>
+    <div class="grid steps">
+      <div class="card step"><div class="step-n">1</div><h3 data-i18n="start.w1.t">Your language</h3><p data-i18n="start.w1.d">Pick the language for the whole till — including right-to-left for Persian and Arabic.</p></div>
+      <div class="card step"><div class="step-n">2</div><h3 data-i18n="start.w2.t">Your country</h3><p data-i18n="start.w2.d">Sets your currency and tax. You can change everything later in Settings.</p></div>
+      <div class="card step"><div class="step-n">3</div><h3 data-i18n="start.w3.t">Shop name &amp; PIN</h3><p data-i18n="start.w3.d">Name your shop and choose an admin PIN. That's it — you're ready.</p></div>
+    </div>
+  </section>
+
+  <section class="section band">
+    <div class="section-head">
+      <h2 data-i18n="start.s4.t">4 · Start selling</h2>
+      <p class="section-sub" data-i18n="start.s4.d">Add a few products, then ring up your first sale.</p>
+    </div>
+    <div class="grid two">
+      <div class="card"><h3 data-i18n="start.sell.add.t">Add products</h3><p data-i18n="start.sell.add.d">Add items by hand, or import your catalogue from a CSV (Loyverse and Square exports work automatically).</p></div>
+      <div class="card"><h3 data-i18n="start.sell.ring.t">Ring up a sale</h3><p data-i18n="start.sell.ring.d">Scan a barcode or tap a product tile, then take cash or card. Print or skip the receipt — done.</p></div>
+      <div class="card"><h3 data-i18n="start.sell.grow.t">Add more tills</h3><p data-i18n="start.sell.grow.d">Scan a QR to add a second till; they sync over your own network, free.</p></div>
+      <div class="card"><h3 data-i18n="start.sell.plug.t">Add plugins</h3><p data-i18n="start.sell.plug.d">Open the plugin store for payments, loyalty, themes and more — verified, one-click.</p></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2 data-i18n="start.help.t">Need a hand?</h2>
+      <p class="section-sub" data-i18n="start.help.d">The till has a built-in “How to use the till” guide in your language. And you can always reach the download page for a fresh copy.</p>
+    </div>
+    <div class="get-cta">
+      <a class="btn primary big" href="/download" data-i18n="start.cta">Download for your device</a>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="foot-brand"><img src="/logo.svg" alt="" width="30" height="26"> <span>Universal <strong>Till</strong></span></div>
+  <p class="foot-owner" data-i18n="foot.owner">Universal Till is a product of Task Runner Technology LTD.</p>
+  <p class="foot-rights" data-i18n="foot.rights">Open source under the MIT licence.</p>
+</footer>
+
+</body>
+</html>

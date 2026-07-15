@@ -179,3 +179,8 @@ img { max-width: 100%; }
 .dl-card .btn { margin-top: auto; }
 .dl-help a { margin-inline-start: .4rem; }
 @media (max-width: 800px){ .dl-grid { grid-template-columns: 1fr; } }
+
+/* Getting-started guide: ordered step lists inside cards */
+.steps-list { margin: .5rem 0 0; padding-inline-start: 1.3rem; }
+.steps-list li { margin: .45rem 0; color: var(--ink-soft); }
+.steps-list code { background: var(--band); padding: .05rem .3rem; border-radius: 5px; font-size: .9em; }
