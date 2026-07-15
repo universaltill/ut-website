@@ -7,9 +7,10 @@
   <link rel="canonical" href="https://www.universaltill.com/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Universal Till — the free, offline-first point of sale</title>
-  <meta name="description" content="Universal Till is a free, open-source, offline-first POS. No contracts, no proprietary hardware, no payment lock-in. Runs on a Raspberry Pi, an old PC, or anything in between.">
+  <meta name="description" content="Universal Till is a free, open-source, offline-first POS for every kind of shop. No contracts, no proprietary hardware, no payment lock-in. Runs on a Raspberry Pi, an old PC, or anything in between.">
   <link rel="icon" type="image/svg+xml" href="/logo.svg">
   <link rel="stylesheet" href="/styles.css">
+  <script defer src="/i18n.js"></script>
 </head>
 <body>
 
@@ -19,100 +20,140 @@
     <span>Universal <strong>Till</strong></span>
   </a>
   <nav>
-    <a href="#features">Features</a>
-    <a href="#freedom">Why it's different</a>
-    <a href="#hardware">Hardware</a>
-    <a href="#plugins">Plugins</a>
+    <a href="#solutions" data-i18n="nav.solutions">Solutions</a>
+    <a href="#why" data-i18n="nav.why">Why it's different</a>
+    <a href="#hardware" data-i18n="nav.hardware">Hardware</a>
+    <a href="#plugins" data-i18n="nav.plugins">Plugins</a>
+    <a href="#store" data-i18n="nav.store">Store</a>
     <a class="btn" href="https://github.com/universaltill/universal-till">GitHub</a>
+    <span class="lang-switch" aria-label="Language"></span>
   </nav>
 </header>
 
 <main>
   <section class="hero">
-    <h1>The point of sale that's actually yours.</h1>
-    <p class="lede">
-      Free, open source, and <strong>offline-first</strong> — a full sale completes with no
-      internet at all. Runs on a Raspberry&nbsp;Pi, an old laptop, or a proper touch terminal.
-      No monthly fee for the core. Ever.
-    </p>
-    <div class="cta">
-      <a class="btn primary" href="https://github.com/universaltill/universal-till#-quick-start">Get started</a>
-      <a class="btn" href="https://github.com/universaltill/universal-till">View the source</a>
-    </div>
-    <p class="hero-note">MIT licensed · one small binary · works today</p>
-  </section>
-
-  <section id="freedom" class="band">
-    <h2>No lock-in. Of any kind.</h2>
-    <div class="grid three">
-      <div class="card">
-        <h3>No contracts or proprietary hardware</h3>
-        <p>Big-name POS systems tie you into multi-year contracts and terminals that only work
-           with them. Universal Till runs on generic hardware you already own — a complete
-           DIY till costs from about £70.</p>
+    <div class="hero-text">
+      <h1 data-i18n="hero.title">The point of sale that's actually yours.</h1>
+      <p class="lede" data-i18n="hero.lede">Free, open source and offline-first — a full sale completes with no internet at all. Runs on a Raspberry Pi, an old laptop, or a proper touch terminal. No monthly fee for the core. Ever.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/universaltill/universal-till#-quick-start" data-i18n="hero.cta1">Get started</a>
+        <a class="btn ghost" href="https://github.com/universaltill/universal-till" data-i18n="hero.cta2">See the source</a>
       </div>
-      <div class="card">
-        <h3>No payment processor lock-in</h3>
-        <p>We never sit in your money flow. Use any card machine and any processor you like —
-           so rising per-transaction fees and frozen payouts simply can't happen to you here.</p>
-      </div>
-      <div class="card">
-        <h3>Your data, exportable, always</h3>
-        <p>Sales, catalog, everything lives in a database you own and can export any time.
-           Switching away is easy — which is exactly why you won't need to.</p>
-      </div>
+      <p class="hero-note" data-i18n="hero.note">MIT licensed · one small binary · works today</p>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <!-- Illustrative POS terminal (swap for a product photo when ready). -->
+      <svg viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg" role="img">
+        <defs>
+          <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#4f46e5"/><stop offset="1" stop-color="#0ea5e9"/>
+          </linearGradient>
+        </defs>
+        <rect x="40" y="30" width="240" height="170" rx="14" fill="#0f172a"/>
+        <rect x="52" y="42" width="216" height="146" rx="8" fill="url(#screen)"/>
+        <rect x="66" y="58" width="120" height="12" rx="6" fill="#ffffff" opacity=".9"/>
+        <rect x="66" y="80" width="188" height="9" rx="4.5" fill="#ffffff" opacity=".5"/>
+        <rect x="66" y="96" width="188" height="9" rx="4.5" fill="#ffffff" opacity=".5"/>
+        <rect x="66" y="112" width="140" height="9" rx="4.5" fill="#ffffff" opacity=".5"/>
+        <rect x="196" y="150" width="58" height="24" rx="6" fill="#22c55e"/>
+        <rect x="120" y="200" width="80" height="60" rx="6" fill="#1e293b"/>
+        <rect x="86" y="256" width="148" height="12" rx="6" fill="#334155"/>
+        <circle cx="160" cy="150" r="4" fill="#ffffff" opacity=".8"/>
+      </svg>
     </div>
   </section>
 
-  <section id="features">
-    <h2>Everything a real shop needs, free</h2>
-    <div class="grid three">
-      <div class="card"><h3>Offline-first checkout</h3><p>Internet down? Keep selling. The till never blocks a sale on the network and syncs when the connection returns.</p></div>
-      <div class="card"><h3>Fast, touch-first selling</h3><p>Barcode scanning, product tiles, hold &amp; resume, split payments, returns, shifts and cash drawer counts.</p></div>
-      <div class="card"><h3>Inventory &amp; catalog</h3><p>Stock levels, receipts and adjustments with a manager-PIN audit trail, product images, price history.</p></div>
-      <div class="card"><h3>Reports</h3><p>Sales by day, top items, payment breakdown — on the till, no cloud required.</p></div>
-      <div class="card"><h3>Any language, including RTL</h3><p>Fully translated interface with right-to-left support (Farsi, Arabic…), language packs as plugins, and an editor to reword any text on the till.</p></div>
-      <div class="card"><h3>PIN login &amp; roles</h3><p>Cashier, manager, and admin roles with a device-wide lockout and a full audit log.</p></div>
-      <div class="card"><h3>Plugin marketplace</h3><p>Themes, payment methods, languages, pages and more — every plugin is signature-verified before it runs.</p></div>
-      <div class="card"><h3>AI where it helps, on your terms</h3><p>Camera product identification runs against a model <em>you</em> host — open models on your own machine. No mandatory AI, no per-call fees.</p></div>
-      <div class="card"><h3>Receipts &amp; printing</h3><p>Clean printable receipts in every language, thermal printer support on the roadmap's front burner.</p></div>
+  <section id="solutions" class="section">
+    <div class="section-head">
+      <h2 data-i18n="sol.title">A till for every kind of shop</h2>
+      <p class="section-sub" data-i18n="sol.sub">One system, tuned to how you actually sell.</p>
+    </div>
+    <div class="grid solutions">
+      <article class="card sol">
+        <div class="ico ico-grocery" aria-hidden="true"></div>
+        <h3 data-i18n="sol.grocery.t">Grocery &amp; convenience</h3>
+        <p data-i18n="sol.grocery.d">Barcode scanning, weighed items, fast tender, and offline resilience for busy corner shops.</p>
+      </article>
+      <article class="card sol">
+        <div class="ico ico-retail" aria-hidden="true"></div>
+        <h3 data-i18n="sol.retail.t">Retail &amp; boutiques</h3>
+        <p data-i18n="sol.retail.d">Variants, product photos, catalogue import, and clean receipts with your own branding.</p>
+      </article>
+      <article class="card sol">
+        <div class="ico ico-service" aria-hidden="true"></div>
+        <h3 data-i18n="sol.service.t">Service trades</h3>
+        <p data-i18n="sol.service.d">Barbers, repairs and workshops: quick sales, VAT invoices and credit notes for business customers.</p>
+      </article>
+      <article class="card sol">
+        <div class="ico ico-hospitality" aria-hidden="true"></div>
+        <h3 data-i18n="sol.hospitality.t">Cafés &amp; restaurants</h3>
+        <p data-i18n="sol.hospitality.d">Held orders, split tender, fast repeat items, and a kitchen-ready workflow through plugins.</p>
+      </article>
+      <article class="card sol">
+        <div class="ico ico-market" aria-hidden="true"></div>
+        <h3 data-i18n="sol.market.t">Market stalls &amp; pop-ups</h3>
+        <p data-i18n="sol.market.d">Runs on a phone-sized budget with no signal needed — pack up, move, and keep selling.</p>
+      </article>
+      <article class="card sol">
+        <div class="ico ico-multi" aria-hidden="true"></div>
+        <h3 data-i18n="sol.multi.t">Growing to many tills</h3>
+        <p data-i18n="sol.multi.d">Add a second till by scanning a QR; they sync over your own LAN for free, no cloud required.</p>
+      </article>
     </div>
   </section>
 
-  <section id="hardware" class="band">
-    <h2>Run it on almost anything</h2>
-    <div class="grid three">
-      <div class="card"><h3>Raspberry Pi</h3><p>A Pi 4 makes an excellent dedicated till — kiosk mode included, 3D-printable enclosure plans in the docs.</p></div>
-      <div class="card"><h3>Used thin client or old PC</h3><p>A £15–45 second-hand thin client runs it comfortably. The whole POS is one small program.</p></div>
-      <div class="card"><h3>Windows, macOS, Linux</h3><p>Download and run. A guided setup wizard and one-click installers are in active development.</p></div>
+  <section id="why" class="section band">
+    <div class="section-head">
+      <h2 data-i18n="why.title">No lock-in. Of any kind.</h2>
+    </div>
+    <div class="grid two">
+      <div class="card"><h3 data-i18n="why.contracts.t">No contracts or proprietary hardware</h3><p data-i18n="why.contracts.d">Runs on generic hardware you already own — a complete DIY till costs from about £70. No multi-year tie-ins.</p></div>
+      <div class="card"><h3 data-i18n="why.payments.t">No payment-processor lock-in</h3><p data-i18n="why.payments.d">We never sit in your money flow. Use any card machine and any processor — no fee creep, no frozen payouts.</p></div>
+      <div class="card"><h3 data-i18n="why.data.t">Your data, exportable, always</h3><p data-i18n="why.data.d">Full catalogue and sales export to CSV whenever you want. Your shop, your records — take them anywhere.</p></div>
+      <div class="card"><h3 data-i18n="why.offline.t">Offline-first, truly</h3><p data-i18n="why.offline.d">The internet going down never stops a sale. Everything works locally; syncing is a bonus, never a requirement.</p></div>
     </div>
   </section>
 
-  <section id="plugins">
-    <h2>Growing plugin ecosystem</h2>
-    <p class="center-note">
-      Payment methods, themes, language packs, info pages and buttons ship today through a
-      signed marketplace. Delivery-platform integration, loyalty, gift cards, kitchen displays
-      and a customer app are on the public roadmap — the core stays free while optional cloud
-      services keep the lights on.
-    </p>
-    <div class="cta center">
-      <a class="btn primary" href="https://github.com/universaltill/universal-till/blob/main/docs/plugin_guidelines.md">Build a plugin</a>
-      <a class="btn" href="https://github.com/universaltill">All repositories</a>
+  <section id="hardware" class="section split">
+    <div class="split-text">
+      <h2 data-i18n="hw.title">Runs on hardware you choose</h2>
+      <p class="lede" data-i18n="hw.lede">A Raspberry Pi, an old PC, a mini-PC, or a proper touch terminal — Universal Till is one small binary that runs on all of them. Buy a ready-made kit from our store, or build your own.</p>
     </div>
+    <!-- Real product photo goes here; placeholder keeps the layout. -->
+    <div class="photo-slot"><span data-i18n="hw.photo">Product photo</span></div>
+  </section>
+
+  <section id="plugins" class="section band">
+    <div class="section-head">
+      <h2 data-i18n="plugins.title">Extend it with plugins</h2>
+      <p class="section-sub" data-i18n="plugins.lede">A signed, verified plugin marketplace: payments, integrations, loyalty, themes and more. Install in one click; everything is checked before it reaches your till.</p>
+    </div>
+  </section>
+
+  <section id="store" class="section split reverse">
+    <div class="split-text">
+      <h2 data-i18n="store.title">Get the hardware</h2>
+      <p class="lede" data-i18n="store.lede">Ready-to-run devices and parts for a custom POS — buy assembled, or the pieces to build your own. Coming soon.</p>
+      <a class="btn primary" href="https://store.universaltill.com" data-i18n="store.cta">Visit the store</a>
+    </div>
+    <div class="photo-slot"><span data-i18n="hw.photo">Product photo</span></div>
+  </section>
+
+  <section class="section cta-band">
+    <h2 data-i18n="cta.title">Start selling on your own terms</h2>
+    <p class="lede" data-i18n="cta.lede">Free forever for a single till. Download it today.</p>
+    <a class="btn primary big" href="https://github.com/universaltill/universal-till#-quick-start" data-i18n="cta.btn">Get started</a>
   </section>
 </main>
 
-<footer>
-  <div class="footer-inner">
-    <p><strong>Universal Till</strong> is a product of
-       <a href="https://taskrunnertech.co.uk">Task Runner Technology LTD</a>.</p>
-    <p>
-      <a href="https://github.com/universaltill/universal-till/blob/main/LICENSE">MIT License</a> ·
-      <a href="https://github.com/universaltill">GitHub</a> ·
-      <a href="https://github.com/universaltill/universal-till/issues">Support &amp; issues</a>
-    </p>
+<footer class="foot">
+  <div class="foot-brand">
+    <img src="/logo.svg" alt="" width="30" height="26">
+    <span>Universal <strong>Till</strong></span>
   </div>
+  <p class="foot-tagline" data-i18n="foot.tagline">The free, offline-first point of sale.</p>
+  <p class="foot-owner" data-i18n="foot.owner">Universal Till is a product of Task Runner Technology LTD.</p>
+  <p class="foot-rights" data-i18n="foot.rights">Open source under the MIT licence.</p>
 </footer>
 
 </body>

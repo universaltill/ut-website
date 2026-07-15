@@ -1,7 +1,11 @@
 {
   "navigationFallback": {
     "rewrite": "/index.html",
-    "exclude": ["/styles.css", "/logo.svg"]
+    "exclude": [
+      "/styles.css",
+      "/logo.svg",
+      "/i18n.js"
+    ]
   },
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
