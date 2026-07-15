@@ -4,11 +4,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  # Fired by the universal-till release pipeline (repository_dispatch
-  # type: new-release) so a new release refreshes the download manifest
-  # and installers automatically — no website commit needed.
-  repository_dispatch:
-    types: [new-release]
 
 jobs:
   deploy:

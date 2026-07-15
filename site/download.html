@@ -40,28 +40,28 @@
       <div class="card dl-card">
         <h3>🪟 Windows</h3>
         <p class="muted" data-i18n="dl.win.d">Windows 10 or 11, 64-bit.</p>
-        <a class="btn" href="/downloads/unitill-pos_windows_amd64.zip" download>Windows (.zip)</a>
+        <a class="btn" data-dl="win" href="/downloads/unitill-pos_windows_amd64.zip" download>Windows (.zip)</a>
       </div>
       <div class="card dl-card">
         <h3>🍎 macOS</h3>
         <p class="muted" data-i18n="dl.mac.d">Apple Silicon (M1 and newer).</p>
-        <a class="btn" href="/downloads/unitill-pos_darwin_arm64.tar.gz" download>macOS (Apple Silicon)</a>
+        <a class="btn" data-dl="mac" href="/downloads/unitill-pos_darwin_arm64.tar.gz" download>macOS (Apple Silicon)</a>
       </div>
       <div class="card dl-card">
         <h3>🥧 Raspberry Pi</h3>
         <p class="muted" data-i18n="dl.pi.d">Pi 4 / 5 (64-bit Raspberry Pi OS).</p>
-        <a class="btn" href="/downloads/unitill-pos_linux_arm64.deb" download>Raspberry Pi (.deb)</a>
+        <a class="btn" data-dl="pi" href="/downloads/unitill-pos_linux_arm64.deb" download>Raspberry Pi (.deb)</a>
       </div>
       <div class="card dl-card">
         <h3>🐧 Linux · Intel/AMD</h3>
         <p class="muted" data-i18n="dl.lx64.d">64-bit PC or mini-PC.</p>
-        <a class="btn" href="/downloads/unitill-pos_linux_amd64.deb" download>Debian/Ubuntu (.deb)</a>
-        <a class="btn ghost" href="/downloads/unitill-pos_linux_amd64.tar.gz" download style="margin-top:.4rem">Other Linux (.tar.gz)</a>
+        <a class="btn" data-dl="lx64deb" href="/downloads/unitill-pos_linux_amd64.deb" download>Debian/Ubuntu (.deb)</a>
+        <a class="btn ghost" data-dl="lx64tar" href="/downloads/unitill-pos_linux_amd64.tar.gz" download style="margin-top:.4rem">Other Linux (.tar.gz)</a>
       </div>
       <div class="card dl-card">
         <h3>🐧 Linux · ARM64</h3>
         <p class="muted" data-i18n="dl.lxarm.d">ARM boards other than Raspberry Pi.</p>
-        <a class="btn ghost" href="/downloads/unitill-pos_linux_arm64.tar.gz" download>ARM64 (.tar.gz)</a>
+        <a class="btn ghost" data-dl="lxarm" href="/downloads/unitill-pos_linux_arm64.tar.gz" download>ARM64 (.tar.gz)</a>
       </div>
     </div>
 
@@ -79,28 +79,63 @@
 </footer>
 
 <script>
-  // Guess the visitor's OS and surface the right download first.
-  (function () {
+  // Each button maps to an asset-name suffix. Static hrefs point at our
+  // own-domain mirror (/downloads/, staged by the site deploy) as a
+  // fallback; the GitHub Releases API (below) upgrades them to the LIVE
+  // latest release so the page is always current with zero maintenance.
+  var SUFFIX = {
+    "win":    "windows_amd64.zip",
+    "mac":    "darwin_arm64.tar.gz",
+    "pi":     "linux_arm64.deb",
+    "lx64deb":"linux_amd64.deb",
+    "lx64tar":"linux_amd64.tar.gz",
+    "lxarm":  "linux_arm64.tar.gz"
+  };
+  // Guess the visitor's OS for the primary card.
+  function detect() {
     var ua = navigator.userAgent, p = (navigator.platform || "");
-    var best = null;
-    if (/Win/i.test(ua) || /Win/i.test(p)) best = { os: "Windows", href: "/downloads/unitill-pos_windows_amd64.zip", note: "Windows 10 / 11, 64-bit" };
-    else if (/Mac/i.test(ua) || /Mac/i.test(p)) best = { os: "macOS (Apple Silicon)", href: "/downloads/unitill-pos_darwin_arm64.tar.gz", note: "Apple Silicon (M1 and newer)" };
-    else if (/Android/i.test(ua)) best = null;
-    else if (/aarch64|arm64/i.test(ua)) best = { os: "Raspberry Pi / ARM64", href: "/downloads/unitill-pos_linux_arm64.deb", note: "64-bit Raspberry Pi OS or ARM Linux" };
-    else if (/Linux/i.test(ua) || /Linux/i.test(p)) best = { os: "Linux (64-bit)", href: "/downloads/unitill-pos_linux_amd64.deb", note: "Debian / Ubuntu, 64-bit" };
-    if (best) {
+    if (/Win/i.test(ua) || /Win/i.test(p)) return { key: "win", os: "Windows", note: "Windows 10 / 11, 64-bit" };
+    if (/Mac/i.test(ua) || /Mac/i.test(p)) return { key: "mac", os: "macOS (Apple Silicon)", note: "Apple Silicon (M1 and newer)" };
+    if (/Android/i.test(ua)) return null;
+    if (/aarch64|arm64/i.test(ua)) return { key: "pi", os: "Raspberry Pi / ARM64", note: "64-bit Raspberry Pi OS or ARM Linux" };
+    if (/Linux/i.test(ua) || /Linux/i.test(p)) return { key: "lx64deb", os: "Linux (64-bit)", note: "Debian / Ubuntu, 64-bit" };
+    return null;
+  }
+  (function () {
+    var best = detect();
+    // link elements keyed by SUFFIX key (data-dl attr on each anchor)
+    function setPrimary(hrefFor) {
+      if (!best) return;
       document.getElementById("primary-os").textContent = best.os;
       var a = document.getElementById("primary-link");
-      a.setAttribute("href", best.href); a.setAttribute("download", "");
+      a.setAttribute("href", hrefFor(best.key)); a.setAttribute("download", "");
       document.getElementById("primary-note").textContent = best.note;
       document.getElementById("primary").style.display = "block";
     }
-    // Live version from the manifest the release pipeline publishes.
-    fetch("/downloads/latest.json", { cache: "no-cache" }).then(function (r) {
-      return r.ok ? r.json() : null;
-    }).then(function (m) {
-      if (m && m.version) document.getElementById("dl-version").textContent = "Latest version: " + m.version;
-    }).catch(function () {});
+    // Fallback: our-domain mirror paths.
+    setPrimary(function (k) { return "/downloads/unitill-pos_" + SUFFIX[k]; });
+
+    // Live: GitHub Releases API (public, CORS-enabled). browser_download_url
+    // is a DIRECT file download — one click, no GitHub page to navigate.
+    fetch("https://api.github.com/repos/universaltill/universal-till/releases/latest",
+      { headers: { "Accept": "application/vnd.github+json" } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (rel) {
+        if (!rel || !rel.assets) return;
+        var byKey = {};
+        Object.keys(SUFFIX).forEach(function (k) {
+          var a = rel.assets.find(function (x) { return x.name.indexOf(SUFFIX[k]) !== -1; });
+          if (a) byKey[k] = a.browser_download_url;
+        });
+        document.querySelectorAll("a[data-dl]").forEach(function (a) {
+          var url = byKey[a.getAttribute("data-dl")];
+          if (url) a.setAttribute("href", url);
+        });
+        if (byKey[best && best.key]) setPrimary(function (k) { return byKey[k]; });
+        if (rel.tag_name) document.getElementById("dl-version").textContent =
+          "Latest version: " + rel.tag_name.replace(/^v/, "");
+      })
+      .catch(function () { /* keep the mirror fallback */ });
   })();
 </script>
 </body>
