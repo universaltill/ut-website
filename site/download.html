@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>if(location.hostname==="universaltill.com"){location.replace("https://www.universaltill.com"+location.pathname+location.search+location.hash);}</script>
+  <link rel="canonical" href="https://www.universaltill.com/download">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Download Universal Till</title>
+  <meta name="description" content="Download Universal Till for your device — Windows, macOS, Linux, or Raspberry Pi. Free and offline-first.">
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <script defer src="/i18n.js"></script>
+</head>
+<body>
+<header class="nav">
+  <a class="brand" href="/"><img src="/logo.svg" alt="" width="34" height="30"> <span>Universal <strong>Till</strong></span></a>
+  <nav>
+    <a href="/#solutions" data-i18n="nav.solutions">Solutions</a>
+    <a href="/#hardware" data-i18n="nav.hardware">Hardware</a>
+    <a href="/#about" data-i18n="nav.about">About</a>
+    <span class="lang-switch" aria-label="Language"></span>
+  </nav>
+</header>
+
+<main>
+  <section class="section" style="text-align:center">
+    <h1 data-i18n="dl.title">Download Universal Till</h1>
+    <p class="lede" style="margin-inline:auto" data-i18n="dl.sub">Free and offline-first. Pick your device — we've guessed the best one for you.</p>
+
+    <!-- Primary: best guess for the visitor's OS (filled by JS). -->
+    <div id="primary" class="dl-primary card" style="max-width:34rem;margin:1.5rem auto;display:none">
+      <div class="dl-os" id="primary-os">—</div>
+      <a class="btn primary big" id="primary-link" href="#">Download</a>
+      <p class="dl-note" id="primary-note"></p>
+    </div>
+
+    <p class="section-sub" data-i18n="dl.others" style="margin-top:2rem">All downloads</p>
+    <div class="grid dl-grid" style="max-width:60rem;margin:1rem auto 0">
+      <div class="card dl-card">
+        <h3>🪟 Windows</h3>
+        <p class="muted" data-i18n="dl.win.d">Windows 10 or 11, 64-bit.</p>
+        <a class="btn" href="/downloads/unitill-pos_windows_amd64.zip" download>Windows (.zip)</a>
+      </div>
+      <div class="card dl-card">
+        <h3>🍎 macOS</h3>
+        <p class="muted" data-i18n="dl.mac.d">Apple Silicon (M1 and newer).</p>
+        <a class="btn" href="/downloads/unitill-pos_darwin_arm64.tar.gz" download>macOS (Apple Silicon)</a>
+      </div>
+      <div class="card dl-card">
+        <h3>🥧 Raspberry Pi</h3>
+        <p class="muted" data-i18n="dl.pi.d">Pi 4 / 5 (64-bit Raspberry Pi OS).</p>
+        <a class="btn" href="/downloads/unitill-pos_linux_arm64.deb" download>Raspberry Pi (.deb)</a>
+      </div>
+      <div class="card dl-card">
+        <h3>🐧 Linux · Intel/AMD</h3>
+        <p class="muted" data-i18n="dl.lx64.d">64-bit PC or mini-PC.</p>
+        <a class="btn" href="/downloads/unitill-pos_linux_amd64.deb" download>Debian/Ubuntu (.deb)</a>
+        <a class="btn ghost" href="/downloads/unitill-pos_linux_amd64.tar.gz" download style="margin-top:.4rem">Other Linux (.tar.gz)</a>
+      </div>
+      <div class="card dl-card">
+        <h3>🐧 Linux · ARM64</h3>
+        <p class="muted" data-i18n="dl.lxarm.d">ARM boards other than Raspberry Pi.</p>
+        <a class="btn ghost" href="/downloads/unitill-pos_linux_arm64.tar.gz" download>ARM64 (.tar.gz)</a>
+      </div>
+    </div>
+
+    <p class="dl-help" style="margin-top:2rem;color:var(--muted)">
+      <span data-i18n="dl.next">After downloading, open the installer and follow the setup wizard.</span>
+      <a href="/#get-started" data-i18n="dl.steps">See the 3 steps</a>
+    </p>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="foot-brand"><img src="/logo.svg" alt="" width="30" height="26"> <span>Universal <strong>Till</strong></span></div>
+  <p class="foot-owner" data-i18n="foot.owner">Universal Till is a product of Task Runner Technology LTD.</p>
+  <p class="foot-rights" data-i18n="foot.rights">Open source under the MIT licence.</p>
+</footer>
+
+<script>
+  // Guess the visitor's OS and surface the right download first.
+  (function () {
+    var ua = navigator.userAgent, p = (navigator.platform || "");
+    var best = null;
+    if (/Win/i.test(ua) || /Win/i.test(p)) best = { os: "Windows", href: "/downloads/unitill-pos_windows_amd64.zip", note: "Windows 10 / 11, 64-bit" };
+    else if (/Mac/i.test(ua) || /Mac/i.test(p)) best = { os: "macOS (Apple Silicon)", href: "/downloads/unitill-pos_darwin_arm64.tar.gz", note: "Apple Silicon (M1 and newer)" };
+    else if (/Android/i.test(ua)) best = null;
+    else if (/aarch64|arm64/i.test(ua)) best = { os: "Raspberry Pi / ARM64", href: "/downloads/unitill-pos_linux_arm64.deb", note: "64-bit Raspberry Pi OS or ARM Linux" };
+    else if (/Linux/i.test(ua) || /Linux/i.test(p)) best = { os: "Linux (64-bit)", href: "/downloads/unitill-pos_linux_amd64.deb", note: "Debian / Ubuntu, 64-bit" };
+    if (best) {
+      document.getElementById("primary-os").textContent = best.os;
+      var a = document.getElementById("primary-link");
+      a.setAttribute("href", best.href); a.setAttribute("download", "");
+      document.getElementById("primary-note").textContent = best.note;
+      document.getElementById("primary").style.display = "block";
+    }
+  })();
+</script>
+</body>
+</html>

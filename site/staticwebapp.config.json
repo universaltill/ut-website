@@ -4,12 +4,24 @@
     "exclude": [
       "/styles.css",
       "/logo.svg",
-      "/i18n.js"
+      "/i18n.js",
+      "/downloads/*",
+      "/download.html"
     ]
   },
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "strict-origin-when-cross-origin"
-  }
+  },
+  "routes": [
+    {
+      "route": "/download",
+      "rewrite": "/download.html"
+    },
+    {
+      "route": "/download/",
+      "rewrite": "/download.html"
+    }
+  ]
 }

@@ -150,3 +150,14 @@ img { max-width: 100%; }
 .get-cta { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem; }
 .btn.ghost.big { background: transparent; }
 @media (max-width: 900px) { .grid.steps { grid-template-columns: 1fr; } }
+
+/* Download page */
+.dl-primary { padding: 1.6rem; text-align: center; }
+.dl-os { font-size: 1.2rem; font-weight: 700; margin-bottom: .8rem; }
+.dl-note { color: var(--muted); font-size: .88rem; margin: .8rem 0 0; }
+.dl-grid { grid-template-columns: repeat(3, 1fr); }
+.dl-card { text-align: center; display: flex; flex-direction: column; gap: .5rem; }
+.dl-card h3 { margin: 0; }
+.dl-card .btn { margin-top: auto; }
+.dl-help a { margin-inline-start: .4rem; }
+@media (max-width: 800px){ .dl-grid { grid-template-columns: 1fr; } }
