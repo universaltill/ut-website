@@ -96,7 +96,7 @@
   // Guess the visitor's OS for the primary card.
   function detect() {
     var ua = navigator.userAgent, p = (navigator.platform || "");
-    if (/Win/i.test(ua) || /Win/i.test(p)) return { key: "win", os: "Windows", note: "Windows 10 / 11, 64-bit" };
+    if (/Win/i.test(ua) || /Win/i.test(p)) return { key: "wininstaller", os: "Windows", note: "Windows 10 / 11, 64-bit — guided installer" };
     if (/Mac/i.test(ua) || /Mac/i.test(p)) return { key: "mac", os: "macOS (Apple Silicon)", note: "Apple Silicon (M1 and newer)" };
     if (/Android/i.test(ua)) return null;
     if (/aarch64|arm64/i.test(ua)) return { key: "pi", os: "Raspberry Pi / ARM64", note: "64-bit Raspberry Pi OS or ARM Linux" };
@@ -114,8 +114,14 @@
       document.getElementById("primary-note").textContent = best.note;
       document.getElementById("primary").style.display = "block";
     }
-    // Fallback: our-domain mirror paths.
-    setPrimary(function (k) { return "/downloads/unitill-pos_" + SUFFIX[k]; });
+    // Fallback: our-domain mirror paths. The installer isn't mirrored, so the
+    // Windows primary safely falls back to the portable zip until the live API
+    // (below) upgrades it to the real Setup.exe.
+    function mirror(k) {
+      if (k === "wininstaller") return "/downloads/unitill-pos_windows_amd64.zip";
+      return "/downloads/unitill-pos_" + SUFFIX[k];
+    }
+    setPrimary(mirror);
 
     // Live: GitHub Releases API (public, CORS-enabled). browser_download_url
     // is a DIRECT file download — one click, no GitHub page to navigate.
