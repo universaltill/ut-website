@@ -76,6 +76,22 @@ img { max-width: 100%; }
 .cta { display: flex; gap: .7rem; flex-wrap: wrap; }
 .hero-note { color: var(--muted); font-size: .9rem; margin-top: 1rem; }
 .hero-art svg { width: 100%; height: auto; filter: drop-shadow(0 20px 40px rgba(79,70,229,.18)); }
+/* Real product screenshots — framed like a device screen. */
+.screenshot { width: 100%; height: auto; display: block; background: #fff;
+  border-radius: 16px; border: 1px solid var(--border);
+  box-shadow: 0 26px 60px rgba(15,23,42,.18); }
+
+/* Screenshot gallery */
+.gallery { max-width: var(--maxw); margin: 0 auto;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.6rem; }
+.shot { margin: 0; }
+.shot img { width: 100%; height: auto; display: block; background: #fff;
+  border-radius: 12px; border: 1px solid var(--border);
+  box-shadow: 0 12px 30px rgba(15,23,42,.1); transition: transform .2s, box-shadow .2s; }
+.shot:hover img { transform: translateY(-3px); box-shadow: 0 20px 44px rgba(15,23,42,.16); }
+.shot figcaption { margin-top: .75rem; }
+.shot figcaption b { display: block; font-weight: 600; color: var(--ink); font-size: 1rem; }
+.shot figcaption span { display: block; font-weight: 400; color: var(--ink-soft); font-size: .88rem; margin-top: .15rem; }
 
 /* Grids + cards */
 .grid { display: grid; gap: 1.2rem; }
@@ -129,14 +145,16 @@ img { max-width: 100%; }
 /* Responsive */
 @media (max-width: 900px) {
   .hero { grid-template-columns: 1fr; }
-  .hero-art { order: -1; max-width: 340px; }
+  .hero-art { order: -1; max-width: 520px; margin: 0 auto; }
   .grid.solutions { grid-template-columns: repeat(2, 1fr); }
   .grid.two { grid-template-columns: 1fr; }
+  .gallery { grid-template-columns: repeat(2, 1fr); }
   .split, .split.reverse { grid-template-columns: 1fr; }
   .split.reverse .split-text { order: 0; }
 }
 @media (max-width: 560px) {
   .grid.solutions { grid-template-columns: 1fr; }
+  .gallery { grid-template-columns: 1fr; }
   .nav nav a:not(.btn) { display: none; }
   .nav nav .btn, .lang-switch { display: inline-flex; }
 }

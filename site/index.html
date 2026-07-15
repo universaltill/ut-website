@@ -27,6 +27,7 @@
   </a>
   <nav>
     <a href="#solutions" data-i18n="nav.solutions">Solutions</a>
+    <a href="#tour" data-i18n="nav.tour">Tour</a>
     <a href="#why" data-i18n="nav.why">Why it's different</a>
     <a href="#hardware" data-i18n="nav.hardware">Hardware</a>
     <a href="#plugins" data-i18n="nav.plugins">Plugins</a>
@@ -48,25 +49,9 @@
       </div>
       <p class="hero-note" data-i18n="hero.note">MIT licensed · one small binary · works today</p>
     </div>
-    <div class="hero-art" aria-hidden="true">
-      <!-- Illustrative POS terminal (swap for a product photo when ready). -->
-      <svg viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg" role="img">
-        <defs>
-          <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#4f46e5"/><stop offset="1" stop-color="#0ea5e9"/>
-          </linearGradient>
-        </defs>
-        <rect x="40" y="30" width="240" height="170" rx="14" fill="#0f172a"/>
-        <rect x="52" y="42" width="216" height="146" rx="8" fill="url(#screen)"/>
-        <rect x="66" y="58" width="120" height="12" rx="6" fill="#ffffff" opacity=".9"/>
-        <rect x="66" y="80" width="188" height="9" rx="4.5" fill="#ffffff" opacity=".5"/>
-        <rect x="66" y="96" width="188" height="9" rx="4.5" fill="#ffffff" opacity=".5"/>
-        <rect x="66" y="112" width="140" height="9" rx="4.5" fill="#ffffff" opacity=".5"/>
-        <rect x="196" y="150" width="58" height="24" rx="6" fill="#22c55e"/>
-        <rect x="120" y="200" width="80" height="60" rx="6" fill="#1e293b"/>
-        <rect x="86" y="256" width="148" height="12" rx="6" fill="#334155"/>
-        <circle cx="160" cy="150" r="4" fill="#ffffff" opacity=".8"/>
-      </svg>
+    <div class="hero-art">
+      <img class="screenshot" src="/images/till-main-1.png"
+           alt="Universal Till sale screen" width="1197" height="923" loading="eager">
     </div>
   </section>
 
@@ -121,13 +106,45 @@
     </div>
   </section>
 
-  <section id="hardware" class="section split">
+  <section id="tour" class="section">
+    <div class="section-head">
+      <h2 data-i18n="tour.title">See it in action</h2>
+      <p class="section-sub" data-i18n="tour.sub">Real screens from a running till — not mock-ups.</p>
+    </div>
+    <div class="gallery">
+      <figure class="shot">
+        <img src="/images/till-main-5.png" alt="Sale screen" width="1574" height="1184" loading="lazy">
+        <figcaption><b data-i18n="tour.sale">Fast touch sale screen</b><span data-i18n="tour.sale.d">Product tiles, scan, and one-tap tender.</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="/images/catalog.png" alt="Catalog" width="1575" height="953" loading="lazy">
+        <figcaption><b data-i18n="tour.catalog">Your whole catalogue</b><span data-i18n="tour.catalog.d">Barcodes, variants, photos, tax and price.</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="/images/inventory.png" alt="Inventory" width="1575" height="893" loading="lazy">
+        <figcaption><b data-i18n="tour.inventory">Stock you can trust</b><span data-i18n="tour.inventory.d">Receive, adjust, low-stock and returns.</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="/images/reports.png" alt="Reports" width="1566" height="1103" loading="lazy">
+        <figcaption><b data-i18n="tour.reports">Reports &amp; ask your till</b><span data-i18n="tour.reports.d">Sales, tax and top items — answered on-device.</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="/images/plugin-store.png" alt="Plugin store" width="1570" height="785" loading="lazy">
+        <figcaption><b data-i18n="tour.plugins">A signed plugin store</b><span data-i18n="tour.plugins.d">Payments, loyalty, themes — verified, one-click.</span></figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="/images/milti-lingual-2.png" alt="Multilingual" width="1575" height="1182" loading="lazy">
+        <figcaption><b data-i18n="tour.lang">Speaks your language</b><span data-i18n="tour.lang.d">English, Turkish, Chinese, Persian and more — RTL too.</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="hardware" class="section split band">
     <div class="split-text">
       <h2 data-i18n="hw.title">Runs on hardware you choose</h2>
       <p class="lede" data-i18n="hw.lede">A Raspberry Pi, an old PC, a mini-PC, or a proper touch terminal — Universal Till is one small binary that runs on all of them. Buy a ready-made kit from our store, or build your own.</p>
     </div>
-    <!-- Real product photo goes here; placeholder keeps the layout. -->
-    <div class="photo-slot"><span data-i18n="hw.photo">Product photo</span></div>
+    <div class="hero-art"><img class="screenshot" src="/images/till-main-4.png" alt="Universal Till running" width="1244" height="1054" loading="lazy"></div>
   </section>
 
   <section id="plugins" class="section band">
