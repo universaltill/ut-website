@@ -40,7 +40,8 @@
       <div class="card dl-card">
         <h3>🪟 Windows</h3>
         <p class="muted" data-i18n="dl.win.d">Windows 10 or 11, 64-bit.</p>
-        <a class="btn" data-dl="win" href="/downloads/unitill-pos_windows_amd64.zip" download>Windows (.zip)</a>
+        <a class="btn" data-dl="wininstaller" href="/downloads/unitill-pos_windows_amd64.zip" download>Windows installer (.exe)</a>
+        <a class="btn ghost" data-dl="win" href="/downloads/unitill-pos_windows_amd64.zip" download style="margin-top:.4rem">Portable (.zip)</a>
       </div>
       <div class="card dl-card">
         <h3>🍎 macOS</h3>
@@ -84,6 +85,7 @@
   // fallback; the GitHub Releases API (below) upgrades them to the LIVE
   // latest release so the page is always current with zero maintenance.
   var SUFFIX = {
+    "wininstaller": "-setup-", // unitill-pos-setup-<ver>.exe (guided installer)
     "win":    "windows_amd64.zip",
     "mac":    "darwin_arm64.tar.gz",
     "pi":     "linux_arm64.deb",
