@@ -7,7 +7,8 @@
       "/i18n.js",
       "/downloads/*",
       "/download.html",
-      "/start.html"
+      "/start.html",
+      "/store.html"
     ]
   },
   "globalHeaders": {
@@ -23,6 +24,10 @@
     {
       "route": "/start",
       "rewrite": "/start.html"
+    },
+    {
+      "route": "/store",
+      "rewrite": "/store.html"
     }
   ]
 }
