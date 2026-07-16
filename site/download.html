@@ -99,7 +99,7 @@
   function detect() {
     var ua = navigator.userAgent, p = (navigator.platform || "");
     if (/Win/i.test(ua) || /Win/i.test(p)) return { key: "wininstaller", os: "Windows", note: "Windows 10 / 11, 64-bit — guided installer" };
-    if (/Mac/i.test(ua) || /Mac/i.test(p)) return { key: "mac", os: "macOS (Apple Silicon)", note: "Apple Silicon (M1 and newer)" };
+    if (/Mac/i.test(ua) || /Mac/i.test(p)) return { key: "macapp", os: "macOS (Apple Silicon)", note: "Apple Silicon (M1 and newer) — the app (.dmg)" };
     if (/Android/i.test(ua)) return null;
     if (/aarch64|arm64/i.test(ua)) return { key: "pi", os: "Raspberry Pi / ARM64", note: "64-bit Raspberry Pi OS or ARM Linux" };
     if (/Linux/i.test(ua) || /Linux/i.test(p)) return { key: "lx64deb", os: "Linux (64-bit)", note: "Debian / Ubuntu, 64-bit" };
@@ -121,6 +121,9 @@
     // (below) upgrades it to the real Setup.exe.
     function mirror(k) {
       if (k === "wininstaller") return "/downloads/unitill-pos_windows_amd64.zip";
+      // The .dmg isn't in the staged mirror; fall back to the portable tar.gz
+      // until the live API (below) upgrades the button to the real .dmg.
+      if (k === "macapp") return "/downloads/unitill-pos_darwin_arm64.tar.gz";
       return "/downloads/unitill-pos_" + SUFFIX[k];
     }
     setPrimary(mirror);
