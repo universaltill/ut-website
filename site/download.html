@@ -46,7 +46,8 @@
       <div class="card dl-card">
         <h3>🍎 macOS</h3>
         <p class="muted" data-i18n="dl.mac.d">Apple Silicon (M1 and newer).</p>
-        <a class="btn" data-dl="mac" href="/downloads/unitill-pos_darwin_arm64.tar.gz" download>macOS (Apple Silicon)</a>
+        <a class="btn" data-dl="macapp" href="/downloads/unitill-pos-macOS-arm64.dmg" download>macOS app (.dmg)</a>
+        <a class="btn ghost" data-dl="mac" href="/downloads/unitill-pos_darwin_arm64.tar.gz" download style="margin-top:.4rem">Portable (.tar.gz)</a>
       </div>
       <div class="card dl-card">
         <h3>🥧 Raspberry Pi</h3>
@@ -87,6 +88,7 @@
   var SUFFIX = {
     "wininstaller": "-setup-", // unitill-pos-setup-<ver>.exe (guided installer)
     "win":    "windows_amd64.zip",
+    "macapp": "macOS-arm64.dmg", // real .app in a .dmg (embedded WebView)
     "mac":    "darwin_arm64.tar.gz",
     "pi":     "linux_arm64.deb",
     "lx64deb":"linux_amd64.deb",
