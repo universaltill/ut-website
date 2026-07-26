@@ -6,7 +6,7 @@
   <link rel="canonical" href="https://www.universaltill.com/download">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Download Universal Till</title>
-  <meta name="description" content="Download Universal Till for your device — Windows, macOS, Linux, or Raspberry Pi. Free and offline-first.">
+  <meta name="description" content="Download Universal Till for your device — Windows, macOS, Linux, Raspberry Pi, or Android. Free and offline-first.">
   <link rel="icon" type="image/svg+xml" href="/logo.svg">
   <link rel="stylesheet" href="/styles.css">
   <script defer src="/i18n.js"></script>
@@ -65,7 +65,15 @@
         <p class="muted" data-i18n="dl.lxarm.d">ARM boards other than Raspberry Pi.</p>
         <a class="btn ghost" data-dl="lxarm" href="/downloads/unitill-pos_linux_arm64.tar.gz" download>ARM64 (.tar.gz)</a>
       </div>
+      <div class="card dl-card">
+        <h3>🤖 Android</h3>
+        <p class="muted" data-i18n="dl.android.d">Android 7.0+. Sideloaded — not on the Play Store.</p>
+        <a class="btn" data-dl="android" href="/downloads/unitill-pos_android.apk" download>Android app (.apk)</a>
+      </div>
     </div>
+    <p class="muted" data-i18n="dl.android.note" style="max-width:40rem;margin:1rem auto 0">
+      Android's installer will warn about "unknown sources" the first time — that's expected for an app outside the Play Store, not a sign anything is wrong. Tap through to allow it.
+    </p>
 
     <p class="dl-help" style="margin-top:2rem;color:var(--muted)">
       <span data-i18n="dl.next">After downloading, unzip and double-click the launcher for your system (run-unitill.command on Mac, run-unitill.bat on Windows, run-unitill.sh on Linux). The till opens the setup wizard in your browser automatically. On the Raspberry Pi / Debian, install the .deb instead.</span>
@@ -93,14 +101,17 @@
     "pi":     "linux_arm64.deb",
     "lx64deb":"linux_amd64.deb",
     "lx64tar":"linux_amd64.tar.gz",
-    "lxarm":  "linux_arm64.tar.gz"
+    "lxarm":  "linux_arm64.tar.gz",
+    "android":"android.apk"
   };
   // Guess the visitor's OS for the primary card.
   function detect() {
     var ua = navigator.userAgent, p = (navigator.platform || "");
+    // Must come before the generic /Linux/ check below — Android's UA
+    // string also matches "Linux".
+    if (/Android/i.test(ua)) return { key: "android", os: "Android", note: "Android 7.0+ — sideloaded, allow “unknown sources” when prompted" };
     if (/Win/i.test(ua) || /Win/i.test(p)) return { key: "wininstaller", os: "Windows", note: "Windows 10 / 11, 64-bit — guided installer" };
     if (/Mac/i.test(ua) || /Mac/i.test(p)) return { key: "macapp", os: "macOS (Apple Silicon)", note: "Apple Silicon (M1 and newer) — the app (.dmg)" };
-    if (/Android/i.test(ua)) return null;
     if (/aarch64|arm64/i.test(ua)) return { key: "pi", os: "Raspberry Pi / ARM64", note: "64-bit Raspberry Pi OS or ARM Linux" };
     if (/Linux/i.test(ua) || /Linux/i.test(p)) return { key: "lx64deb", os: "Linux (64-bit)", note: "Debian / Ubuntu, 64-bit" };
     return null;
