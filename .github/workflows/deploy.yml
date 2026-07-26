@@ -36,7 +36,8 @@ jobs:
               "linux_arm64_deb": "/downloads/unitill-pos_linux_arm64.deb",
               "linux_arm64_tar": "/downloads/unitill-pos_linux_arm64.tar.gz",
               "linux_amd64_deb": "/downloads/unitill-pos_linux_amd64.deb",
-              "linux_amd64_tar": "/downloads/unitill-pos_linux_amd64.tar.gz"
+              "linux_amd64_tar": "/downloads/unitill-pos_linux_amd64.tar.gz",
+              "android": "/downloads/unitill-pos_android.apk"
             }
           }
           JSON
