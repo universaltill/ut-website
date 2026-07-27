@@ -68,7 +68,7 @@
       <div class="card dl-card">
         <h3>🤖 Android</h3>
         <p class="muted" data-i18n="dl.android.d">Android 7.0+. Sideloaded — not on the Play Store.</p>
-        <a class="btn" data-dl="android" href="/downloads/unitill-pos_android.apk" download>Android app (.apk)</a>
+        <a class="btn" data-dl="android" href="https://github.com/universaltill/universal-till/releases/latest">Android app (.apk)</a>
       </div>
     </div>
     <p class="muted" data-i18n="dl.android.note" style="max-width:40rem;margin:1rem auto 0">
@@ -135,6 +135,11 @@
       // The .dmg isn't in the staged mirror; fall back to the portable tar.gz
       // until the live API (below) upgrades the button to the real .dmg.
       if (k === "macapp") return "/downloads/unitill-pos_darwin_arm64.tar.gz";
+      // The APK (~180MB) isn't mirrored either — it alone pushed the whole
+      // site over Azure SWA's free-tier size cap (see deploy.yml). Fall back
+      // to the GitHub releases page until the live API upgrades this to the
+      // real asset URL.
+      if (k === "android") return "https://github.com/universaltill/universal-till/releases/latest";
       return "/downloads/unitill-pos_" + SUFFIX[k];
     }
     setPrimary(mirror);
