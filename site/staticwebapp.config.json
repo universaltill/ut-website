@@ -8,7 +8,8 @@
       "/downloads/*",
       "/download.html",
       "/start.html",
-      "/store.html"
+      "/store.html",
+      "/language.html"
     ]
   },
   "globalHeaders": {
@@ -28,6 +29,10 @@
     {
       "route": "/store",
       "rewrite": "/store.html"
+    },
+    {
+      "route": "/language",
+      "rewrite": "/language.html"
     }
   ]
 }

@@ -38,13 +38,33 @@ img { max-width: 100%; }
 .nav nav a { color: var(--ink-soft); font-weight: 500; font-size: .95rem; }
 .nav nav a:hover { color: var(--brand); }
 
-/* Language switch */
-.lang-switch { display: inline-flex; gap: .2rem; border: 1px solid var(--border); border-radius: 999px; padding: .15rem; }
-.lang-switch button {
-  border: 0; background: transparent; cursor: pointer; padding: .25rem .55rem;
-  border-radius: 999px; font-size: .8rem; color: var(--muted); font-family: inherit;
+/* Language link — a small pill to the dedicated /language page, not an
+   inline dropdown; that page is where "lots of languages" scales, the nav
+   bar isn't. */
+.lang-link {
+  display: inline-flex; align-items: center; border: 1px solid var(--border);
+  border-radius: 999px; padding: .3rem .7rem; font-size: .8rem; color: var(--muted);
 }
-.lang-switch button[aria-pressed="true"] { background: var(--brand); color: #fff; }
+.lang-link:hover { border-color: var(--brand); color: var(--brand); }
+
+/* Language picker page */
+.locale-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem; margin-top: 2rem;
+}
+.locale-card {
+  display: block; padding: 1.1rem 1.3rem; border: 1px solid var(--border);
+  border-radius: var(--radius); color: inherit; transition: .15s;
+}
+.locale-card:hover { border-color: var(--brand); box-shadow: 0 10px 30px rgba(79,70,229,.1); }
+.locale-card.active { border-color: var(--brand); background: var(--band); }
+.locale-name { font-size: 1.05rem; font-weight: 600; color: var(--ink); }
+.locale-english { font-size: .92rem; color: var(--ink-soft); margin-top: .15rem; }
+.locale-code { font-size: .75rem; color: var(--muted); text-transform: uppercase; margin-top: .4rem; }
+.rtl-badge {
+  display: inline-block; margin-inline-start: .5rem; padding: .1rem .45rem;
+  border-radius: 999px; background: #dcfce7; color: #166534; font-size: .68rem; font-weight: 700;
+}
 
 /* Buttons */
 .btn {
@@ -156,7 +176,7 @@ img { max-width: 100%; }
   .grid.solutions { grid-template-columns: 1fr; }
   .gallery { grid-template-columns: 1fr; }
   .nav nav a:not(.btn) { display: none; }
-  .nav nav .btn, .lang-switch { display: inline-flex; }
+  .nav nav .btn, .lang-link { display: inline-flex; }
 }
 
 /* Get-started steps */

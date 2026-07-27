@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>if(location.hostname==="universaltill.com"){location.replace("https://www.universaltill.com"+location.pathname+location.search+location.hash);}</script>
+  <link rel="canonical" href="https://www.universaltill.com/language">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Choose your language — Universal Till</title>
+  <meta name="description" content="Choose your language for the Universal Till website.">
+  <meta name="robots" content="noindex"><!-- a language picker, not indexable content -->
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <script defer src="/i18n.js"></script>
+</head>
+<body>
+
+<header class="nav">
+  <a class="brand" href="/">
+    <img src="/logo.svg" alt="" width="34" height="30">
+    <span>Universal <strong>Till</strong></span>
+  </a>
+  <nav>
+    <a href="/#solutions" data-i18n="nav.solutions">Solutions</a>
+    <a href="/start" data-i18n="nav.start">Get started</a>
+    <a class="btn" href="/download" data-i18n="nav.download">Download</a>
+  </nav>
+</header>
+
+<main>
+  <section class="section" style="max-width:56rem">
+    <div class="section-head" style="text-align:center">
+      <h1 data-i18n="language.select">Choose your language</h1>
+      <p class="section-sub" data-i18n="language.subtitle">Pick the language for the whole site.</p>
+    </div>
+
+    <div class="locale-grid" id="locale-grid"></div>
+
+    <p class="back-link" style="text-align:center; margin-top:2rem">
+      <a href="/" data-i18n="language.back">Back</a>
+    </p>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="foot-brand"><img src="/logo.svg" alt="" width="30" height="26"> <span>Universal <strong>Till</strong></span></div>
+  <p class="foot-owner" data-i18n="foot.owner">Universal Till is a product of Task Runner Technology LTD.</p>
+  <p class="foot-rights" data-i18n="foot.rights">Open source under the MIT licence.</p>
+</footer>
+
+<script>
+  // Real <a href> per locale (no JS click handler needed to switch) — works
+  // with JS disabled, crawlable, and each link is the same crawlable URL the
+  // hreflang tags on every other page already point at. This script only
+  // builds the grid and marks the active card.
+  document.addEventListener("DOMContentLoaded", function () {
+    var api = window.UT_I18N;
+    if (!api) return;
+    var current = api.pick();
+    var host = document.getElementById("locale-grid");
+    api.supported.forEach(function (code) {
+      var dict = api.I18N[code];
+      var a = document.createElement("a");
+      a.className = "locale-card" + (code === current ? " active" : "");
+      a.href = api.pathFor(code);
+      a.innerHTML =
+        '<div class="locale-name">' + dict._name +
+        (dict._dir === "rtl" ? '<span class="rtl-badge">RTL</span>' : '') +
+        '</div>' +
+        '<div class="locale-english">' + dict._english + '</div>' +
+        '<div class="locale-code">' + code.toUpperCase() + '</div>';
+      host.appendChild(a);
+    });
+  });
+</script>
+</body>
+</html>
