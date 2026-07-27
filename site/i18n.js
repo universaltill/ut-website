@@ -3,7 +3,8 @@
 // language = adding a column below. Launch markets: EN, TR, ZH, FA.
 const I18N = {
   en: {
-    _name: "English", _dir: "ltr",
+    _name: "English", _english: "English", _dir: "ltr",
+    "language.select": "Choose your language", "language.subtitle": "Pick the language for the whole site.", "language.back": "Back",
     "nav.solutions": "Solutions", "nav.why": "Why it's different",
     "nav.hardware": "Hardware", "nav.plugins": "Plugins", "nav.store": "Store",
     "hero.title": "The point of sale that's actually yours.",
@@ -110,7 +111,8 @@ const I18N = {
     "about.title": "About us",
     "about.body": "Universal Till is built by Task Runner Technology LTD, a British company. We believe every shop — anywhere in the world — deserves a point of sale it truly owns: free, open, and free of lock-in. That's the whole reason we exist.",  },
   tr: {
-    _name: "Türkçe", _dir: "ltr",
+    _name: "Türkçe", _english: "Turkish", _dir: "ltr",
+    "language.select": "Dilinizi seçin", "language.subtitle": "Tüm site için dili seçin.", "language.back": "Geri",
     "nav.solutions": "Çözümler", "nav.why": "Farkı ne", "nav.hardware": "Donanım",
     "nav.plugins": "Eklentiler", "nav.store": "Mağaza",
     "hero.title": "Gerçekten size ait olan satış noktası.",
@@ -217,7 +219,8 @@ const I18N = {
     "about.title": "Hakkımızda",
     "about.body": "Universal Till, bir İngiliz şirketi olan Task Runner Technology LTD tarafından geliştirilmektedir. Dünyanın neresinde olursa olsun her dükkânın gerçekten sahip olduğu bir satış noktasını hak ettiğine inanıyoruz: ücretsiz, açık ve bağımlılıktan uzak. Var oluş nedenimiz tam olarak bu.",  },
   zh: {
-    _name: "中文", _dir: "ltr",
+    _name: "中文", _english: "Chinese", _dir: "ltr",
+    "language.select": "选择你的语言", "language.subtitle": "为整个网站选择语言。", "language.back": "返回",
     "nav.solutions": "解决方案", "nav.why": "有何不同", "nav.hardware": "硬件",
     "nav.plugins": "插件", "nav.store": "商店",
     "hero.title": "真正属于你的收银系统。",
@@ -324,7 +327,8 @@ const I18N = {
     "about.title": "关于我们",
     "about.body": "Universal Till 由英国公司 Task Runner Technology LTD 打造。我们相信，世界上每一家店铺都应拥有一套真正属于自己的收银系统：免费、开放、毫无锁定。这正是我们存在的意义。",  },
   fa: {
-    _name: "فارسی", _dir: "rtl",
+    _name: "فارسی", _english: "Persian", _dir: "rtl",
+    "language.select": "زبان خود را انتخاب کنید", "language.subtitle": "زبان کل سایت را انتخاب کنید.", "language.back": "بازگشت",
     "nav.solutions": "راهکارها", "nav.why": "چه فرقی دارد", "nav.hardware": "سخت‌افزار",
     "nav.plugins": "افزونه‌ها", "nav.store": "فروشگاه",
     "hero.title": "صندوق فروشی که واقعاً مال شماست.",
@@ -458,8 +462,10 @@ const I18N = {
       const v = dict[el.getAttribute("data-i18n")];
       if (v != null) el.textContent = v;
     });
-    document.querySelectorAll(".lang-switch button").forEach(function (b) {
-      b.setAttribute("aria-pressed", b.dataset.lang === lang);
+    // Nav shows a single compact link to /language instead of an inline
+    // dropdown — lots of languages don't fit a nav bar, see language.html.
+    document.querySelectorAll(".lang-link").forEach(function (a) {
+      a.textContent = "🌐 " + lang.toUpperCase();
     });
     // Canonical points at THIS language's URL.
     const c = document.getElementById("canonical");
@@ -473,20 +479,11 @@ const I18N = {
     }
     apply(lang);
   }
-  function buildSwitcher() {
-    const host = document.querySelector(".lang-switch");
-    if (!host) return;
-    supported.forEach(function (lang) {
-      const b = document.createElement("button");
-      b.dataset.lang = lang;
-      b.textContent = I18N[lang]._name;
-      b.addEventListener("click", function () { go(lang); });
-      host.appendChild(b);
-    });
-  }
   window.addEventListener("popstate", function () { apply(pick()); });
   document.addEventListener("DOMContentLoaded", function () {
-    buildSwitcher();
     apply(pick());
   });
+  // Exposed so language.html can list/highlight locales without duplicating
+  // this logic — real <a href> navigation there, not a JS click handler.
+  window.UT_I18N = { I18N: I18N, supported: supported, pick: pick, pathFor: pathFor, go: go };
 })();
