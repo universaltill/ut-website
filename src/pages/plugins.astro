@@ -1,10 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-// Every plugin here always ships public GitHub releases and stays
-// manually installable -- see ADR-0027 (ut-docs). Paying for the
-// marketplace only ever buys convenience/cloud features, never the
-// plugin itself. This page IS that promise made visible.
+// Every plugin listed on THIS page is free, public, and stays that way
+// -- ADR-0027 (ut-docs) rules out quietly relicensing something already
+// free. It does NOT promise every future official plugin is free --
+// Universal Till can ship paid official plugins too, same as vendors
+// can. This page only lists the ones that are (and always have been)
+// free; a future paid plugin simply wouldn't appear here.
 //
 // hasRelease: false means the repo exists and is browsable but hasn't
 // been wired into the release pipeline yet (no packaged download) --
@@ -74,15 +76,17 @@ const typeLabel = {
 
 <BaseLayout
   title="Plugins"
-  description="Every Universal Till plugin — free to download and install from GitHub, forever. Paying only ever buys marketplace convenience, never the plugin itself."
+  description="Every plugin listed here is free to download and install from GitHub, forever — Universal Till may also offer paid official plugins, which simply wouldn't be listed on this page."
 >
   <section class="section">
     <div class="section-head">
       <h1>Plugins</h1>
       <p class="section-sub">
-        Every plugin here is free, open source, and downloadable directly from GitHub —
-        no account, no marketplace, no payment required. The marketplace (in the app) is
-        just a one-click convenience layer on top of the same public releases linked below.
+        Every plugin listed here is free, open source, and downloadable directly from GitHub —
+        no account, no marketplace, no payment required, and that's not changing for any of
+        these. The marketplace (in the app) is a one-click convenience layer on top of the
+        same public releases linked below. Universal Till may also offer separate paid
+        official plugins in future — those just wouldn't appear on this page.
       </p>
     </div>
 
