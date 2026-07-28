@@ -1,0 +1,6 @@
+{
+  "name": "universaltill-cms-auth-api",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Azure Functions OAuth endpoints for Decap CMS GitHub login"
+}

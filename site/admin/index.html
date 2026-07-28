@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Universal Till — Admin</title>
+
+  <!-- Decap CMS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.css"
+  />
+</head>
+<body>
+  <script id="decap-cms-config" type="application/json">
+    {
+      "backend": {
+        "name": "github",
+        "repo": "universaltill/ut-website",
+        "branch": "main",
+        "base_url": "https://www.universaltill.com",
+        "auth_endpoint": "api/auth"
+      },
+      "load_config_file": false,
+      "local_backend": true,
+      "site_url": "https://www.universaltill.com",
+      "display_url": "https://www.universaltill.com",
+      "logo_url": "/logo.svg",
+      "show_preview_links": false,
+      "issue_reports": {
+        "url": "https://github.com/universaltill/ut-website/issues/new"
+      },
+      "media_folder": "site/images",
+      "public_folder": "/images",
+      "collections": [
+        {
+          "name": "blog",
+          "label": "Blog Posts",
+          "folder": "src/content/blog/",
+          "create": true,
+          "slug": "{{slug}}",
+          "extension": "mdx",
+          "fields": [
+            { "name": "title", "label": "Title" },
+            { "name": "date", "label": "Date", "widget": "datetime" },
+            { "name": "excerpt", "label": "Excerpt", "widget": "text" },
+            { "name": "author", "label": "Author", "widget": "string", "default": "Universal Till" },
+            { "name": "coverImage", "label": "Cover Image", "widget": "image", "required": false },
+            { "name": "draft", "label": "Draft", "widget": "boolean", "default": false, "required": false },
+            { "name": "body", "label": "Content", "widget": "markdown" }
+          ]
+        }
+      ]
+    }
+  </script>
+
+  <script>
+    window.CMS_MANUAL_INIT = true;
+  </script>
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script>
+    const config = JSON.parse(document.getElementById('decap-cms-config').textContent);
+    const CMS = window.CMS;
+    const initCMS = window.initCMS;
+
+    if (!CMS || !initCMS) {
+      document.body.innerHTML =
+        '<main style="font-family:system-ui,sans-serif;padding:2rem;max-width:48rem;margin:0 auto;"><h1>CMS failed to load</h1><p>The Decap CMS script did not initialise correctly. Check browser console and network access to unpkg.com.</p></main>';
+    } else {
+      initCMS({ config });
+    }
+  </script>
+</body>
+</html>

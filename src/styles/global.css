@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+/* Matches site/styles.css's custom properties so the blog/admin surfaces
+   look like the same site, not a bolted-on second design system. */
+@theme {
+  --color-ink: #0f172a;
+  --color-ink-soft: #475569;
+  --color-muted: #64748b;
+  --color-band: #f8fafc;
+  --color-border: #e2e8f0;
+  --color-brand: #4f46e5;
+  --color-brand-2: #0ea5e9;
+  --color-accent: #22c55e;
+}
+
+:root {
+  --ink: #0f172a;
+  --ink-soft: #475569;
+  --muted: #64748b;
+  --band: #f8fafc;
+  --border: #e2e8f0;
+  --brand: #4f46e5;
+  --brand-2: #0ea5e9;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+a {
+  color: var(--brand);
+  text-decoration: none;
+}
