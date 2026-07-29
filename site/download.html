@@ -112,15 +112,23 @@
     if (/Android/i.test(ua)) return { key: "android", os: "Android", note: "Android 7.0+ — sideloaded, allow “unknown sources” when prompted" };
     if (/Win/i.test(ua) || /Win/i.test(p)) return { key: "wininstaller", os: "Windows", note: "Windows 10 / 11, 64-bit — guided installer" };
     if (/Mac/i.test(ua) || /Mac/i.test(p)) return { key: "macapp", os: "macOS (Apple Silicon)", note: "Apple Silicon (M1 and newer) — the app (.dmg)" };
-    if (/aarch64|arm64/i.test(ua)) return { key: "pi", os: "Raspberry Pi / ARM64", note: "64-bit Raspberry Pi OS or ARM Linux" };
+    // armv6l/armv7l/armv8l cover 32-bit-userland Raspberry Pi OS builds that
+    // still report their real arch (unlike the frozen-UA case handled by the
+    // async Client Hints re-detect below); check platform too, matching
+    // every other branch here. This still points 32-bit userland at the
+    // 64-bit .deb (no armhf asset exists to offer instead) -- imperfect,
+    // but strictly better than the amd64 .deb it fell through to before.
+    if (/aarch64|arm64|armv/i.test(ua) || /aarch64|arm64|armv/i.test(p)) return { key: "pi", os: "Raspberry Pi / ARM64", note: "64-bit Raspberry Pi OS or ARM Linux" };
     if (/Linux/i.test(ua) || /Linux/i.test(p)) return { key: "lx64deb", os: "Linux (64-bit)", note: "Debian / Ubuntu, 64-bit" };
     return null;
   }
   (function () {
     var best = detect();
     // link elements keyed by SUFFIX key (data-dl attr on each anchor)
+    var currentHrefFor = null; // remembers the last upgrade (mirror vs live API) so the Client Hints re-detect below can re-render with it
     function setPrimary(hrefFor) {
       if (!best) return;
+      currentHrefFor = hrefFor;
       document.getElementById("primary-os").textContent = best.os;
       var a = document.getElementById("primary-link");
       a.setAttribute("href", hrefFor(best.key)); a.setAttribute("download", "");
@@ -143,6 +151,29 @@
       return "/downloads/unitill-pos_" + SUFFIX[k];
     }
     setPrimary(mirror);
+
+    // Client Hints re-detect: Chrome/Edge/Chromium (and now Firefox on some
+    // platforms) FREEZE navigator.userAgent/navigator.platform to always say
+    // "Linux x86_64" on every non-Android Linux system, real CPU regardless —
+    // a deliberate anti-fingerprinting change, not a bug in the UA string
+    // itself. That makes the sync UA-string regex above structurally unable
+    // to ever see a real Raspberry Pi (it silently falls through to the
+    // generic amd64 Linux guess). High-entropy Client Hints are opt-in and
+    // NOT frozen, so they still report the true architecture. This only
+    // fires when the initial guess landed on a generic Linux card, since
+    // that's the only case the freezing can have caused a wrong guess.
+    // Chromium-only (Firefox never implemented the Client Hints API at all)
+    // — but Chromium is Raspberry Pi OS's bundled default browser, so this
+    // covers the real case that was actually reported broken.
+    if (best && (best.key === "lx64deb" || best.key === "lx64tar") &&
+        navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+      navigator.userAgentData.getHighEntropyValues(["architecture"]).then(function (hints) {
+        if (/arm/i.test(hints.architecture || "")) {
+          best = { key: "pi", os: "Raspberry Pi / ARM64", note: "64-bit Raspberry Pi OS or ARM Linux (detected via Client Hints)" };
+          setPrimary(currentHrefFor);
+        }
+      }).catch(function () { /* keep the UA-string guess */ });
+    }
 
     // Live: GitHub Releases API (public, CORS-enabled). browser_download_url
     // is a DIRECT file download — one click, no GitHub page to navigate.
