@@ -31,7 +31,7 @@
     <!-- Primary: best guess for the visitor's OS (filled by JS). -->
     <div id="primary" class="dl-primary card" style="max-width:34rem;margin:1.5rem auto;display:none">
       <div class="dl-os" id="primary-os">—</div>
-      <a class="btn primary big" id="primary-link" href="#">Download</a>
+      <a class="btn primary big" id="primary-link" href="#" data-i18n="dl.primary">Download</a>
       <p class="dl-note" id="primary-note"></p>
     </div>
 
@@ -40,35 +40,35 @@
       <div class="card dl-card">
         <h3>🪟 Windows</h3>
         <p class="muted" data-i18n="dl.win.d">Windows 10 or 11, 64-bit.</p>
-        <a class="btn" data-dl="wininstaller" href="/downloads/unitill-pos_windows_amd64.zip" download>Windows installer (.exe)</a>
-        <a class="btn ghost" data-dl="win" href="/downloads/unitill-pos_windows_amd64.zip" download style="margin-top:.4rem">Portable (.zip)</a>
+        <a class="btn" data-dl="wininstaller" href="/downloads/unitill-pos_windows_amd64.zip" download data-i18n="dl.win.exe">Windows installer (.exe)</a>
+        <a class="btn ghost" data-dl="win" href="/downloads/unitill-pos_windows_amd64.zip" download style="margin-top:.4rem" data-i18n="dl.win.zip">Portable (.zip)</a>
       </div>
       <div class="card dl-card">
         <h3>🍎 macOS</h3>
         <p class="muted" data-i18n="dl.mac.d">Apple Silicon (M1 and newer).</p>
-        <a class="btn" data-dl="macapp" href="/downloads/unitill-pos-macOS-arm64.dmg" download>macOS app (.dmg)</a>
-        <a class="btn ghost" data-dl="mac" href="/downloads/unitill-pos_darwin_arm64.tar.gz" download style="margin-top:.4rem">Portable (.tar.gz)</a>
+        <a class="btn" data-dl="macapp" href="/downloads/unitill-pos-macOS-arm64.dmg" download data-i18n="dl.mac.dmg">macOS app (.dmg)</a>
+        <a class="btn ghost" data-dl="mac" href="/downloads/unitill-pos_darwin_arm64.tar.gz" download style="margin-top:.4rem" data-i18n="dl.mac.tar">Portable (.tar.gz)</a>
       </div>
       <div class="card dl-card">
         <h3>🥧 Raspberry Pi</h3>
         <p class="muted" data-i18n="dl.pi.d">Pi 4 / 5 (64-bit Raspberry Pi OS).</p>
-        <a class="btn" data-dl="pi" href="/downloads/unitill-pos_linux_arm64.deb" download>Raspberry Pi (.deb)</a>
+        <a class="btn" data-dl="pi" href="/downloads/unitill-pos_linux_arm64.deb" download data-i18n="dl.pi.deb">Raspberry Pi (.deb)</a>
       </div>
       <div class="card dl-card">
         <h3>🐧 Linux · Intel/AMD</h3>
         <p class="muted" data-i18n="dl.lx64.d">64-bit PC or mini-PC.</p>
-        <a class="btn" data-dl="lx64deb" href="/downloads/unitill-pos_linux_amd64.deb" download>Debian/Ubuntu (.deb)</a>
-        <a class="btn ghost" data-dl="lx64tar" href="/downloads/unitill-pos_linux_amd64.tar.gz" download style="margin-top:.4rem">Other Linux (.tar.gz)</a>
+        <a class="btn" data-dl="lx64deb" href="/downloads/unitill-pos_linux_amd64.deb" download data-i18n="dl.lx64.deb">Debian/Ubuntu (.deb)</a>
+        <a class="btn ghost" data-dl="lx64tar" href="/downloads/unitill-pos_linux_amd64.tar.gz" download style="margin-top:.4rem" data-i18n="dl.lx64.tar">Other Linux (.tar.gz)</a>
       </div>
       <div class="card dl-card">
         <h3>🐧 Linux · ARM64</h3>
         <p class="muted" data-i18n="dl.lxarm.d">ARM boards other than Raspberry Pi.</p>
-        <a class="btn ghost" data-dl="lxarm" href="/downloads/unitill-pos_linux_arm64.tar.gz" download>ARM64 (.tar.gz)</a>
+        <a class="btn ghost" data-dl="lxarm" href="/downloads/unitill-pos_linux_arm64.tar.gz" download data-i18n="dl.lxarm.tar">ARM64 (.tar.gz)</a>
       </div>
       <div class="card dl-card">
         <h3>🤖 Android</h3>
         <p class="muted" data-i18n="dl.android.d">Android 7.0+. Sideloaded — not on the Play Store.</p>
-        <a class="btn" data-dl="android" href="https://github.com/universaltill/universal-till/releases/latest">Android app (.apk)</a>
+        <a class="btn" data-dl="android" href="https://github.com/universaltill/universal-till/releases/latest" data-i18n="dl.android.apk">Android app (.apk)</a>
       </div>
     </div>
     <p class="muted" data-i18n="dl.android.note" style="max-width:40rem;margin:1rem auto 0">
@@ -104,35 +104,47 @@
     "lxarm":  "linux_arm64.tar.gz",
     "android":"android.apk"
   };
-  // Guess the visitor's OS for the primary card.
+  // Guess the visitor's OS for the primary card. osKey/noteKey are i18n
+  // keys (resolved once translations are available); os/note are the
+  // English fallback text used if the i18n dict is somehow unavailable —
+  // never fall back to the raw key itself, that's not fit for display.
   function detect() {
     var ua = navigator.userAgent, p = (navigator.platform || "");
     // Must come before the generic /Linux/ check below — Android's UA
     // string also matches "Linux".
-    if (/Android/i.test(ua)) return { key: "android", os: "Android", note: "Android 7.0+ — sideloaded, allow “unknown sources” when prompted" };
-    if (/Win/i.test(ua) || /Win/i.test(p)) return { key: "wininstaller", os: "Windows", note: "Windows 10 / 11, 64-bit — guided installer" };
-    if (/Mac/i.test(ua) || /Mac/i.test(p)) return { key: "macapp", os: "macOS (Apple Silicon)", note: "Apple Silicon (M1 and newer) — the app (.dmg)" };
+    if (/Android/i.test(ua)) return { key: "android", osKey: "dl.os.android", os: "Android", noteKey: "dl.note.android", note: "Android 7.0+ — sideloaded, allow “unknown sources” when prompted" };
+    if (/Win/i.test(ua) || /Win/i.test(p)) return { key: "wininstaller", osKey: "dl.os.windows", os: "Windows", noteKey: "dl.note.windows", note: "Windows 10 / 11, 64-bit — guided installer" };
+    if (/Mac/i.test(ua) || /Mac/i.test(p)) return { key: "macapp", osKey: "dl.os.macos", os: "macOS (Apple Silicon)", noteKey: "dl.note.macos", note: "Apple Silicon (M1 and newer) — the app (.dmg)" };
     // armv6l/armv7l/armv8l cover 32-bit-userland Raspberry Pi OS builds that
     // still report their real arch (unlike the frozen-UA case handled by the
     // async Client Hints re-detect below); check platform too, matching
     // every other branch here. This still points 32-bit userland at the
     // 64-bit .deb (no armhf asset exists to offer instead) -- imperfect,
     // but strictly better than the amd64 .deb it fell through to before.
-    if (/aarch64|arm64|armv/i.test(ua) || /aarch64|arm64|armv/i.test(p)) return { key: "pi", os: "Raspberry Pi / ARM64", note: "64-bit Raspberry Pi OS or ARM Linux" };
-    if (/Linux/i.test(ua) || /Linux/i.test(p)) return { key: "lx64deb", os: "Linux (64-bit)", note: "Debian / Ubuntu, 64-bit" };
+    if (/aarch64|arm64|armv/i.test(ua) || /aarch64|arm64|armv/i.test(p)) return { key: "pi", osKey: "dl.os.pi", os: "Raspberry Pi / ARM64", noteKey: "dl.note.pi", note: "64-bit Raspberry Pi OS or ARM Linux" };
+    if (/Linux/i.test(ua) || /Linux/i.test(p)) return { key: "lx64deb", osKey: "dl.os.linux64", os: "Linux (64-bit)", noteKey: "dl.note.linux64", note: "Debian / Ubuntu, 64-bit" };
     return null;
   }
-  (function () {
+  // Runs on DOMContentLoaded (not immediately-invoked) so that i18n.js —
+  // deferred, but declared first in the document — has already set
+  // window.UT_I18N by the time this reads it; deferred scripts always
+  // finish running before DOMContentLoaded fires, regardless of listener
+  // registration order.
+  document.addEventListener("DOMContentLoaded", function () {
+    var UT = window.UT_I18N;
+    var dict = (UT && UT.I18N[UT.pick()]) || {};
+    function t(key, fallback) { var v = dict[key]; return v != null ? v : fallback; }
+
     var best = detect();
     // link elements keyed by SUFFIX key (data-dl attr on each anchor)
     var currentHrefFor = null; // remembers the last upgrade (mirror vs live API) so the Client Hints re-detect below can re-render with it
     function setPrimary(hrefFor) {
       if (!best) return;
       currentHrefFor = hrefFor;
-      document.getElementById("primary-os").textContent = best.os;
+      document.getElementById("primary-os").textContent = t(best.osKey, best.os);
       var a = document.getElementById("primary-link");
       a.setAttribute("href", hrefFor(best.key)); a.setAttribute("download", "");
-      document.getElementById("primary-note").textContent = best.note;
+      document.getElementById("primary-note").textContent = t(best.noteKey, best.note);
       document.getElementById("primary").style.display = "block";
     }
     // Fallback: our-domain mirror paths. The installer isn't mirrored, so the
@@ -169,7 +181,7 @@
         navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
       navigator.userAgentData.getHighEntropyValues(["architecture"]).then(function (hints) {
         if (/arm/i.test(hints.architecture || "")) {
-          best = { key: "pi", os: "Raspberry Pi / ARM64", note: "64-bit Raspberry Pi OS or ARM Linux (detected via Client Hints)" };
+          best = { key: "pi", osKey: "dl.os.pi", os: "Raspberry Pi / ARM64", noteKey: "dl.note.pi.hints", note: "64-bit Raspberry Pi OS or ARM Linux (detected via Client Hints)" };
           setPrimary(currentHrefFor);
         }
       }).catch(function () { /* keep the UA-string guess */ });
@@ -193,10 +205,10 @@
         });
         if (byKey[best && best.key]) setPrimary(function (k) { return byKey[k]; });
         if (rel.tag_name) document.getElementById("dl-version").textContent =
-          "Latest version: " + rel.tag_name.replace(/^v/, "");
+          t("dl.version.prefix", "Latest version: ") + rel.tag_name.replace(/^v/, "");
       })
       .catch(function () { /* keep the mirror fallback */ });
-  })();
+  });
 </script>
 </body>
 </html>
