@@ -109,7 +109,16 @@ const I18N = {
     "get.download": "Download for your device",
     "get.buy": "Or buy a ready-made kit",
     "about.title": "About us",
-    "about.body": "Universal Till is built by Task Runner Technology LTD, a British company. We believe every shop — anywhere in the world — deserves a point of sale it truly owns: free, open, and free of lock-in. That's the whole reason we exist.",  },
+    "about.body": "Universal Till is built by Task Runner Technology LTD, a British company. We believe every shop — anywhere in the world — deserves a point of sale it truly owns: free, open, and free of lock-in. That's the whole reason we exist.",
+    "dl.title": "Download Universal Till", "dl.sub": "Free and offline-first. Pick your device — we've guessed the best one for you.",
+    "dl.others": "All downloads",
+    "dl.win.d": "Windows 10 or 11, 64-bit.", "dl.mac.d": "Apple Silicon (M1 and newer).",
+    "dl.pi.d": "Pi 4 / 5 (64-bit Raspberry Pi OS).", "dl.lx64.d": "64-bit PC or mini-PC.",
+    "dl.lxarm.d": "ARM boards other than Raspberry Pi.", "dl.android.d": "Android 7.0+. Sideloaded — not on the Play Store.",
+    "dl.android.note": "Android's installer will warn about \"unknown sources\" the first time — that's expected for an app outside the Play Store, not a sign anything is wrong. Tap through to allow it.",
+    "dl.next": "<strong>Windows installer, macOS app, Raspberry Pi/Linux .deb:</strong> the till opens in its own app window — no browser, no terminal. Windows: run the installer, then launch \"Universal Till\" from the Start menu/desktop shortcut. macOS: open the <code>.dmg</code> and drag Universal Till into Applications (first time, right-click → Open to clear the unsigned-app warning). Raspberry Pi/Debian/Ubuntu <code>.deb</code>: after <code>sudo apt install ./unitill-pos_*.deb</code>, \"Universal Till\" is in your applications menu. <strong>Portable <code>.tar.gz</code>/<code>.zip</code> archives:</strong> double-click <code>unitill-desktop</code> (or <code>unitill-desktop.exe</code> on Windows) for the same app-window experience; <code>run-unitill.command</code>/<code>.sh</code>/<code>.bat</code> is the alternative that opens your default browser instead. <strong>Dedicated Raspberry Pi till (no desktop needed):</strong> after installing the <code>.deb</code>, run <code>sudo /opt/unitill/bin/unitill-kiosk-setup</code> and reboot — the Pi boots straight into the till, fullscreen, no desktop at all.",
+    "dl.steps": "See the 3 steps",
+  },
   tr: {
     _name: "Türkçe", _english: "Turkish", _dir: "ltr",
     "language.select": "Dilinizi seçin", "language.subtitle": "Tüm site için dili seçin.", "language.back": "Geri",
@@ -217,7 +226,16 @@ const I18N = {
     "get.download": "Cihazınız için indirin",
     "get.buy": "Ya da hazır kit satın alın",
     "about.title": "Hakkımızda",
-    "about.body": "Universal Till, bir İngiliz şirketi olan Task Runner Technology LTD tarafından geliştirilmektedir. Dünyanın neresinde olursa olsun her dükkânın gerçekten sahip olduğu bir satış noktasını hak ettiğine inanıyoruz: ücretsiz, açık ve bağımlılıktan uzak. Var oluş nedenimiz tam olarak bu.",  },
+    "about.body": "Universal Till, bir İngiliz şirketi olan Task Runner Technology LTD tarafından geliştirilmektedir. Dünyanın neresinde olursa olsun her dükkânın gerçekten sahip olduğu bir satış noktasını hak ettiğine inanıyoruz: ücretsiz, açık ve bağımlılıktan uzak. Var oluş nedenimiz tam olarak bu.",
+    "dl.title": "Universal Till'i indirin", "dl.sub": "Ücretsiz ve çevrimdışı öncelikli. Cihazınızı seçin — sizin için en uygununu tahmin ettik.",
+    "dl.others": "Tüm indirmeler",
+    "dl.win.d": "Windows 10 veya 11, 64 bit.", "dl.mac.d": "Apple Silicon (M1 ve üstü).",
+    "dl.pi.d": "Pi 4 / 5 (64 bit Raspberry Pi OS).", "dl.lx64.d": "64 bit PC veya mini PC.",
+    "dl.lxarm.d": "Raspberry Pi dışındaki ARM kartları.", "dl.android.d": "Android 7.0+. Yan yükleme — Play Store'da değil.",
+    "dl.android.note": "Android'in yükleyicisi ilk seferde \"bilinmeyen kaynaklar\" uyarısı verir — bu, Play Store dışındaki bir uygulama için beklenen bir durumdur, bir şeylerin yanlış gittiğinin işareti değildir. İzin vermek için dokunarak devam edin.",
+    "dl.next": "<strong>Windows yükleyici, macOS uygulaması, Raspberry Pi/Linux .deb:</strong> kasa kendi uygulama penceresinde açılır — tarayıcı yok, terminal yok. Windows: yükleyiciyi çalıştırın, ardından \"Universal Till\"i Başlat menüsü/masaüstü kısayolundan başlatın. macOS: <code>.dmg</code> dosyasını açın ve Universal Till'i Uygulamalar'a sürükleyin (ilk seferde, imzasız uygulama uyarısını temizlemek için sağ tıklayıp Aç'ı seçin). Raspberry Pi/Debian/Ubuntu <code>.deb</code>: <code>sudo apt install ./unitill-pos_*.deb</code> komutundan sonra \"Universal Till\" uygulamalar menünüzdedir. <strong>Taşınabilir <code>.tar.gz</code>/<code>.zip</code> arşivleri:</strong> aynı uygulama-penceresi deneyimi için <code>unitill-desktop</code>'a (Windows'ta <code>unitill-desktop.exe</code>) çift tıklayın; <code>run-unitill.command</code>/<code>.sh</code>/<code>.bat</code> ise bunun yerine varsayılan tarayıcınızı açan alternatiftir. <strong>Özel Raspberry Pi kasası (masaüstü gerekmez):</strong> <code>.deb</code>'i kurduktan sonra <code>sudo /opt/unitill/bin/unitill-kiosk-setup</code> komutunu çalıştırıp yeniden başlatın — Pi doğrudan tam ekran kasaya açılır, masaüstü hiç olmaz.",
+    "dl.steps": "3 adımı görün",
+  },
   zh: {
     _name: "中文", _english: "Chinese", _dir: "ltr",
     "language.select": "选择你的语言", "language.subtitle": "为整个网站选择语言。", "language.back": "返回",
@@ -325,7 +343,16 @@ const I18N = {
     "get.download": "为你的设备下载",
     "get.buy": "或购买成品套件",
     "about.title": "关于我们",
-    "about.body": "Universal Till 由英国公司 Task Runner Technology LTD 打造。我们相信，世界上每一家店铺都应拥有一套真正属于自己的收银系统：免费、开放、毫无锁定。这正是我们存在的意义。",  },
+    "about.body": "Universal Till 由英国公司 Task Runner Technology LTD 打造。我们相信，世界上每一家店铺都应拥有一套真正属于自己的收银系统：免费、开放、毫无锁定。这正是我们存在的意义。",
+    "dl.title": "下载 Universal Till", "dl.sub": "免费且离线优先。选择你的设备——我们已自动为你选出最合适的一款。",
+    "dl.others": "全部下载选项",
+    "dl.win.d": "Windows 10 或 11，64 位。", "dl.mac.d": "Apple Silicon（M1 及更新机型）。",
+    "dl.pi.d": "Pi 4 / 5（64 位 Raspberry Pi OS）。", "dl.lx64.d": "64 位 PC 或迷你主机。",
+    "dl.lxarm.d": "树莓派以外的 ARM 主板。", "dl.android.d": "Android 7.0 及以上。侧载安装——不在 Play 商店上架。",
+    "dl.android.note": "Android 的安装程序首次会提示“未知来源”警告——这是 Play 商店之外应用的正常提示，不代表出了问题。点击继续即可允许安装。",
+    "dl.next": "<strong>Windows 安装程序、macOS 应用、Raspberry Pi/Linux .deb：</strong>收银台在自己的应用窗口中打开——无需浏览器，无需终端。Windows：运行安装程序，然后从开始菜单/桌面快捷方式启动“Universal Till”。macOS：打开 <code>.dmg</code>，将 Universal Till 拖入“应用程序”（首次使用需右键点击选择“打开”以清除未签名应用警告）。Raspberry Pi/Debian/Ubuntu <code>.deb</code>：运行 <code>sudo apt install ./unitill-pos_*.deb</code> 后，“Universal Till”会出现在你的应用菜单中。<strong>便携版 <code>.tar.gz</code>/<code>.zip</code> 压缩包：</strong>双击 <code>unitill-desktop</code>（Windows 上为 <code>unitill-desktop.exe</code>）即可获得同样的应用窗口体验；<code>run-unitill.command</code>/<code>.sh</code>/<code>.bat</code> 则是改为打开默认浏览器的替代方式。<strong>专用树莓派收银台（无需桌面环境）：</strong>安装 <code>.deb</code> 后运行 <code>sudo /opt/unitill/bin/unitill-kiosk-setup</code> 并重启——树莓派会直接进入全屏收银台，完全没有桌面。",
+    "dl.steps": "查看 3 个步骤",
+  },
   fa: {
     _name: "فارسی", _english: "Persian", _dir: "rtl",
     "language.select": "زبان خود را انتخاب کنید", "language.subtitle": "زبان کل سایت را انتخاب کنید.", "language.back": "بازگشت",
@@ -433,7 +460,16 @@ const I18N = {
     "get.download": "برای دستگاهتان دانلود کنید",
     "get.buy": "یا کیت آماده بخرید",
     "about.title": "درباره ما",
-    "about.body": "Universal Till توسط Task Runner Technology LTD، یک شرکت بریتانیایی، ساخته می‌شود. باور داریم هر مغازه‌ای — هر جای دنیا — سزاوار صندوق فروشی است که واقعاً از آنِ خودش باشد: رایگان، باز و بدون قفل. تمام دلیل وجود ما همین است.",  }
+    "about.body": "Universal Till توسط Task Runner Technology LTD، یک شرکت بریتانیایی، ساخته می‌شود. باور داریم هر مغازه‌ای — هر جای دنیا — سزاوار صندوق فروشی است که واقعاً از آنِ خودش باشد: رایگان، باز و بدون قفل. تمام دلیل وجود ما همین است.",
+    "dl.title": "دانلود Universal Till", "dl.sub": "رایگان و آفلاین‌محور. دستگاه خود را انتخاب کنید — ما بهترین گزینه را برایتان حدس زده‌ایم.",
+    "dl.others": "همهٔ دانلودها",
+    "dl.win.d": "ویندوز ۱۰ یا ۱۱، ۶۴ بیتی.", "dl.mac.d": "Apple Silicon (M1 و جدیدتر).",
+    "dl.pi.d": "پای ۴ / ۵ (سیستم‌عامل ۶۴ بیتی رزبری‌پای).", "dl.lx64.d": "رایانهٔ ۶۴ بیتی یا مینی‌پی‌سی.",
+    "dl.lxarm.d": "بردهای ARM غیر از رزبری‌پای.", "dl.android.d": "اندروید ۷.۰ به بالا. نصب دستی — در Play Store موجود نیست.",
+    "dl.android.note": "نصب‌کنندهٔ اندروید بار اول دربارهٔ «منابع ناشناخته» هشدار می‌دهد — این برای برنامه‌ای خارج از Play Store طبیعی است و نشانهٔ اشتباه بودن چیزی نیست. برای اجازه دادن، ادامه را لمس کنید.",
+    "dl.next": "<strong>نصب‌کنندهٔ ویندوز، برنامهٔ macOS، Raspberry Pi/Linux .deb:</strong> صندوق در پنجرهٔ برنامهٔ خودش باز می‌شود — بدون مرورگر، بدون ترمینال. ویندوز: نصب‌کننده را اجرا کنید، سپس «Universal Till» را از میان‌بر منوی استارت/دسکتاپ باز کنید. macOS: <code>.dmg</code> را باز کنید و Universal Till را به Applications بکشید (بار اول، برای پاک کردن هشدار برنامهٔ بدون امضا، راست‌کلیک کرده و Open را انتخاب کنید). Raspberry Pi/Debian/Ubuntu <code>.deb</code>: پس از <code>sudo apt install ./unitill-pos_*.deb</code>، «Universal Till» در منوی برنامه‌های شماست. <strong>بایگانی‌های قابل‌حمل <code>.tar.gz</code>/<code>.zip</code>:</strong> برای همان تجربهٔ پنجرهٔ برنامه، روی <code>unitill-desktop</code> (در ویندوز <code>unitill-desktop.exe</code>) دوبار کلیک کنید؛ <code>run-unitill.command</code>/<code>.sh</code>/<code>.bat</code> جایگزینی است که به‌جای آن مرورگر پیش‌فرض شما را باز می‌کند. <strong>صندوق اختصاصی رزبری‌پای (بدون نیاز به دسکتاپ):</strong> پس از نصب <code>.deb</code>، دستور <code>sudo /opt/unitill/bin/unitill-kiosk-setup</code> را اجرا کرده و ری‌استارت کنید — رزبری‌پای مستقیماً به‌صورت تمام‌صفحه وارد صندوق می‌شود، کاملاً بدون دسکتاپ.",
+    "dl.steps": "دیدن ۳ مرحله",
+  }
 };
 
 (function () {
@@ -461,6 +497,15 @@ const I18N = {
     document.querySelectorAll("[data-i18n]").forEach(function (el) {
       const v = dict[el.getAttribute("data-i18n")];
       if (v != null) el.textContent = v;
+    });
+    // data-i18n-html: same lookup, but for the rare string that legitimately
+    // carries markup (e.g. inline <code>/<strong> around command names) —
+    // textContent would print the tags as literal text instead of rendering
+    // them. Dict values are developer-authored copy, not user input, so
+    // innerHTML here carries no injection risk.
+    document.querySelectorAll("[data-i18n-html]").forEach(function (el) {
+      const v = dict[el.getAttribute("data-i18n-html")];
+      if (v != null) el.innerHTML = v;
     });
     // Nav shows a single compact link to /language instead of an inline
     // dropdown — lots of languages don't fit a nav bar, see language.html.
