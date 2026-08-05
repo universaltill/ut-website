@@ -14,3 +14,9 @@ jobs:
         with:
           node-version: "22"
       - run: node scripts/check-i18n-keys.js
+
+  check-brand-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/check-brand-assets.sh

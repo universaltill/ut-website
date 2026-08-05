@@ -1,1 +1,8 @@
 node_modules/
+
+# Stale local build output from the retired Astro setup. The deploy ships
+# site/ directly (deploy.yml: app_location: site, skip_app_build: true), so
+# these are dead weight — and dist/logo.svg held a stale copy of the old mark,
+# which confused the ut-docs#290 logo audit.
+dist/
+.astro/
