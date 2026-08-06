@@ -16,6 +16,8 @@ const PLUGINS = [
   { repo: 'ut-plugin-payment-stripe', branch: 'main', hasRelease: true },
   { repo: 'ut-plugin-payment-qrpay', branch: 'main', hasRelease: true },
   { repo: 'ut-plugin-payment-demo', branch: 'main', hasRelease: true },
+  // Not a stray feature-branch pin: 001-multilingual-faq-page IS this
+  // repo's default branch (it has no `main`). Verified 2026-08-06.
   { repo: 'ut-plugin-faq', branch: '001-multilingual-faq-page', hasRelease: true },
   { repo: 'ut-plugin-integration-ai', branch: 'main', hasRelease: true },
   { repo: 'ut-plugin-integration-webhook', branch: 'main', hasRelease: false },
@@ -33,14 +35,28 @@ const ORG = 'universaltill';
 // GitHub -- no marketplace API dependency, no manual data-entry to keep
 // in sync. Re-running the site build always picks up current name/
 // description/type.
-const plugins = await Promise.all(
+// A failed fetch must NOT be fatal. This runs inside `astro build`, so a
+// throw here fails the build, which fails the deploy workflow -- meaning a
+// transient raw.githubusercontent 5xx, anonymous rate-limiting across these
+// requests, or one renamed repo would block EVERY website deploy, including
+// urgent download-page or marketing fixes. Degrade instead: warn, omit that
+// one card, ship the rest of the site.
+const fetched = await Promise.all(
   PLUGINS.map(async (p) => {
     const url = `https://raw.githubusercontent.com/${ORG}/${p.repo}/${p.branch}/manifest.json`;
-    const res = await fetch(url);
-    if (!res.ok) {
-      throw new Error(`manifest fetch failed for ${p.repo}: ${res.status}`);
+    let manifest;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      manifest = await res.json();
+    } catch (err) {
+      console.warn(
+        `[plugins] skipping ${p.repo}: manifest fetch failed (${err.message}) -- ${url}`
+      );
+      return null;
     }
-    const manifest = await res.json();
     return {
       ...p,
       id: manifest.id,
@@ -58,20 +74,33 @@ const plugins = await Promise.all(
   })
 );
 
+const plugins = fetched.filter(Boolean);
+
 // Object.groupBy needs Node 21+; deploy.yml pins Node 20, so a manual
 // reduce here instead of relying on that.
 const byType = plugins.reduce((acc, p) => {
   (acc[p.type] ??= []).push(p);
   return acc;
 }, {});
-const typeOrder = ['payment', 'integration', 'theme', 'language', 'page'];
+const typeOrder = ['payment', 'integration', 'theme', 'language', 'page', 'button'];
 const typeLabel = {
   payment: 'Payment',
   integration: 'Integrations',
   theme: 'Themes',
   language: 'Language packs',
   page: 'Pages',
+  button: 'Buttons',
 };
+
+// Render the preferred order first, then ANY remaining type. Iterating
+// typeOrder alone silently dropped every plugin whose ADR-0002 canonical
+// type wasn't hard-coded above (ut-plugin-button-nosale declares
+// "button"), on a page whose own copy claims to list every plugin — with
+// no build error to catch it.
+const renderOrder = [
+  ...typeOrder.filter((t) => byType[t]),
+  ...Object.keys(byType).filter((t) => !typeOrder.includes(t)),
+];
 ---
 
 <BaseLayout
@@ -90,7 +119,7 @@ const typeLabel = {
       </p>
     </div>
 
-    {typeOrder.filter((t) => byType[t]).map((type) => (
+    {renderOrder.map((type) => (
       <div style="margin-bottom:3rem">
         <h2 style="font-size:1.1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:1rem">
           {typeLabel[type] ?? type}

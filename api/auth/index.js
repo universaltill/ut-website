@@ -9,6 +9,27 @@ function html(body) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Universal Till CMS Auth</title></head><body>${body}</body></html>`;
 }
 
+// Never interpolate a value into the HTML above without this — see the
+// matching note in api/callback/index.js.
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// JSON.stringify does not escape "<", so its output can close the enclosing
+// <script> element. Use this for anything interpolated into script context.
+function jsonForScript(value) {
+  return JSON.stringify(value)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
 function getSiteOrigin(req) {
   // Inside SWA managed functions, x-forwarded-host is the internal
   // azurewebsites.net hostname, so the public origin must be configured.
@@ -49,7 +70,16 @@ module.exports = async function (context, req) {
     const siteOrigin = getSiteOrigin(req);
     const callbackUrl = `${siteOrigin}/api/callback`;
     const state = crypto.randomBytes(24).toString('hex');
-    const scope = req.query.scope || 'repo';
+    // Hard-coded, NOT taken from req.query. Two reasons:
+    //   1. universaltill/ut-website is a public repo, so public_repo is
+    //      sufficient. "repo" would grant read/write to every PRIVATE repo
+    //      the editor can reach — universal-till, ut-infra, ut-cloud,
+    //      ut-docs. A token minted to edit a blog post must not be able to
+    //      rewrite Terraform.
+    //   2. This endpoint is anonymous, so an attacker-supplied ?scope=
+    //      turned our OAuth app into a consent-phishing relay (e.g.
+    //      scope=repo,admin:org,delete_repo on a page branded as ours).
+    const scope = 'public_repo';
     const authorizeUrl = new URL('https://github.com/login/oauth/authorize');
     authorizeUrl.searchParams.set('client_id', clientId);
     authorizeUrl.searchParams.set('redirect_uri', callbackUrl);
@@ -69,8 +99,8 @@ module.exports = async function (context, req) {
         <script>
           (function () {
             const provider = 'github';
-            const targetOrigin = ${JSON.stringify(siteOrigin)};
-            const authorizeUrl = ${JSON.stringify(authorizeUrl.toString())};
+            const targetOrigin = ${jsonForScript(siteOrigin)};
+            const authorizeUrl = ${jsonForScript(authorizeUrl.toString())};
             const handshake = 'authorizing:' + provider;
 
             function handleMessage(event) {
@@ -93,7 +123,7 @@ module.exports = async function (context, req) {
     context.res = {
       status: 500,
       headers: { 'Content-Type': 'text/html; charset=utf-8' },
-      body: html(`<main><h1>CMS auth error</h1><p>${error.message}</p></main>`),
+      body: html(`<main><h1>CMS auth error</h1><p>${escapeHtml(error.message)}</p></main>`),
     };
   }
 };

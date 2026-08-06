@@ -6,6 +6,38 @@ function html(body) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Universal Till CMS Auth</title></head><body>${body}</body></html>`;
 }
 
+// Anything interpolated into the HTML below must go through this. This
+// endpoint is anonymous (function.json authLevel) and lives on the same
+// origin as /admin, where Decap keeps a GitHub token in localStorage — an
+// unescaped reflection here is a credential-stealing XSS, not cosmetic.
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// JSON.stringify does NOT escape "<" or "/", so its output can close the
+// enclosing <script> element ("</script><script>…"). Escape the characters
+// that let a string break out of a script context, plus the two Unicode
+// line terminators that are literal newlines in JS source.
+function jsonForScript(value) {
+  return JSON.stringify(value)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
+// The response body carries a live GitHub access token; never let an
+// intermediary cache it.
+const NO_STORE = {
+  'Cache-Control': 'no-store, private',
+  Pragma: 'no-cache',
+};
+
 function parseCookies(cookieHeader = '') {
   return cookieHeader
     .split(';')
@@ -82,7 +114,11 @@ module.exports = async function (context, req) {
     const errorDescription = req.query.error_description;
 
     if (error) {
-      throw new Error(errorDescription || error);
+      // Deliberately NOT echoed back to the browser: error_description is
+      // attacker-controlled query input, and this endpoint is anonymous.
+      // Log it for diagnosis and show the user a fixed string.
+      context.log.error('GitHub OAuth returned an error', { error, errorDescription });
+      throw new Error('GitHub login was cancelled or failed.');
     }
 
     if (!code || !state) {
@@ -112,6 +148,7 @@ module.exports = async function (context, req) {
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
         'Set-Cookie': `${COOKIE_NAME}=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax; Secure`,
+        ...NO_STORE,
       },
       body: html(`
         <main style="font-family:system-ui,sans-serif;padding:2rem;max-width:40rem;margin:0 auto;">
@@ -119,8 +156,8 @@ module.exports = async function (context, req) {
         </main>
         <script>
           (function () {
-            const targetOrigin = ${JSON.stringify(siteOrigin)};
-            const message = 'authorization:github:success:' + ${JSON.stringify(payload)};
+            const targetOrigin = ${jsonForScript(siteOrigin)};
+            const message = 'authorization:github:success:' + ${jsonForScript(payload)};
             if (window.opener) {
               window.opener.postMessage(message, targetOrigin);
               window.close();
@@ -138,16 +175,17 @@ module.exports = async function (context, req) {
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
         'Set-Cookie': `${COOKIE_NAME}=; Max-Age=0; Path=/; HttpOnly; SameSite=Lax; Secure`,
+        ...NO_STORE,
       },
       body: html(`
         <main style="font-family:system-ui,sans-serif;padding:2rem;max-width:40rem;margin:0 auto;">
           <h1>GitHub login failed</h1>
-          <p>${err.message}</p>
+          <p>${escapeHtml(err.message)}</p>
         </main>
         <script>
           (function () {
-            const targetOrigin = ${JSON.stringify(siteOrigin)};
-            const message = 'authorization:github:error:' + ${JSON.stringify(errorPayload)};
+            const targetOrigin = ${jsonForScript(siteOrigin)};
+            const message = 'authorization:github:error:' + ${jsonForScript(errorPayload)};
             if (window.opener) {
               window.opener.postMessage(message, targetOrigin);
             }

@@ -69,7 +69,15 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           action: upload
-          app_location: "/"
-          api_location: "api"
-          output_location: "dist"
+          # Point app_location straight at the built output, mirroring the
+          # proven pre-Astro config (app_location: site + skip_app_build)
+          # rather than relying on output_location being honoured while the
+          # build is skipped — that combination is ambiguous in this action,
+          # and if output_location were ignored it would upload the repo
+          # ROOT: node_modules/ (hundreds of MB, present because npm ci just
+          # ran) plus src/ and .git. This repo has already had a deploy
+          # rejected at the 250 MB free-tier limit — see the note at the top
+          # of this file about deploy 30313779077.
+          app_location: "dist"
+          api_location: "api" # resolved from the repo root, not app_location
           skip_app_build: true # built explicitly above, not via Oryx auto-detect

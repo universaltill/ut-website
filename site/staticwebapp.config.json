@@ -38,11 +38,15 @@
     },
     {
       "route": "/admin",
-      "allowedRoles": ["authenticated"]
+      "allowedRoles": [
+        "authenticated"
+      ]
     },
     {
       "route": "/admin/*",
-      "allowedRoles": ["authenticated"]
+      "allowedRoles": [
+        "authenticated"
+      ]
     }
   ],
   "responseOverrides": {
@@ -66,10 +70,17 @@
           },
           "login": {
             "nameClaimType": "preferred_username",
-            "scopes": ["openid", "profile", "email"]
+            "scopes": [
+              "openid",
+              "profile",
+              "email"
+            ]
           }
         }
       }
     }
+  },
+  "platform": {
+    "apiRuntime": "node:20"
   }
 }
