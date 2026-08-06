@@ -59,7 +59,11 @@ jobs:
           fi
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Astro 7 requires >=22.12.0 and hard-exits below it. This is the
+          # BUILD toolchain only — it is unrelated to the Azure Functions
+          # runtime, which is pinned separately by platform.apiRuntime in
+          # site/staticwebapp.config.json.
+          node-version: 22
       - name: Install dependencies
         run: npm ci
       - name: Build (Astro — site/ is publicDir, copied through unchanged)
