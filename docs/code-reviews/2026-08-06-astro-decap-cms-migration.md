@@ -59,6 +59,29 @@ rather than the branch alone: the new `package.json` declares
 That guard is what stops a `data-i18n` key missing from a locale dict
 silently falling back to English in **all** locales. Converted to ESM.
 
+### Found by the new CI job, not by the review — deploy.yml pinned Node 20
+
+The `build` job added during this cycle failed on its first run:
+
+```
+Node.js v20.20.2 is not supported by Astro!
+Please upgrade Node.js to a supported version: ">=22.12.0"
+```
+
+`deploy.yml` pinned `node-version: 20`, so **every deploy of the public
+marketing site would have failed at the build step** had this merged as
+written — not only the CMS work, but urgent download-page and marketing
+fixes too. Neither the independent review nor local verification caught it,
+because this machine runs Node 22.16 and the pin only bites in CI. Fixed to
+Node 22, with `engines.node >= 22.12.0` recorded in `package.json`. The
+`api-tests` job deliberately stays on Node 20, matching the Functions
+runtime that `platform.apiRuntime` pins — build toolchain and function
+runtime are independent.
+
+This is the clearest argument for the job existing: the property it guards
+(the build actually runs, and `site/` still reaches `dist/` unchanged) is
+exactly what no reviewer reading a diff can verify.
+
 ### Corrected during verification — one review finding did not hold
 
 The review flagged `ut-plugin-faq`'s `branch: '001-multilingual-faq-page'`
