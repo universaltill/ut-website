@@ -20,3 +20,44 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: bash scripts/check-brand-assets.sh
+
+  # Guards the Decap CMS OAuth endpoints. These are anonymous and share an
+  # origin with /admin, where a GitHub token lives in localStorage, so a
+  # regression here is credential-stealing rather than cosmetic.
+  api-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20" # matches staticwebapp.config.json platform.apiRuntime
+      - run: node --test api/auth.test.js
+
+  # The site must still build, and the plain-HTML marketing tree must still
+  # reach dist/ byte-for-byte (astro.config.mjs publicDir: 'site').
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: site/ must be copied through unchanged
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            rel="${f#site/}"
+            if [ ! -e "dist/$rel" ]; then
+              echo "MISSING from dist/: $rel"; fail=1
+            elif ! cmp -s "$f" "dist/$rel"; then
+              echo "MODIFIED in dist/: $rel"; fail=1
+            fi
+          done < <(find site -type f)
+          if [ "$fail" -ne 0 ]; then
+            echo "publicDir pass-through is broken — the live marketing site would change."
+            exit 1
+          fi
+          echo "OK: every site/ file is present in dist/ byte-for-byte"
