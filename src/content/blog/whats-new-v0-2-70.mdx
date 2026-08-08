@@ -1,0 +1,76 @@
+---
+title: "What's new in Universal Till: self-order kiosk, LAN pairing and a searchable manual"
+date: 2026-08-08
+excerpt: "Universal Till v0.2.70 adds a self-order kiosk with dine-in/takeaway, pairing a second till over your shop's own network, a searchable in-app manual, date-ranged Z-reports and named open tabs."
+author: "Universal Till"
+draft: false
+---
+
+Universal Till **v0.2.70** is out. Here's what changed that you'll actually
+notice behind the counter — and one fix that matters if your receipts aren't in
+English.
+
+## A self-order kiosk your customers can use
+
+Put a spare tablet or Pi on the counter and customers can order themselves. This
+release adds a **dine-in / takeaway toggle** to the kiosk, so the order carries
+its type through to the kitchen and the receipt — which is also what decides the
+VAT rate in several of our markets.
+
+The kiosk's basket is now fully **separate from the cashier's**. Previously a
+customer tapping through a self-order could collide with a sale being rung up at
+the till at the same moment. One shop, two people serving, one basket each.
+
+## Add a second till without a network engineer
+
+Adding another till used to mean typing addresses. Now the first-boot wizard
+**discovers other tills on your own shop network** and asks to join. The existing
+till shows an **approve-or-deny prompt to a manager** — pairing is never
+automatic, so a device on your Wi-Fi can't quietly join itself to your sales
+data.
+
+## A manual you can actually search
+
+`/help` is now a **two-pane searchable user manual** with screenshots that match
+what you see on your own screen — they're regenerated per language, so the
+Turkish manual shows the Turkish interface, not the English one.
+
+Alongside it there's a **🐞 bug-report button** in the navigation. It captures a
+screenshot of what you were looking at and sends it with the report, so
+"something looked wrong on the sale screen" turns into something we can fix
+without a phone call.
+
+## Money and paperwork
+
+- **Date-ranged Z-reports**, downloadable — pick any period rather than just
+  today's close, for your accountant or your VAT return.
+- **Named open tabs** (*Offene Belege*) — hold a sale under "table 4" or a
+  customer's name instead of an anonymous slot.
+- **Service charge is now its own field**, separate from tip, so the two are
+  reported apart where the law treats them differently.
+- **Pfandrückgabe** — manual bottle-deposit cash payouts, for German shops.
+- **Colour-coded nested category grid** on the sale screen: fewer taps to find
+  the thing you sell most.
+
+## Fixed: receipts wrapping in the wrong place
+
+Line wrapping on receipts and the customer display counted **bytes rather than
+characters**. In English nothing looked wrong. In Turkish, Farsi, German or
+Chinese, any accented or non-Latin character made the line wrap early and left
+receipts looking broken. It now counts characters, as it always should have.
+
+## Updates on your schedule
+
+There's an **unattended auto-update toggle with a schedule** — leave it on and
+tills update themselves overnight, or turn it off and stay on the version you've
+tested. Your shop, your call.
+
+## Installing
+
+Windows has a **guided installer** and Universal Till opens in its own app
+window — no terminal, no browser tab. On a Raspberry Pi, a fresh install of the
+`.deb` sets up **fullscreen kiosk mode automatically on first boot**.
+
+[Download the latest version](/download) — free, and it runs offline. If
+something in this list doesn't work the way it reads, use that bug-report button
+and tell us.
