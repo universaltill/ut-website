@@ -172,3 +172,43 @@ test("a genuinely unknown path 404s instead of answering with the homepage", asy
   const response = await page.goto("/en-gb/blog/no-such-post");
   expect(response.status()).toBe(404);
 });
+
+test.describe("posts are translated, not just the chrome", () => {
+  // The chrome translating while the article stays English is the state this
+  // replaced, and it is easy to regress to: the page still renders, still has
+  // the right <html lang>, and still looks finished.
+  const SCRIPTS = {
+    "tr-tr": { expect: /[çğıöşü]/i, name: "Turkish" },
+    "zh-cn": { expect: /\p{Script=Han}/u, name: "Chinese" },
+    "fa-ir": { expect: /\p{Script=Arabic}/u, name: "Persian" },
+  };
+
+  for (const [locale, { expect: script, name }] of Object.entries(SCRIPTS)) {
+    test(`/${locale}/blog/… serves the post body in ${name}`, async ({ page }) => {
+      await page.goto(`/${locale}/blog/whats-new-v0-2-70`);
+
+      const [heading, body] = await page.evaluate(() => [
+        document.querySelector("h1").textContent,
+        document.querySelector("article div").textContent,
+      ]);
+
+      expect(heading).toMatch(script);
+      expect(body).toMatch(script);
+      // The product name is never translated, in any locale.
+      expect(body).toContain("Universal Till");
+      // And a machine translation says so, with a way back to the original.
+      await expect(page.locator('[data-i18n="news.machine"]')).toBeVisible();
+      await expect(page.locator('a[href="/en-gb/blog/whats-new-v0-2-70"]')).toBeVisible();
+    });
+  }
+
+  test("every locale lists the same posts — never a shorter blog in one language", async ({ page }) => {
+    const counts = {};
+    for (const locale of ["en-gb", "tr-tr", "zh-cn", "fa-ir"]) {
+      await page.goto(`/${locale}/blog`);
+      counts[locale] = await page.locator('a[href*="/blog/"]').count();
+    }
+    const values = Object.values(counts);
+    expect(new Set(values).size, `post counts differ per locale: ${JSON.stringify(counts)}`).toBe(1);
+  });
+});

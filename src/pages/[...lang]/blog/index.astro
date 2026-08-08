@@ -1,6 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
-import BaseLayout, { LANGS } from '../../../layouts/BaseLayout.astro';
+import BaseLayout, { LANGS, SOURCE_LOCALE } from '../../../layouts/BaseLayout.astro';
 
 // One built page per language: /blog, /tr/blog, /zh/blog, /fa/blog. The rest
 // param is undefined for English, which is what keeps the English URL at the
@@ -16,9 +16,20 @@ export function getStaticPaths() {
 
 const { lang } = Astro.params;
 
-const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime()
-);
+// Every post appears in every locale, in that locale's translation where one
+// exists and in English where it does not — one list per locale, never a
+// shorter Turkish blog than English one.
+const all = await getCollection('blog', ({ data }) => !data.draft);
+const slugOf = (entry) => entry.id.split('/').slice(1).join('/');
+const slugs = [...new Set(all.map(slugOf))];
+const posts = slugs
+  .map((slug) => {
+    const post =
+      all.find((p) => p.id === `${lang}/${slug}`) ?? all.find((p) => p.id === `${SOURCE_LOCALE}/${slug}`);
+    return post && { post, slug };
+  })
+  .filter(Boolean)
+  .sort((a, b) => b.post.data.date.getTime() - a.post.data.date.getTime());
 ---
 
 <BaseLayout
@@ -36,8 +47,8 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
     {posts.length === 0 && <p class="muted">No posts yet.</p>}
 
     <div class="grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
-      {posts.map((post) => (
-        <a class="card" style="display:block" href={`/${lang}/blog/${post.id}`}>
+      {posts.map(({ post, slug }) => (
+        <a class="card" style="display:block" href={`/${lang}/blog/${slug}`}>
           {post.data.coverImage && (
             <img
               src={post.data.coverImage}

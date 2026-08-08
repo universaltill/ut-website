@@ -36,6 +36,17 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   every older URL (`/`, `/blog`, `/download`, `/tr`, …). The globe carries the
   current page (`/language?from=…`) so choosing a language returns you where
   you were, not to the homepage.
+- **Posts are translated, not just the chrome.** English posts live in
+  `src/content/blog/en-gb/` and are the only ones written by hand (that is the
+  folder the CMS files into). `node scripts/translate-posts.js` fills in
+  `tr-tr/`, `zh-cn/` and `fa-ir/` using the **self-hosted** model on the
+  homelab (LM Studio, LAN-only — never a paid AI API), and the output is
+  committed like any other content, so the site depends on files in git rather
+  than on a model being up. Translations carry `machineTranslated: true` and
+  say so on the page, with a link to the English original. A missing
+  translation is not an error: that locale falls back to English and tells the
+  reader. The script rejects output that drops a section, rewrites a link,
+  translates the product name or comes back in the wrong script, and retries.
 - **There is no `navigationFallback`.** It answered every unknown path with the
   homepage at HTTP 200 — which is why `/blog` looked live for weeks before it
   existed, and why `/admin` looked like it was still served. Unknown paths 404.
