@@ -4,11 +4,15 @@
 // built-in http/fs modules rather than adding an http-server devDependency —
 // site/ itself ships with no build step and no runtime dependency, and this
 // script is test tooling, not part of the shipped site.
-"use strict";
-const http = require("http");
-const fs = require("fs");
-const path = require("path");
+// ESM, not CommonJS: package.json declares "type": "module" (required by the
+// Astro build), so `require`/`__dirname` are not defined in this scope —
+// same reasoning as scripts/check-i18n-keys.js.
+import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..", "site");
 const PORT = Number(process.env.PORT) || 4173;
 

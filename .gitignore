@@ -1,13 +1,12 @@
 node_modules/
 
-# Playwright test run output (site/ has no build step; this is just test
-# tooling scratch space, ut-docs#458).
+# Playwright test run output — test tooling scratch space, ut-docs#458.
 test-results/
 playwright-report/
 
 # Build output. `npm run build` (Astro) generates this from scratch every
-# time — site/ passes through byte-for-byte (astro.config.mjs
-# publicDir: 'site') plus the blog/plugins pages Astro renders — so it's
-# never something to commit.
+# time — site/ itself has no build step and passes through byte-for-byte
+# (astro.config.mjs publicDir: 'site'), plus the blog/plugins pages Astro
+# renders on top — so none of it is ever something to commit.
 dist/
 .astro/
