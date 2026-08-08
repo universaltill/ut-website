@@ -112,3 +112,25 @@ still carries its own separate, already-documented, out-of-scope
 blockers (manual GitHub OAuth App creation; a human visually verifying
 the Astro build in a real browser) — unaffected by, and not owed to,
 this reconciliation.
+
+## Addendum: PR#4's own branch advanced during this review (commit c8aeefe)
+
+Between opening the PR and CI finishing, `feat/astro-decap-cms-migration`
+(PR#4's own branch, this reconciliation's base) picked up two new
+commits: `ut-docs#468` landing for real (`api/auth` + `api/callback`
+deleted from this repo, ported same-origin into the `ut-admin` pod;
+`scripts/check-swa-config.js` added to CI to guard the removal) and a new
+blog post. Merged that in — it auto-merged with **zero conflicts**, since
+the two sides touched disjoint regions of `ci.yml` (this reconciliation's
+`playwright`-job addition vs. their `api-tests`→`check-swa-config` swap).
+
+Did not spin up a second independent-review round for this: it's not new
+logic on this card's part, only absorbing already-separately-reviewed
+upstream commits, and the merge itself was conflict-free. Re-verified
+personally instead — full gate re-run (`npm run build`, now 4 pages
+including the new post; site→dist byte-identity check;
+`check-i18n-keys.js`; `check-brand-assets.sh`; `check-swa-config.js`;
+`npx playwright test`, 14/14) plus an explicit grep for all four
+mobile-nav markers (`nav.js`, `#site-nav`, `.nav-actions`, `.nav-toggle`)
+on every Astro-rendered page, including the newly-arrived blog post —
+all present, all green.
