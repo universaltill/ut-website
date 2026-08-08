@@ -11,7 +11,7 @@ import BaseLayout, { LANGS } from '../../../layouts/BaseLayout.astro';
 // The post BODIES are still English; only the site chrome translates (via
 // i18n.js's data-i18n pass). Translating the content itself is ut-docs#475.
 export function getStaticPaths() {
-  return [{ params: { lang: undefined } }, ...LANGS.map((lang) => ({ params: { lang } }))];
+  return LANGS.map((lang) => ({ params: { lang } }));
 }
 
 const { lang } = Astro.params;
@@ -37,7 +37,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 
     <div class="grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
       {posts.map((post) => (
-        <a class="card" style="display:block" href={lang ? `/${lang}/blog/${post.id}` : `/blog/${post.id}`}>
+        <a class="card" style="display:block" href={`/${lang}/blog/${post.id}`}>
           {post.data.coverImage && (
             <img
               src={post.data.coverImage}

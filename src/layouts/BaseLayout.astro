@@ -16,7 +16,7 @@
 // rails differ by COUNTRY, not by language, so "tr" has nowhere to put a
 // future difference between two markets sharing a language. en-GB is the
 // default and lives at the root.
-export const LANGS = ['tr-tr', 'zh-cn', 'fa-ir'];
+export const LANGS = ['en-gb', 'tr-tr', 'zh-cn', 'fa-ir'];
 const DEFAULT_LANG = 'en-gb';
 const DIR = { 'en-gb': 'ltr', 'tr-tr': 'ltr', 'zh-cn': 'ltr', 'fa-ir': 'rtl' };
 
@@ -42,15 +42,18 @@ const dir = DIR[current] ?? 'ltr';
 // Prefix a site path with the current language, so navigating out of a
 // Turkish page lands on a Turkish page rather than silently switching to
 // English.
-const L = (p: string) => (current === DEFAULT_LANG ? p : `/${current}${p}`);
+// Every link stays inside the current locale, English included: an unprefixed
+// URL says nothing about language, so choosing English after Turkish would
+// land on a page that still renders Turkish from the stored preference.
+const L = (p: string) => `/${current}${p === '/' ? '' : p}` || '/';
 
 // hreflang alternates for THIS page in every language — the pairing that
 // tells a search engine these are translations of one page rather than
 // duplicates competing with each other.
-const alternates = [
-  { code: DEFAULT_LANG, href: new URL(path, Astro.site).href },
-  ...LANGS.map((code) => ({ code, href: new URL(`/${code}${path}`, Astro.site).href })),
-];
+const alternates = LANGS.map((code) => ({
+  code,
+  href: new URL(`/${code}${path}`, Astro.site).href,
+}));
 ---
 
 <!DOCTYPE html>
@@ -60,7 +63,7 @@ const alternates = [
   <script is:inline>if(location.hostname==="universaltill.com"){location.replace("https://www.universaltill.com"+location.pathname+location.search+location.hash);}</script>
   <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
   {alternates.map((a) => <link rel="alternate" hreflang={bcp47(a.code)} href={a.href} />)}
-  <link rel="alternate" hreflang="x-default" href={new URL(path, Astro.site).href} />
+  <link rel="alternate" hreflang="x-default" href={new URL(`/${DEFAULT_LANG}${path}`, Astro.site).href} />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title} — Universal Till</title>
   <meta name="description" content={description} />
@@ -107,7 +110,7 @@ const alternates = [
     <a class="btn" href={L('/start')} data-i18n="nav.get">Get started</a>
     <!-- i18n.js rewrites this href at runtime to carry the current page, so
          choosing a language returns you HERE rather than to the homepage. -->
-    <a class="lang-link" href={`/language?from=${encodeURIComponent(path)}`} aria-label="Language">🌐 EN</a>
+    <a class="lang-link" href={`/${current}/language?from=${encodeURIComponent(path)}`} aria-label="Language">🌐 EN</a>
   </div>
 </header>
 

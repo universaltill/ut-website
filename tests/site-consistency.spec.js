@@ -11,8 +11,8 @@
 // third thing to keep in sync.
 import { expect, test } from "@playwright/test";
 
-const ASTRO_PAGES = ["/blog", "/plugins", "/blog/whats-new-v0-2-70"];
-const LOCALES = ["tr-tr", "zh-cn", "fa-ir"];
+const ASTRO_PAGES = ["/en-gb/blog", "/en-gb/plugins", "/en-gb/blog/whats-new-v0-2-70"];
+const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir"];
 
 async function headerFingerprint(page, path) {
   await page.goto(path);
@@ -41,7 +41,7 @@ async function headerFingerprint(page, path) {
 test.describe("the blog must not look like a different website", () => {
   for (const path of ASTRO_PAGES) {
     test(`${path} renders with the same chrome as the homepage`, async ({ page }) => {
-      const home = await headerFingerprint(page, "/");
+      const home = await headerFingerprint(page, "/en-gb");
       const astro = await headerFingerprint(page, path);
 
       // Typography: the single most obvious "different site" signal.
@@ -78,12 +78,15 @@ test.describe("language lives in the URL", () => {
 
       expect(lang.toLowerCase()).toBe(locale);
       expect(dir).toBe(locale === "fa-ir" ? "rtl" : "ltr");
-      expect(news).not.toBe("News"); // translated, not the English fallback
+      // Translated, not the English string sitting there untouched. English is
+      // the one locale where "News" IS the right answer.
+      if (locale === "en-gb") expect(news).toBe("News");
+      else expect(news).not.toBe("News");
     });
   }
 
   test("every locale of a page is declared to search engines", async ({ page }) => {
-    await page.goto("/blog/whats-new-v0-2-70");
+    await page.goto("/en-gb/blog/whats-new-v0-2-70");
     const alternates = await page.evaluate(() =>
       [...document.querySelectorAll('link[rel="alternate"]')].map((l) => ({
         hreflang: l.getAttribute("hreflang"),
@@ -95,6 +98,10 @@ test.describe("language lives in the URL", () => {
     expect(alternates.map((a) => a.hreflang).sort()).toEqual(
       ["en-GB", "fa-IR", "tr-TR", "x-default", "zh-CN"].sort(),
     );
+    // x-default points at a real page, never at a redirect.
+    expect(alternates.find((a) => a.hreflang === "x-default").href).toBe(
+      "https://www.universaltill.com/en-gb/blog/whats-new-v0-2-70",
+    );
     expect(alternates.find((a) => a.hreflang === "tr-TR").href).toBe(
       "https://www.universaltill.com/tr-tr/blog/whats-new-v0-2-70",
     );
@@ -103,19 +110,21 @@ test.describe("language lives in the URL", () => {
 
 test.describe("switching language returns you to the page you were on", () => {
   test("the globe carries the current page to /language", async ({ page }) => {
-    await page.goto("/blog/whats-new-v0-2-70");
+    await page.goto("/en-gb/blog/whats-new-v0-2-70");
     const href = await page.locator(".lang-link").getAttribute("href");
-    expect(href).toBe("/language?from=%2Fblog%2Fwhats-new-v0-2-70");
+    expect(href).toBe("/en-gb/language?from=%2Fblog%2Fwhats-new-v0-2-70");
   });
 
   test("the language page sends you back to that page, in the chosen language", async ({ page }) => {
-    await page.goto("/language?from=%2Fblog%2Fwhats-new-v0-2-70");
+    await page.goto("/en-gb/language?from=%2Fblog%2Fwhats-new-v0-2-70");
 
     const hrefs = await page.evaluate(() =>
       [...document.querySelectorAll(".locale-card")].map((a) => a.getAttribute("href")),
     );
     expect(hrefs).toContain("/tr-tr/blog/whats-new-v0-2-70");
-    expect(hrefs).toContain("/blog/whats-new-v0-2-70"); // en-GB at the root
+    // English is prefixed too — an unprefixed URL says nothing about language,
+    // which is how "switch to English" used to keep rendering Turkish.
+    expect(hrefs).toContain("/en-gb/blog/whats-new-v0-2-70");
 
     // And the Back link, which used to be a one-way trip to the homepage.
     await expect(page.locator(".back-link a")).toHaveAttribute(
@@ -125,7 +134,7 @@ test.describe("switching language returns you to the page you were on", () => {
   });
 
   test("a hostile ?from= cannot turn the picker into an open redirect", async ({ page }) => {
-    await page.goto("/language?from=%2F%2Fevil.example%2Fphish");
+    await page.goto("/en-gb/language?from=%2F%2Fevil.example%2Fphish");
     const hrefs = await page.evaluate(() =>
       [...document.querySelectorAll(".locale-card")].map((a) => a.getAttribute("href")),
     );
@@ -136,11 +145,30 @@ test.describe("switching language returns you to the page you were on", () => {
   });
 });
 
-test("the old language-only URLs still resolve, with a permanent redirect", async ({ page }) => {
-  // /tr, /zh and /fa were live and advertised in hreflang tags before the
-  // move to region-tagged locales. Breaking them would throw away whatever
-  // indexing they had and 404 anyone's bookmark.
-  const response = await page.goto("/fa");
-  expect(response.request().redirectedFrom()?.url()).toContain("/fa");
-  expect(new URL(page.url()).pathname).toBe("/fa-ir");
+// Every URL that was live before this change must still land somewhere
+// correct: the language-only prefixes were advertised in hreflang tags, and
+// the unprefixed ones are what every existing link and bookmark points at.
+const LEGACY = [
+  ["/fa", "/fa-ir"],
+  ["/tr", "/tr-tr"],
+  ["/", "/en-gb"],
+  ["/blog", "/en-gb/blog"],
+  ["/plugins", "/en-gb/plugins"],
+  ["/download", "/en-gb/download"],
+];
+
+for (const [from, to] of LEGACY) {
+  test(`${from} redirects to ${to} rather than breaking`, async ({ page }) => {
+    const response = await page.goto(from);
+    expect(new URL(page.url()).pathname).toBe(to);
+    // Permanent, so search engines move the indexing across instead of
+    // treating both as live.
+    const first = await response.request().redirectedFrom()?.response();
+    expect(first?.status()).toBe(301);
+  });
+}
+
+test("a genuinely unknown path 404s instead of answering with the homepage", async ({ page }) => {
+  const response = await page.goto("/en-gb/blog/no-such-post");
+  expect(response.status()).toBe(404);
 });

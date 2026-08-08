@@ -11,7 +11,7 @@
 // These tests run against dist/ — what actually deploys — not site/.
 import { expect, test } from "@playwright/test";
 
-const ASTRO_PAGES = ["/blog", "/plugins", "/blog/whats-new-v0-2-70"];
+const ASTRO_PAGES = ["/en-gb/blog", "/en-gb/plugins", "/en-gb/blog/whats-new-v0-2-70"];
 const MOBILE_WIDTHS = [360, 560];
 
 for (const path of ASTRO_PAGES) {
@@ -22,7 +22,7 @@ for (const path of ASTRO_PAGES) {
 
       const news = page.locator('#site-nav a[data-i18n="nav.news"]');
       await expect(news).toBeVisible();
-      await expect(news).toHaveAttribute("href", "/blog");
+      await expect(news).toHaveAttribute("href", "/en-gb/blog");
       // data-i18n is what makes the label translate; a hard-coded "News"
       // string would look right in English and stay English in tr/zh/fa.
       await expect(news).toHaveText("News");
@@ -62,11 +62,11 @@ for (const path of ASTRO_PAGES) {
 }
 
 test("the blog lists the release post, and the post renders its body", async ({ page }) => {
-  await page.goto("/blog");
+  await page.goto("/en-gb/blog");
   const link = page.locator('a[href*="whats-new-v0-2-70"]').first();
   await expect(link).toBeVisible();
 
-  await page.goto("/blog/whats-new-v0-2-70");
+  await page.goto("/en-gb/blog/whats-new-v0-2-70");
   // Body text, not just a 200: this site's navigationFallback has repeatedly
   // made a missing page look present, and a build that dropped MDX rendering
   // would still serve a page with a title.

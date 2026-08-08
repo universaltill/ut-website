@@ -8,7 +8,7 @@ import BaseLayout, { LANGS } from '../../../layouts/BaseLayout.astro';
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
   return posts.flatMap((post) =>
-    [undefined, ...LANGS].map((lang) => ({
+    LANGS.map((lang) => ({
       params: { lang, slug: post.id },
       props: { post },
     })),
@@ -38,6 +38,6 @@ const { Content } = await render(post);
     <div style="line-height:1.7;color:var(--ink-soft)">
       <Content />
     </div>
-    <p style="margin-top:2rem"><a href={lang ? `/${lang}/blog` : '/blog'} data-i18n="news.back">← Back to News</a></p>
+    <p style="margin-top:2rem"><a href={`/${lang}/blog`} data-i18n="news.back">← Back to News</a></p>
   </article>
 </BaseLayout>

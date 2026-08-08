@@ -542,9 +542,11 @@ const I18N = {
 
 (function () {
   const supported = Object.keys(I18N);
-  // The default locale lives at the root: "/" is en-GB, "/tr-tr/..." is
-  // Turkish. Root-as-default is what x-default means, and it keeps the
-  // shortest URL on the market we launch in.
+  // EVERY locale is in the URL, English included. Leaving the default
+  // unprefixed looks tidier and is a bug: with English at "/", choosing
+  // English after Turkish navigates to a URL that says nothing about
+  // language, `pick()` falls back to the stored preference, and the page
+  // comes back in Turkish. The URL has to carry the answer.
   const DEFAULT = "en-gb";
   // BCP-47 wants the region subtag uppercased ("en-GB"). Browsers and crawlers
   // treat it case-insensitively, but the <html lang> and hreflang values are
@@ -572,7 +574,6 @@ const I18N = {
   // engine can index or a visitor can bookmark.
   function pathFor(lang, path) {
     const p = path || "/";
-    if (lang === DEFAULT) return p;
     return p === "/" ? "/" + lang : "/" + lang + p;
   }
   // `from` arrives in a query string, so treat it as untrusted: same-origin
@@ -583,6 +584,8 @@ const I18N = {
     return value;
   }
   function pick() {
+    // Path first, always: it is the only source the visitor can see, share or
+    // bookmark, and the only one that can override a stale stored choice.
     const p = langFromPath();
     if (p) return p;
     const saved = localStorage.getItem("ut_lang");
@@ -625,7 +628,7 @@ const I18N = {
       const from = here === "/language"
         ? sanitizeFrom(new URLSearchParams(location.search).get("from"))
         : here;
-      a.setAttribute("href", "/language?from=" + encodeURIComponent(from));
+      a.setAttribute("href", pathFor(lang, "/language") + "?from=" + encodeURIComponent(from));
     });
     // Canonical points at THIS language's URL.
     const c = document.getElementById("canonical");
@@ -634,7 +637,7 @@ const I18N = {
   }
   function go(lang) {
     // Reflect the language in the URL (crawlable) without a reload.
-    if (langFromPath() !== (lang === DEFAULT ? null : lang)) {
+    if (langFromPath() !== lang) {
       history.pushState({ lang: lang }, "", pathFor(lang, stripLang(location.pathname)));
     }
     apply(lang);
