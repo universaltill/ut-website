@@ -11,6 +11,18 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
 - Astro builds only genuinely *new* surface on top of that: the blog
   (`src/content/blog/`, MDX content collections) and `/plugins`. See
   `docs/astro-migration.md`.
+- **SEO plumbing (ut-docs#482):** every blog post carries a JSON-LD
+  `BlogPosting` block; `sitemap.xml` covers the blog, `/plugins` and the
+  `site/` marketing pages in every locale (built from
+  `site/staticwebapp.config.json`'s route table, not a hand-kept copy of
+  it); each locale gets its own RSS feed at `/{locale}/blog/rss.xml`,
+  discoverable via a `<link rel="alternate" type="application/rss+xml">`
+  on every Astro-rendered page (blog index/posts, `/plugins` — the plain
+  `site/*.html` marketing pages don't carry it, same as they don't carry
+  BaseLayout's other `<head>` mechanics). `src/lib/blogPosts.ts` is the
+  one place "which posts
+  exist, in which locale" is decided — the blog index, the sitemap and
+  every RSS feed all read from it.
 - **The Decap CMS admin does NOT live here.** It's served from the homelab
   cluster at `admin.universaltill.com`, gated by Zitadel via oauth2-proxy
   (`taskrunnertech/homelab-k8s`'s `kubernetes/apps/ut-admin/`) — this SWA

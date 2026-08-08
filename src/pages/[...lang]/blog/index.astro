@@ -1,6 +1,6 @@
 ---
-import { getCollection } from 'astro:content';
-import BaseLayout, { LANGS, SOURCE_LOCALE } from '../../../layouts/BaseLayout.astro';
+import BaseLayout, { LANGS } from '../../../layouts/BaseLayout.astro';
+import { getLocalizedPosts } from '../../../lib/blogPosts';
 
 // One built page per language: /blog, /tr/blog, /zh/blog, /fa/blog. The rest
 // param is undefined for English, which is what keeps the English URL at the
@@ -18,18 +18,9 @@ const { lang } = Astro.params;
 
 // Every post appears in every locale, in that locale's translation where one
 // exists and in English where it does not — one list per locale, never a
-// shorter Turkish blog than English one.
-const all = await getCollection('blog', ({ data }) => !data.draft);
-const slugOf = (entry) => entry.id.split('/').slice(1).join('/');
-const slugs = [...new Set(all.map(slugOf))];
-const posts = slugs
-  .map((slug) => {
-    const post =
-      all.find((p) => p.id === `${lang}/${slug}`) ?? all.find((p) => p.id === `${SOURCE_LOCALE}/${slug}`);
-    return post && { post, slug };
-  })
-  .filter(Boolean)
-  .sort((a, b) => b.post.data.date.getTime() - a.post.data.date.getTime());
+// shorter Turkish blog than English one. Shared with sitemap.xml/rss.xml so
+// all three agree on exactly the same set (src/lib/blogPosts.ts).
+const posts = await getLocalizedPosts(lang);
 ---
 
 <BaseLayout

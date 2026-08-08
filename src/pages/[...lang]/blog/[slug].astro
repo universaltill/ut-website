@@ -1,6 +1,7 @@
 ---
-import { getCollection, render } from 'astro:content';
-import BaseLayout, { LANGS, SOURCE_LOCALE } from '../../../layouts/BaseLayout.astro';
+import { render } from 'astro:content';
+import BaseLayout, { LANGS, bcp47 } from '../../../layouts/BaseLayout.astro';
+import { getAllLocalizedPosts } from '../../../lib/blogPosts';
 
 // One page per post PER LOCALE, serving that locale's own translation where it
 // exists and the English original where it does not. Posts live in
@@ -12,31 +13,58 @@ import BaseLayout, { LANGS, SOURCE_LOCALE } from '../../../layouts/BaseLayout.as
 // (scripts/translate-posts.js, against the self-hosted model). Between those
 // two moments /tr-tr/blog/<slug> must still be a real page, in English, saying
 // so — not a dead link in the Turkish blog listing.
+//
+// Which posts exist, in which locale, with what fallback state is decided in
+// exactly one place (src/lib/blogPosts.ts) — this page used to carry its own
+// copy of that resolution, which meant it and sitemap.xml/rss.xml could
+// silently disagree about which URLs actually exist.
 export async function getStaticPaths() {
-  const posts = await getCollection('blog', ({ data }) => !data.draft);
-  const byLocale = (locale, slug) => posts.find((p) => p.id === `${locale}/${slug}`);
-  const slugs = [...new Set(posts.map((p) => p.id.split('/').slice(1).join('/')))];
-
-  return slugs.flatMap((slug) =>
-    LANGS.map((lang) => {
-      const translated = byLocale(lang, slug);
-      const source = byLocale(SOURCE_LOCALE, slug);
-      const post = translated ?? source;
-      if (!post) return null;
-      return {
-        params: { lang, slug },
-        props: { post, isFallback: !translated && lang !== SOURCE_LOCALE },
-      };
-    }).filter(Boolean),
+  const byLocale = await getAllLocalizedPosts();
+  return LANGS.flatMap((lang) =>
+    (byLocale[lang] ?? []).map(({ post, slug, isFallback }) => ({
+      params: { lang, slug },
+      props: { post, isFallback },
+    })),
   );
 }
 
 const { post, isFallback } = Astro.props;
 const { lang, slug } = Astro.params;
 const { Content } = await render(post);
+
+// schema.org BlogPosting, one per locale — matches this same page's own
+// canonical URL (BaseLayout builds it identically: Astro.url.pathname
+// against Astro.site) and its <html lang> (bcp47(lang)), so a crawler never
+// sees this block disagree with the page it's sitting on.
+const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  mainEntityOfPage: pageUrl,
+  headline: post.data.title,
+  description: post.data.excerpt,
+  datePublished: post.data.date.toISOString(),
+  inLanguage: bcp47(lang),
+  author: { '@type': 'Organization', name: post.data.author },
+  // No `logo` here: the brand mark is only an SVG (site/logo.svg), and
+  // Google's structured-data ImageObject requirements for a publisher
+  // logo are raster (jpg/png/gif) — an SVG produces a Rich Results
+  // warning rather than satisfying the field. `logo` isn't required for
+  // BlogPosting/Organization to be valid; add it back once a raster brand
+  // asset exists rather than pointing this at a type that fails the check.
+  publisher: { '@type': 'Organization', name: 'Universal Till' },
+  ...(post.data.coverImage ? { image: new URL(post.data.coverImage, Astro.site).href } : {}),
+};
 ---
 
 <BaseLayout title={post.data.title} description={post.data.excerpt} lang={lang} path={`/blog/${slug}`}>
+  {/* set:html because Astro would otherwise HTML-escape the JSON (turning
+      "quotes into &quot;, breaking it as JSON); < guards the one
+      character that actually matters inside a <script> body — a title or
+      excerpt containing "</script>" would otherwise close the tag early.
+      Post content passes through scripts/translate-posts.js (a model),
+      so it isn't strictly developer-controlled text. */}
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />
   <article class="section" style="max-width:44rem">
     <p style="color:var(--muted);font-size:.9rem;margin-bottom:.3rem">
       {post.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}

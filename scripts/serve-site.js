@@ -49,6 +49,7 @@ const MIME = {
   ".png": "image/png",
   ".jpg": "image/jpeg",
   ".webp": "image/webp",
+  ".xml": "application/xml; charset=utf-8",
 };
 
 // Azure's matcher is richer than this; "exact path, or a trailing /* prefix"

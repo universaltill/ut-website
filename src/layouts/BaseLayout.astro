@@ -24,7 +24,10 @@ const DEFAULT_LANG = SOURCE_LOCALE;
 const DIR = { 'en-gb': 'ltr', 'tr-tr': 'ltr', 'zh-cn': 'ltr', 'fa-ir': 'rtl' };
 
 // BCP-47 uppercases the region subtag; crawlers accept either, humans read it.
-const bcp47 = (code) => {
+// Exported so JSON-LD's `inLanguage` (blog/[slug].astro) uses the exact same
+// mapping as this file's own <html lang> and hreflang tags, rather than a
+// second copy that could drift.
+export const bcp47 = (code: string) => {
   const parts = code.split('-');
   return parts.length === 2 ? `${parts[0]}-${parts[1].toUpperCase()}` : code;
 };
@@ -67,6 +70,7 @@ const alternates = LANGS.map((code) => ({
   <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
   {alternates.map((a) => <link rel="alternate" hreflang={bcp47(a.code)} href={a.href} />)}
   <link rel="alternate" hreflang="x-default" href={new URL(`/${DEFAULT_LANG}${path}`, Astro.site).href} />
+  <link rel="alternate" type="application/rss+xml" title="Universal Till News" href={new URL(`/${current}/blog/rss.xml`, Astro.site).href} />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title} — Universal Till</title>
   <meta name="description" content={description} />

@@ -87,8 +87,12 @@ test.describe("language lives in the URL", () => {
 
   test("every locale of a page is declared to search engines", async ({ page }) => {
     await page.goto("/en-gb/blog/whats-new-v0-2-70");
+    // [hreflang] scopes this to the locale alternates specifically — the
+    // page also carries an unrelated rel="alternate" RSS-autodiscovery
+    // link (ut-docs#482), which has no hreflang attribute and isn't what
+    // this test is about.
     const alternates = await page.evaluate(() =>
-      [...document.querySelectorAll('link[rel="alternate"]')].map((l) => ({
+      [...document.querySelectorAll('link[rel="alternate"][hreflang]')].map((l) => ({
         hreflang: l.getAttribute("hreflang"),
         href: l.getAttribute("href"),
       })),
