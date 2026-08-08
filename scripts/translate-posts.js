@@ -1,9 +1,19 @@
 #!/usr/bin/env node
 // Translate blog posts into every locale using the SELF-HOSTED model on the
-// homelab (LM Studio, 192.168.1.93:1234) — never a paid AI API. That is a
-// standing product rule for anything that ships, and this is build-time
-// tooling on the same principle: the translations are committed to the repo,
-// so the published site depends on files in git, not on a model being up.
+// homelab — never a paid AI API. That is a standing product rule for anything
+// that ships, and this is build-time tooling on the same principle: the
+// translations are committed to the repo, so the published site depends on
+// files in git, not on a model being up.
+//
+// Target: **Ollama on the NAS** (192.168.1.231, `nas/ollama/` in
+// homelab-k8s), not the LM Studio instance on a laptop. The NAS is always on,
+// so this runs unattended — from a cron pipeline, or by anyone on the team —
+// rather than only when one particular machine happens to be awake.
+//
+// It needs the bearer token that gate requires: `OLLAMA_TOKEN`, or it fetches
+// `ollama-api-token` from Key Vault via `az` if you are logged in. Never
+// hard-code it, and never pass it on a command line where it lands in shell
+// history.
 //
 //   node scripts/translate-posts.js            # fill in what's missing
 //   node scripts/translate-posts.js --force    # redo everything
@@ -20,6 +30,7 @@
 // other content, not generated during a deploy nobody is watching.
 import fs from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -27,8 +38,31 @@ const ROOT = path.join(__dirname, "..");
 const BLOG = path.join(ROOT, "src", "content", "blog");
 const SOURCE_LOCALE = "en-gb";
 
-const ENDPOINT = process.env.LOCAL_LLM_URL || "http://192.168.1.93:1234/v1/chat/completions";
-const MODEL = process.env.LOCAL_LLM_MODEL || "qwen3.6-35b-a3b-mlx";
+const ENDPOINT = process.env.LOCAL_LLM_URL || "http://192.168.1.231:11434/api/chat";
+// The 30B MoE, not the 8B dense: only ~3B parameters are active per token, so
+// on CPU it costs about the same as the 8B while translating visibly better.
+// Measured on the 8B: "roadmap" left untranslated in Turkish copy, and "live"
+// rendered as "canlı" where a Turkish reader expects "yayında". This is
+// public marketing copy — the quality difference is the whole point of
+// running a bigger model on a box with 54 GB free.
+const MODEL = process.env.LOCAL_LLM_MODEL || "qwen3:30b-a3b";
+
+// Resolve the token once: explicit env wins, otherwise ask Key Vault. A
+// missing token is a 401 from the gate, which is a much clearer failure than
+// a silent empty translation.
+function resolveToken() {
+  if (process.env.OLLAMA_TOKEN) return process.env.OLLAMA_TOKEN;
+  try {
+    return execFileSync(
+      "az",
+      ["keyvault", "secret", "show", "--vault-name", "kv-unitill-dev", "-n", "ollama-api-token", "--query", "value", "-o", "tsv"],
+      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+    ).trim();
+  } catch {
+    return "";
+  }
+}
+const TOKEN = resolveToken();
 
 // Named in the target language's own terms, and told what NOT to touch. The
 // last two rules exist because a translation that renames a product or
@@ -62,19 +96,35 @@ function field(frontmatter, name) {
 async function ask(prompt, system) {
   const res = await fetch(ENDPOINT, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(TOKEN ? { Authorization: `Bearer ${TOKEN}` } : {}),
+    },
     body: JSON.stringify({
       model: MODEL,
-      // Low but not zero: translation wants faithfulness, not invention.
-      temperature: 0.2,
-      // Generous: a long post plus a thinking model's reasoning block blew a
-      // 4k budget and came back with an EMPTY message rather than an error.
-      max_tokens: 16000,
-      // Qwen3 thinking is pure cost here — translation is not a reasoning
-      // task, and the block ate the budget. Both spellings, because which one
-      // is honoured depends on the loaded template.
-      chat_template_kwargs: { enable_thinking: false },
-      enable_thinking: false,
+      // STREAMING, and not for progress bars: Node's fetch gives up if no
+      // response HEADERS arrive within 300s, and a cold 18 GB model on CPU
+      // takes longer than that to load and start answering. A non-streaming
+      // call therefore died with a bare "fetch failed" after five minutes —
+      // which reads like a network fault and is really a timeout. Streaming
+      // sends headers immediately and resets the clock on every chunk.
+      stream: true,
+      // Qwen3 reasons before answering unless told not to. Translation is not
+      // a reasoning task, and the block silently ate the token budget: the
+      // model returned an EMPTY message rather than an error. This is the
+      // native Ollama switch; the OpenAI-compatible /v1 path has no equivalent
+      // and produced exactly that empty reply when tried.
+      think: false,
+      options: {
+        // Low but not zero: translation wants faithfulness, not invention.
+        temperature: 0.2,
+        num_predict: 16000,
+        // Measured on this box: llama.cpp sizes its own pool from visible
+        // CPUs, and 8 threads roughly DOUBLES throughput over its default
+        // here (~10 tok/s vs ~5). The container is pinned to 8 CPUs, so this
+        // matches the cpuset rather than oversubscribing it.
+        num_thread: 8,
+      },
       messages: [
         { role: "system", content: system },
         { role: "user", content: prompt },
@@ -82,9 +132,31 @@ async function ask(prompt, system) {
     }),
   });
 
+  if (res.status === 401) {
+    throw new Error(
+      "401 from the Ollama gate — set OLLAMA_TOKEN, or `az login` so the token can be read from Key Vault",
+    );
+  }
   if (!res.ok) throw new Error(`${ENDPOINT} returned HTTP ${res.status}`);
-  const data = await res.json();
-  let text = data.choices?.[0]?.message?.content;
+
+  // Ollama streams newline-delimited JSON, one object per chunk. Buffer by
+  // line rather than by chunk: a JSON object can be split across TCP reads,
+  // and parsing a half object would fail intermittently and only on long
+  // outputs — the worst kind of flake to chase.
+  let text = "";
+  let buffered = "";
+  const decoder = new TextDecoder();
+  for await (const chunk of res.body) {
+    buffered += decoder.decode(chunk, { stream: true });
+    const lines = buffered.split("\n");
+    buffered = lines.pop() ?? "";
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      const part = JSON.parse(line);
+      if (part.error) throw new Error(part.error);
+      text += part.message?.content ?? "";
+    }
+  }
   if (!text) throw new Error("model returned no content");
   // Qwen "thinking" models emit a reasoning block before the answer.
   text = text.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
