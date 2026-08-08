@@ -9,10 +9,17 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   so Astro copies this tree into `dist/` **byte-for-byte unchanged**. Edit
   these files exactly as before.
 - Astro builds only genuinely *new* surface on top of that: the blog
-  (`src/content/blog/`, MDX content collections), `/plugins`, and the Decap
-  CMS admin at `site/admin/` behind a Zitadel OIDC gate (configured in
-  `site/staticwebapp.config.json`, with `api/auth` + `api/callback` handling
-  Decap's GitHub OAuth). See `docs/astro-migration.md`.
+  (`src/content/blog/`, MDX content collections) and `/plugins`. See
+  `docs/astro-migration.md`.
+- **The Decap CMS admin does NOT live here.** It's served from the homelab
+  cluster at `admin.universaltill.com`, gated by Zitadel via oauth2-proxy
+  (`taskrunnertech/homelab-k8s`'s `kubernetes/apps/ut-admin/`) — this SWA
+  intentionally has no `/admin` route and no `auth` block; `site/admin/*` and
+  `/admin` are explicitly excluded from `navigationFallback` so a request to
+  either 404s cleanly instead of silently serving the homepage
+  (ut-docs#461/#471). `api/auth` + `api/callback` still live here for now
+  (Decap's GitHub OAuth relay) but are being ported same-origin to the
+  cluster host — ut-docs#468.
 - **There is a build step now**: `npm ci && npm run build` → `dist/`, which is
   what gets deployed. `dist/`, `.astro/` and `node_modules/` are git-ignored.
 - `scripts/check-i18n-keys.js` (run on every push/PR via `.github/workflows/ci.yml`)

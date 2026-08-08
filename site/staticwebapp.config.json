@@ -11,6 +11,7 @@
       "/store.html",
       "/language.html",
       "/blog/*",
+      "/admin",
       "/admin/*",
       "/plugins/*"
     ]
@@ -36,51 +37,8 @@
     {
       "route": "/language",
       "rewrite": "/language.html"
-    },
-    {
-      "route": "/admin",
-      "allowedRoles": [
-        "authenticated"
-      ]
-    },
-    {
-      "route": "/admin/*",
-      "allowedRoles": [
-        "authenticated"
-      ]
     }
   ],
-  "responseOverrides": {
-    "401": {
-      "redirect": "/.auth/login/zitadel?post_login_redirect_uri=/admin",
-      "statusCode": 302
-    }
-  },
-  "auth": {
-    "identityProviders": {
-      "customOpenIdConnectProviders": {
-        "zitadel": {
-          "registration": {
-            "clientIdSettingName": "ZITADEL_CLIENT_ID",
-            "clientCredential": {
-              "clientSecretSettingName": "ZITADEL_CLIENT_SECRET"
-            },
-            "openIdConnectConfiguration": {
-              "wellKnownOpenIdConfiguration": "https://id.universaltill.com/.well-known/openid-configuration"
-            }
-          },
-          "login": {
-            "nameClaimType": "preferred_username",
-            "scopes": [
-              "openid",
-              "profile",
-              "email"
-            ]
-          }
-        }
-      }
-    }
-  },
   "platform": {
     "apiRuntime": "node:20"
   }

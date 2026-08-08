@@ -1,5 +1,21 @@
 # Astro + Decap CMS migration (2026-07-28, overnight)
 
+**Update (2026-08-08, ut-docs#461/#468/#471):** the plan below to gate
+`/admin` on this Static Web App via Azure's native Zitadel OIDC provider was
+**not viable** — that feature requires the SWA Standard plan, and this site
+runs on Free. The product owner chose instead to serve the Decap admin from
+the homelab cluster at `admin.universaltill.com`, gated by Zitadel via
+oauth2-proxy (`taskrunnertech/homelab-k8s`'s `kubernetes/apps/ut-admin/`).
+This repo's `site/admin/`, `staticwebapp.config.json`'s `auth` block and
+`/admin` routes have been removed accordingly (ut-docs#471) — `/admin` and
+`/admin/*` stay in `navigationFallback.exclude` so they correctly 404 rather
+than silently falling back to the homepage. `api/auth` + `api/callback`
+still live here for now; they are being ported same-origin to
+`admin.universaltill.com` in ut-docs#468 (a cross-origin `postMessage`
+between the two hosts is dropped by the browser by design, so the OAuth
+relay cannot stay split across both). The rest of this document (the blog,
+the marketing-pages-stay-plain-HTML decision) is still accurate.
+
 ## What changed
 
 - Astro scaffolded (`package.json`, `astro.config.mjs`, Tailwind v4 via
