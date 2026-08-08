@@ -1,32 +1,65 @@
 ---
 import { getCollection, render } from 'astro:content';
-import BaseLayout, { LANGS } from '../../../layouts/BaseLayout.astro';
+import BaseLayout, { LANGS, SOURCE_LOCALE } from '../../../layouts/BaseLayout.astro';
 
-// Cross-product of posts and languages: /blog/<slug> plus /tr/blog/<slug>
-// and friends, so every post has a real URL in every language rather than one
-// that only works if you already had the language stored locally.
+// One page per post PER LOCALE, serving that locale's own translation where it
+// exists and the English original where it does not. Posts live in
+// src/content/blog/<locale>/<slug>.mdx, so an entry id is "en-gb/my-post" —
+// the slug in the URL is the part after the locale.
+//
+// Falling back rather than 404ing matters: an editor publishes English through
+// the CMS, and the translations are generated separately
+// (scripts/translate-posts.js, against the self-hosted model). Between those
+// two moments /tr-tr/blog/<slug> must still be a real page, in English, saying
+// so — not a dead link in the Turkish blog listing.
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
-  return posts.flatMap((post) =>
-    LANGS.map((lang) => ({
-      params: { lang, slug: post.id },
-      props: { post },
-    })),
+  const byLocale = (locale, slug) => posts.find((p) => p.id === `${locale}/${slug}`);
+  const slugs = [...new Set(posts.map((p) => p.id.split('/').slice(1).join('/')))];
+
+  return slugs.flatMap((slug) =>
+    LANGS.map((lang) => {
+      const translated = byLocale(lang, slug);
+      const source = byLocale(SOURCE_LOCALE, slug);
+      const post = translated ?? source;
+      if (!post) return null;
+      return {
+        params: { lang, slug },
+        props: { post, isFallback: !translated && lang !== SOURCE_LOCALE },
+      };
+    }).filter(Boolean),
   );
 }
 
-const { post } = Astro.props;
-const { lang } = Astro.params;
+const { post, isFallback } = Astro.props;
+const { lang, slug } = Astro.params;
 const { Content } = await render(post);
 ---
 
-<BaseLayout title={post.data.title} description={post.data.excerpt} lang={lang} path={`/blog/${post.id}`}>
+<BaseLayout title={post.data.title} description={post.data.excerpt} lang={lang} path={`/blog/${slug}`}>
   <article class="section" style="max-width:44rem">
     <p style="color:var(--muted);font-size:.9rem;margin-bottom:.3rem">
       {post.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
       {' · '}{post.data.author}
     </p>
     <h1>{post.data.title}</h1>
+
+    {/* Say which of the two this is. A machine translation presented as if a
+        person wrote it is a small dishonesty that costs trust the first time a
+        reader spots an odd phrase; naming it costs nothing. Both notes link to
+        the English original, which is always the source of truth. */}
+    {post.data.machineTranslated && (
+      <p class="muted" style="font-size:.85rem;margin:.2rem 0 1rem">
+        <span data-i18n="news.machine">Translated automatically.</span>{' '}
+        <a href={`/en-gb/blog/${slug}`} data-i18n="news.original">Read the English original</a>
+      </p>
+    )}
+    {isFallback && (
+      <p class="muted" style="font-size:.85rem;margin:.2rem 0 1rem" data-i18n="news.untranslated">
+        This post isn't translated yet, so it's shown in English.
+      </p>
+    )}
+
     {post.data.coverImage && (
       <img
         src={post.data.coverImage}

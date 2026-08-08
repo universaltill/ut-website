@@ -10,6 +10,10 @@ const blog = defineCollection({
     author: z.string().default('Universal Till'),
     coverImage: z.string().optional(),
     draft: z.boolean().default(false),
+    // Set by scripts/translate-posts.js. Drives the "translated automatically"
+    // note on the post — an unlabelled machine translation is a small
+    // dishonesty that costs trust the first time a reader hits an odd phrase.
+    machineTranslated: z.boolean().default(false),
   }),
 });
 
