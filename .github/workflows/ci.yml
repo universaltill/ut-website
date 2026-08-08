@@ -63,3 +63,15 @@ jobs:
             exit 1
           fi
           echo "OK: every site/ file is present in dist/ byte-for-byte"
+
+  playwright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx playwright test

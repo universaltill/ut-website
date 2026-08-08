@@ -26,8 +26,11 @@ img { max-width: 100%; }
 
 /* Nav */
 .nav {
+  /* position: sticky already establishes a containing block for
+     absolutely-positioned descendants (same as position: relative would),
+     which is what the mobile dropdown panel below is positioned against. */
   position: sticky; top: 0; z-index: 20;
-  display: flex; align-items: center; gap: 1.2rem;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 1.2rem;
   padding: .8rem clamp(1rem, 4vw, 2.4rem);
   background: rgba(255,255,255,.85); backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
@@ -37,6 +40,38 @@ img { max-width: 100%; }
 .nav nav { margin-inline-start: auto; display: flex; align-items: center; gap: 1.1rem; flex-wrap: wrap; }
 .nav nav a { color: var(--ink-soft); font-weight: 500; font-size: .95rem; }
 .nav nav a:hover { color: var(--brand); }
+
+/* Primary CTA + language pill + mobile menu toggle live in their own
+   trailing group, separate from the collapsible link list — this makes it
+   structurally impossible for the link-hiding media query below to also
+   hide these (ut-docs#458). `margin-inline-start: auto` stays on `.nav nav`
+   (restored — review found removing it collapsed every page's desktop
+   header from right-aligned to left-clustered, up to 646px of shift); at
+   mobile widths `#site-nav` leaves flow entirely (see below), so
+   `.nav-actions` gets its own `auto` margin there instead. `.nav` itself
+   now wraps (review found narrow phones as tight as 280–320px overflowing
+   horizontally once the toggle+CTA+lang-pill all render together, which
+   pre-fix never happened because the pill was simply hidden there). */
+.nav-actions { display: flex; align-items: center; gap: .7rem; }
+
+.nav-toggle {
+  display: none; align-items: center; justify-content: center;
+  width: 2.4rem; height: 2.4rem; padding: 0;
+  border: 1px solid var(--border); border-radius: 10px; background: #fff;
+  color: var(--ink); cursor: pointer;
+}
+.nav-toggle:hover { border-color: var(--brand); }
+.nav-toggle-bars,
+.nav-toggle-bars::before,
+.nav-toggle-bars::after {
+  display: block; width: 18px; height: 2px; background: var(--ink); border-radius: 2px;
+}
+.nav-toggle-bars { position: relative; }
+.nav-toggle-bars::before, .nav-toggle-bars::after {
+  content: ""; position: absolute; inset-inline-start: 0;
+}
+.nav-toggle-bars::before { inset-block-start: -6px; }
+.nav-toggle-bars::after { inset-block-start: 6px; }
 
 /* Language link — a small pill to the dedicated /language page, not an
    inline dropdown; that page is where "lots of languages" scales, the nav
@@ -175,8 +210,44 @@ img { max-width: 100%; }
 @media (max-width: 560px) {
   .grid.solutions { grid-template-columns: 1fr; }
   .gallery { grid-template-columns: 1fr; }
-  .nav nav a:not(.btn) { display: none; }
-  .nav nav .btn, .lang-link { display: inline-flex; }
+
+  .nav-toggle { display: inline-flex; }
+  /* #site-nav leaves normal flow at this width (see below), so .nav-actions
+     needs its own trailing margin instead of relying on the one on .nav nav. */
+  .nav-actions { margin-inline-start: auto; }
+
+  /* #site-nav becomes a full-width dropdown panel under the header instead
+     of an inline row. Every direction-sensitive rule uses a logical
+     property (inset-inline, border-block-*, text-align: start — `top` has
+     no directional meaning so stays physical) so this is automatically
+     correct under dir="rtl" with zero extra rules — a full-width top-down
+     panel sidesteps the "which side does it open from" RTL question
+     entirely. `align-items:
+     stretch` overrides the row layout's `align-items: center` (inherited
+     via `.nav nav`) — without it every link shrinks to text width and
+     centers, leaving most of each row's tap target dead (review finding).
+     `max-height`/`overflow-y` keep the panel usable on short viewports
+     (landscape phones, split-screen) where 7 stacked links can exceed the
+     screen height — `calc(100dvh - 100%)` does NOT work here (the
+     percentage resolves against an auto-height containing block and
+     silently no-ops), so this is a fixed viewport-relative cap instead. */
+  #site-nav {
+    display: none;
+    position: absolute; inset-inline: 0; top: 100%;
+    flex-direction: column; flex-wrap: nowrap; align-items: stretch;
+    gap: 0; margin: 0;
+    max-height: 78dvh; overflow-y: auto;
+    background: var(--bg);
+    border-block-end: 1px solid var(--border);
+    box-shadow: 0 12px 24px rgba(15,23,42,.12);
+  }
+  .nav.nav-open #site-nav { display: flex; }
+  #site-nav a {
+    padding: .9rem clamp(1rem, 4vw, 2.4rem);
+    border-block-end: 1px solid var(--border);
+    text-align: start;
+  }
+  #site-nav a:last-child { border-block-end: 0; }
 }
 
 /* Get-started steps */
