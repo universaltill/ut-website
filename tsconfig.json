@@ -1,3 +1,9 @@
 {
-  "extends": "astro/tsconfigs/strict"
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    // sitemap.xml.ts imports site/staticwebapp.config.json directly (build
+    // time, not a runtime fs read) so it can't drift from the real SWA
+    // route table — see that file's own comment.
+    "resolveJsonModule": true
+  }
 }
