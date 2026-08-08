@@ -21,17 +21,19 @@ jobs:
       - uses: actions/checkout@v4
       - run: bash scripts/check-brand-assets.sh
 
-  # Guards the Decap CMS OAuth endpoints. These are anonymous and share an
-  # origin with /admin, where a GitHub token lives in localStorage, so a
-  # regression here is credential-stealing rather than cosmetic.
-  api-tests:
+  # The CMS admin and its OAuth relay are NOT on this site any more — both run
+  # on the homelab cluster at admin.universaltill.com (ut-docs#468/#471), where
+  # a real gate can be enforced and where their tests now live. This guards the
+  # removal: an /admin route, an `auth` block that SWA Free cannot enforce, a
+  # resurrected api/ or site/admin/ drifting from the deployed copy.
+  check-swa-config:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20" # matches staticwebapp.config.json platform.apiRuntime
-      - run: node --test api/auth.test.js
+          node-version: "22"
+      - run: node scripts/check-swa-config.js
 
   # The site must still build, and the plain-HTML marketing tree must still
   # reach dist/ byte-for-byte (astro.config.mjs publicDir: 'site').

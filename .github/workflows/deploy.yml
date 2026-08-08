@@ -59,10 +59,9 @@ jobs:
           fi
       - uses: actions/setup-node@v4
         with:
-          # Astro 7 requires >=22.12.0 and hard-exits below it. This is the
-          # BUILD toolchain only — it is unrelated to the Azure Functions
-          # runtime, which is pinned separately by platform.apiRuntime in
-          # site/staticwebapp.config.json.
+          # Astro 7 requires >=22.12.0 and hard-exits below it. Build toolchain
+          # only; nothing on this site runs Node at request time now that the
+          # api/ functions have gone (see api_location below).
           node-version: 22
       - name: Install dependencies
         run: npm ci
@@ -83,5 +82,8 @@ jobs:
           # rejected at the 250 MB free-tier limit — see the note at the top
           # of this file about deploy 30313779077.
           app_location: "dist"
-          api_location: "api" # resolved from the repo root, not app_location
+          # No api_location: this site ships no managed functions. The Decap
+          # OAuth relay it used to carry moved into the ut-admin pod on the
+          # homelab cluster (ut-docs#468) — it has to be same-origin with the
+          # CMS, and the CMS is no longer here.
           skip_app_build: true # built explicitly above, not via Oryx auto-detect
