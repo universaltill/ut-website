@@ -5,6 +5,7 @@
       "/styles.css",
       "/logo.svg",
       "/i18n.js",
+      "/nav.js",
       "/downloads/*",
       "/download.html",
       "/start.html",

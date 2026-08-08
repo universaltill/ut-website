@@ -1,0 +1,10 @@
+{
+  "name": "ut-website",
+  "private": true,
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  },
+  "scripts": {
+    "test": "playwright test"
+  }
+}
