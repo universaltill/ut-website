@@ -10,3 +10,8 @@ playwright-report/
 # renders on top — so none of it is ever something to commit.
 dist/
 .astro/
+
+# Isolated git worktrees the pipeline's Reviewer subagents run in
+# (Workflow/Agent isolation: "worktree") — local scratch state, same
+# convention already used in universal-till/ut-infra's .gitignore.
+.claude/worktrees/

@@ -119,6 +119,11 @@ img { max-width: 100%; }
 .section-head { text-align: center; max-width: 42rem; margin: 0 auto 2.4rem; }
 .section-head h2 { font-size: clamp(1.6rem, 3.5vw, 2.3rem); margin: 0 0 .6rem; }
 .section-sub { color: var(--muted); font-size: 1.05rem; margin: 0; }
+/* .section-head has no button convention of its own (.cta-band and
+   .split-text both set their own top margin on .btn); the #plugins CTA is
+   the first button placed directly in one, and without this it sits flush
+   against .section-sub's zero bottom margin (ut-docs#353 review finding). */
+.section-head .btn { margin-top: 1.2rem; }
 
 /* Hero */
 .hero {
