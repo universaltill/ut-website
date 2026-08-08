@@ -39,8 +39,5 @@
       "route": "/language",
       "rewrite": "/language.html"
     }
-  ],
-  "platform": {
-    "apiRuntime": "node:20"
-  }
+  ]
 }

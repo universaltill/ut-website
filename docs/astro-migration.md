@@ -9,11 +9,12 @@ oauth2-proxy (`taskrunnertech/homelab-k8s`'s `kubernetes/apps/ut-admin/`).
 This repo's `site/admin/`, `staticwebapp.config.json`'s `auth` block and
 `/admin` routes have been removed accordingly (ut-docs#471) — `/admin` and
 `/admin/*` stay in `navigationFallback.exclude` so they correctly 404 rather
-than silently falling back to the homepage. `api/auth` + `api/callback`
-still live here for now; they are being ported same-origin to
-`admin.universaltill.com` in ut-docs#468 (a cross-origin `postMessage`
-between the two hosts is dropped by the browser by design, so the OAuth
-relay cannot stay split across both). The rest of this document (the blog,
+than silently falling back to the homepage. `api/auth` + `api/callback` have
+been **deleted from this repo** — they were ported same-origin into the
+ut-admin pod (ut-docs#468), hardening and tests included, because a
+cross-origin `postMessage` between the two hosts is dropped by the browser by
+design, so the OAuth relay could not stay split across both. The rest of this
+document (the blog,
 the marketing-pages-stay-plain-HTML decision) is still accurate.
 
 ## What changed

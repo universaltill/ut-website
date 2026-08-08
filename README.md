@@ -17,9 +17,10 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   intentionally has no `/admin` route and no `auth` block; `site/admin/*` and
   `/admin` are explicitly excluded from `navigationFallback` so a request to
   either 404s cleanly instead of silently serving the homepage
-  (ut-docs#461/#471). `api/auth` + `api/callback` still live here for now
-  (Decap's GitHub OAuth relay) but are being ported same-origin to the
-  cluster host — ut-docs#468.
+  (ut-docs#461/#471). Decap's GitHub OAuth relay (`api/auth` + `api/callback`)
+  moved there too and is **gone from this repo** — it has to be same-origin
+  with the CMS, because Decap's popup `postMessage` is origin-pinned
+  (ut-docs#468). `scripts/check-swa-config.js` (CI) fails if any of it returns.
 - **There is a build step now**: `npm ci && npm run build` → `dist/`, which is
   what gets deployed. `dist/`, `.astro/` and `node_modules/` are git-ignored.
   `package.json`'s `devDependencies` also carry Playwright (`tests/`,
@@ -40,7 +41,7 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `.github/workflows/ci.yml`.
 - Deploys automatically to an Azure Static Web App (free tier) on push to
   `main` via `.github/workflows/deploy.yml`, which builds with Astro and
-  uploads `dist/` (plus `api/` as the SWA managed functions).
+  uploads `dist/`. No managed functions — this site is entirely static.
 - The Azure resource, DNS zone and deployment token are managed by terraform
   in the `infra` repo (`unitill-infra/website/` — its own isolated state).
   The deployment token lives in Key Vault `kv-unitill-dev` as
