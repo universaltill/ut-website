@@ -66,11 +66,23 @@ const jsonLd = {
       so it isn't strictly developer-controlled text. */}
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />
   <article class="section" style="max-width:44rem">
-    <p style="color:var(--muted);font-size:.9rem;margin-bottom:.3rem">
+    {/* isFallback: this date/author line and the title below are the
+        untranslated English original too — not just the body further down.
+        Reviewed 2026-08-08 (ut-docs#353): the original fix only forced ltr
+        on the body div, which left the h1 and this line under BaseLayout's
+        rtl. Damage was subtler than the body case (no word-reordering,
+        the `·` folds into one run under bidi rule N1) but a title ending in
+        punctuation would still render it on the wrong end — the exact
+        defect class this card exists to fix. */}
+    <p
+      style="color:var(--muted);font-size:.9rem;margin-bottom:.3rem"
+      dir={isFallback ? 'ltr' : undefined}
+      lang={isFallback ? 'en' : undefined}
+    >
       {post.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
       {' · '}{post.data.author}
     </p>
-    <h1>{post.data.title}</h1>
+    <h1 dir={isFallback ? 'ltr' : undefined} lang={isFallback ? 'en' : undefined}>{post.data.title}</h1>
 
     {/* Say which of the two this is. A machine translation presented as if a
         person wrote it is a small dishonesty that costs trust the first time a
