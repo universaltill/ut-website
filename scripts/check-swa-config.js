@@ -55,18 +55,20 @@ for (const route of config.routes || []) {
   }
 }
 
-// Deliberately still EXCLUDED from navigationFallback even though nothing is
-// served there. `navigationFallback.rewrite` answers every unknown path with
-// the homepage at HTTP 200, which is how this project has repeatedly convinced
-// itself a page existed when it did not. Excluded, /admin gives a real 404 —
-// the honest answer, and the one that makes "is the admin still on the public
-// site?" a question you can actually ask over HTTP.
-const excluded = (config.navigationFallback || {}).exclude || [];
-for (const required of ['/admin', '/admin/*']) {
-  if (!excluded.includes(required)) {
+// There must be no navigationFallback at all. It answered EVERY unknown path
+// with the homepage at HTTP 200, which is how this project repeatedly
+// convinced itself a page existed when it did not — /blog looked live for
+// weeks, and /admin looked like it was still being served. Every real URL now
+// has an explicit route or a real file, so an unknown path should 404 and say
+// so. If it ever comes back, /admin must be excluded from it.
+const fallback = config.navigationFallback;
+if (fallback && fallback.rewrite) {
+  const excluded = fallback.exclude || [];
+  const missing = ['/admin', '/admin/*'].filter((r) => !excluded.includes(r));
+  if (missing.length) {
     problems.push(
-      `navigationFallback.exclude is missing "${required}" — without it, ` +
-        `${required} answers 200 with the homepage instead of a clean 404.`,
+      `navigationFallback is back and does not exclude ${missing.join(', ')} — ` +
+        'those paths would answer 200 with the homepage instead of a clean 404.',
     );
   }
 }

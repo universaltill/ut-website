@@ -8,13 +8,13 @@ test.describe("mobile nav — index.html", () => {
   for (const width of MOBILE_WIDTHS) {
     test(`AC1: language pill stays visible at ${width}px without opening the menu`, async ({ page }) => {
       await page.setViewportSize({ width, height: 800 });
-      await page.goto("/");
+      await page.goto("/en-gb");
       await expect(page.locator(".lang-link")).toBeVisible();
     });
 
     test(`AC2: nav links are hidden until the toggle is opened, then close again, at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 800 });
-      await page.goto("/");
+      await page.goto("/en-gb");
 
       const toggle = page.locator(".nav-toggle");
       const solutions = page.locator("#site-nav a", { hasText: "Solutions" });
@@ -48,7 +48,7 @@ test.describe("mobile nav — index.html", () => {
 
     test(`opening the menu moves focus to its first link, at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 800 });
-      await page.goto("/");
+      await page.goto("/en-gb");
       const toggle = page.locator(".nav-toggle");
       await toggle.focus();
       await page.keyboard.press("Enter");
@@ -59,7 +59,7 @@ test.describe("mobile nav — index.html", () => {
 
     test(`clicking outside the open panel closes it at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 800 });
-      await page.goto("/");
+      await page.goto("/en-gb");
       const toggle = page.locator(".nav-toggle");
       await toggle.click();
       await expect(toggle).toHaveAttribute("aria-expanded", "true");
@@ -72,7 +72,7 @@ test.describe("mobile nav — index.html", () => {
 
   test("desktop layout (900px): toggle hidden, links shown inline, header stays trailing-aligned", async ({ page }) => {
     await page.setViewportSize({ width: 900, height: 800 });
-    await page.goto("/");
+    await page.goto("/en-gb");
     await expect(page.locator(".nav-toggle")).toBeHidden();
     await expect(page.locator("#site-nav a", { hasText: "Solutions" })).toBeVisible();
     await expect(page.locator(".lang-link")).toBeVisible();
@@ -89,9 +89,9 @@ test.describe("mobile nav — index.html", () => {
     }
   });
 
-  test("RTL: /fa mobile menu opens correctly, mirrors, and stays within the viewport", async ({ page }) => {
+  test("RTL: /fa-ir mobile menu opens correctly, mirrors, and stays within the viewport", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 800 });
-    await page.goto("/fa");
+    await page.goto("/fa-ir");
 
     expect(await page.evaluate(() => document.documentElement.dir)).toBe("rtl");
 

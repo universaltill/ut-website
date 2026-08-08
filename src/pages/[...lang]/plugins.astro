@@ -1,5 +1,9 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout, { LANGS } from '../../layouts/BaseLayout.astro';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
 
 // Every plugin listed on THIS page is free, public, and stays that way
 // -- ADR-0027 (ut-docs) rules out quietly relicensing something already
@@ -101,11 +105,15 @@ const renderOrder = [
   ...typeOrder.filter((t) => byType[t]),
   ...Object.keys(byType).filter((t) => !typeOrder.includes(t)),
 ];
+
+const { lang } = Astro.params;
 ---
 
 <BaseLayout
   title="Plugins"
   description="Every plugin listed here is free to download and install from GitHub, forever — Universal Till may also offer paid official plugins, which simply wouldn't be listed on this page."
+  lang={lang}
+  path="/plugins"
 >
   <section class="section">
     <div class="section-head">

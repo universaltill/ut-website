@@ -1,24 +1,43 @@
 ---
 import { getCollection } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import BaseLayout, { LANGS } from '../../../layouts/BaseLayout.astro';
+
+// One built page per language: /blog, /tr/blog, /zh/blog, /fa/blog. The rest
+// param is undefined for English, which is what keeps the English URL at the
+// root. A language that exists only behind a click is a language search
+// engines never index — and a visitor who bookmarks a Turkish page gets a
+// Turkish page back.
+//
+// The post BODIES are still English; only the site chrome translates (via
+// i18n.js's data-i18n pass). Translating the content itself is ut-docs#475.
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime()
 );
 ---
 
-<BaseLayout title="News" description="Release notes, roadmap updates and stories from shops running Universal Till.">
+<BaseLayout
+  title="News"
+  description="Release notes, roadmap updates and stories from shops running Universal Till."
+  lang={lang}
+  path="/blog"
+>
   <section class="section">
     <div class="section-head">
       <h1>News</h1>
-      <p class="section-sub">News and updates from Universal Till.</p>
+      <p class="section-sub" data-i18n="news.sub">Release notes, roadmap updates, and stories from shops running Universal Till.</p>
     </div>
 
     {posts.length === 0 && <p class="muted">No posts yet.</p>}
 
     <div class="grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
       {posts.map((post) => (
-        <a class="card" style="display:block" href={`/blog/${post.id}`}>
+        <a class="card" style="display:block" href={`/${lang}/blog/${post.id}`}>
           {post.data.coverImage && (
             <img
               src={post.data.coverImage}

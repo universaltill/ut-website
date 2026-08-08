@@ -1,22 +1,4 @@
 {
-  "navigationFallback": {
-    "rewrite": "/index.html",
-    "exclude": [
-      "/styles.css",
-      "/logo.svg",
-      "/i18n.js",
-      "/nav.js",
-      "/downloads/*",
-      "/download.html",
-      "/start.html",
-      "/store.html",
-      "/language.html",
-      "/blog/*",
-      "/admin",
-      "/admin/*",
-      "/plugins/*"
-    ]
-  },
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
@@ -24,20 +6,139 @@
   },
   "routes": [
     {
-      "route": "/download",
+      "route": "/en-gb",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/en-gb/download",
       "rewrite": "/download.html"
     },
     {
-      "route": "/start",
+      "route": "/en-gb/start",
       "rewrite": "/start.html"
     },
     {
-      "route": "/store",
+      "route": "/en-gb/store",
       "rewrite": "/store.html"
     },
     {
-      "route": "/language",
+      "route": "/en-gb/language",
       "rewrite": "/language.html"
+    },
+    {
+      "route": "/tr-tr",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/tr-tr/download",
+      "rewrite": "/download.html"
+    },
+    {
+      "route": "/tr-tr/start",
+      "rewrite": "/start.html"
+    },
+    {
+      "route": "/tr-tr/store",
+      "rewrite": "/store.html"
+    },
+    {
+      "route": "/tr-tr/language",
+      "rewrite": "/language.html"
+    },
+    {
+      "route": "/zh-cn",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/zh-cn/download",
+      "rewrite": "/download.html"
+    },
+    {
+      "route": "/zh-cn/start",
+      "rewrite": "/start.html"
+    },
+    {
+      "route": "/zh-cn/store",
+      "rewrite": "/store.html"
+    },
+    {
+      "route": "/zh-cn/language",
+      "rewrite": "/language.html"
+    },
+    {
+      "route": "/fa-ir",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/fa-ir/download",
+      "rewrite": "/download.html"
+    },
+    {
+      "route": "/fa-ir/start",
+      "rewrite": "/start.html"
+    },
+    {
+      "route": "/fa-ir/store",
+      "rewrite": "/store.html"
+    },
+    {
+      "route": "/fa-ir/language",
+      "rewrite": "/language.html"
+    },
+    {
+      "route": "/",
+      "redirect": "/en-gb",
+      "statusCode": 301
+    },
+    {
+      "route": "/download",
+      "redirect": "/en-gb/download",
+      "statusCode": 301
+    },
+    {
+      "route": "/start",
+      "redirect": "/en-gb/start",
+      "statusCode": 301
+    },
+    {
+      "route": "/store",
+      "redirect": "/en-gb/store",
+      "statusCode": 301
+    },
+    {
+      "route": "/language",
+      "redirect": "/en-gb/language",
+      "statusCode": 301
+    },
+    {
+      "route": "/blog",
+      "redirect": "/en-gb/blog",
+      "statusCode": 301
+    },
+    {
+      "route": "/plugins",
+      "redirect": "/en-gb/plugins",
+      "statusCode": 301
+    },
+    {
+      "route": "/blog/*",
+      "redirect": "/en-gb/blog",
+      "statusCode": 301
+    },
+    {
+      "route": "/tr",
+      "redirect": "/tr-tr",
+      "statusCode": 301
+    },
+    {
+      "route": "/zh",
+      "redirect": "/zh-cn",
+      "statusCode": 301
+    },
+    {
+      "route": "/fa",
+      "redirect": "/fa-ir",
+      "statusCode": 301
     }
   ]
 }

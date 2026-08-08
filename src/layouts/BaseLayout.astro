@@ -1,51 +1,116 @@
 ---
-import '../styles/global.css';
+// No stylesheet import here on purpose. site/styles.css (linked below, served
+// straight from publicDir) is the ONLY stylesheet on this site — these pages
+// used to also load a Tailwind-based global.css that redeclared the same
+// tokens and its own body font. Two stylesheets meant these pages quietly
+// rendered in a different typeface from every hand-written page, which is
+// exactly the "am I on a different website?" feeling a visitor gets before
+// they can name why.
+
+// Locales and their writing direction, mirroring site/i18n.js. Every locale
+// gets its own URL prefix (/tr-tr/blog), because a language that exists only
+// behind a click is a language search engines never index — and a visitor who
+// bookmarks a Turkish page should get a Turkish page back.
+//
+// Region-tagged, not language-only. VAT, receipt law and payment
+// rails differ by COUNTRY, not by language, so "tr" has nowhere to put a
+// future difference between two markets sharing a language. en-GB is the
+// default and lives at the root.
+export const LANGS = ['en-gb', 'tr-tr', 'zh-cn', 'fa-ir'];
+const DEFAULT_LANG = 'en-gb';
+const DIR = { 'en-gb': 'ltr', 'tr-tr': 'ltr', 'zh-cn': 'ltr', 'fa-ir': 'rtl' };
+
+// BCP-47 uppercases the region subtag; crawlers accept either, humans read it.
+const bcp47 = (code) => {
+  const parts = code.split('-');
+  return parts.length === 2 ? `${parts[0]}-${parts[1].toUpperCase()}` : code;
+};
 
 interface Props {
   title: string;
   description: string;
+  /** URL language prefix: undefined for English at the root. */
+  lang?: string;
+  /** Path of this page WITHOUT the language prefix, e.g. "/blog". */
+  path: string;
 }
 
-const { title, description } = Astro.props;
+const { title, description, lang, path } = Astro.props;
+const current = lang ?? DEFAULT_LANG;
+const dir = DIR[current] ?? 'ltr';
+
+// Prefix a site path with the current language, so navigating out of a
+// Turkish page lands on a Turkish page rather than silently switching to
+// English.
+// Every link stays inside the current locale, English included: an unprefixed
+// URL says nothing about language, so choosing English after Turkish would
+// land on a page that still renders Turkish from the stored preference.
+const L = (p: string) => `/${current}${p === '/' ? '' : p}` || '/';
+
+// hreflang alternates for THIS page in every language — the pairing that
+// tells a search engine these are translations of one page rather than
+// duplicates competing with each other.
+const alternates = LANGS.map((code) => ({
+  code,
+  href: new URL(`/${code}${path}`, Astro.site).href,
+}));
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang={bcp47(current)} dir={dir}>
 <head>
   <meta charset="utf-8" />
   <script is:inline>if(location.hostname==="universaltill.com"){location.replace("https://www.universaltill.com"+location.pathname+location.search+location.hash);}</script>
   <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+  {alternates.map((a) => <link rel="alternate" hreflang={bcp47(a.code)} href={a.href} />)}
+  <link rel="alternate" hreflang="x-default" href={new URL(`/${DEFAULT_LANG}${path}`, Astro.site).href} />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title} — Universal Till</title>
   <meta name="description" content={description} />
   <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-  <!-- Reuses the existing site's own stylesheet (site/styles.css, served
-       from publicDir) for header/footer/.btn/.card/.section — the blog
-       should look like part of the same site, not a second design system,
-       without re-deriving those tokens in Tailwind tonight. -->
+  <!-- The site's own stylesheet, and the only one. Header, footer, .btn,
+       .card, .section and the body typeface all come from here, so these
+       pages are the same site rather than a lookalike. -->
   <link rel="stylesheet" href="/styles.css" />
   <script defer src="/i18n.js"></script>
+  <!-- nav.js too: the hamburger below is markup this header carries
+       (ut-docs#458). Without it the toggle would render and do nothing at
+       <=560px on exactly the pages a visitor reaches from a search result. -->
   <script defer src="/nav.js"></script>
 </head>
 <body>
 
+<!-- The SAME header as site/index.html, link for link: same wrapper, same
+     #site-nav panel, same .nav-actions/.nav-toggle markup that nav.js and
+     styles.css key off, the same 22x30 logo and the same "Get started"
+     action. Only the hrefs differ — in-page anchors must be absolute from a
+     /blog/* URL, and each is language-prefixed. It previously carried a
+     shortened four-link menu, a larger logo and a Download button, so
+     arriving here felt like leaving the site.
+     tests/site-consistency.spec.js compares the two headers on every build. -->
 <header class="nav">
-  <a class="brand" href="/">
-    <img src="/logo.svg" alt="" width="34" height="30" />
+  <a class="brand" href={L('/')}>
+    <img src="/logo.svg" alt="" width="22" height="30" />
     <span>Universal <strong>Till</strong></span>
   </a>
   <nav id="site-nav">
-    <a href="/#solutions" data-i18n="nav.solutions">Solutions</a>
-    <a href="/start" data-i18n="nav.start">Get started</a>
-    <a href="/blog" data-i18n="nav.news">News</a>
-    <a href="/plugins" data-i18n="nav.plugins">Plugins</a>
+    <a href={`${L('/')}#solutions`} data-i18n="nav.solutions">Solutions</a>
+    <a href={`${L('/')}#tour`} data-i18n="nav.tour">Tour</a>
+    <a href={`${L('/')}#why`} data-i18n="nav.why">Why it's different</a>
+    <a href={`${L('/')}#hardware`} data-i18n="nav.hardware">Hardware</a>
+    <a href={L('/plugins')} data-i18n="nav.plugins">Plugins</a>
+    <a href={`${L('/')}#store`} data-i18n="nav.store">Store</a>
+    <a href={L('/blog')} data-i18n="nav.news">News</a>
+    <a href={`${L('/')}#about`} data-i18n="nav.about">About</a>
   </nav>
   <div class="nav-actions">
     <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
       <span class="nav-toggle-bars" aria-hidden="true"></span>
     </button>
-    <a class="btn" href="/download" data-i18n="nav.download">Download</a>
-    <a class="lang-link" href="/language" aria-label="Language">🌐 EN</a>
+    <a class="btn" href={L('/start')} data-i18n="nav.get">Get started</a>
+    <!-- i18n.js rewrites this href at runtime to carry the current page, so
+         choosing a language returns you HERE rather than to the homepage. -->
+    <a class="lang-link" href={`/${current}/language?from=${encodeURIComponent(path)}`} aria-label="Language">🌐 EN</a>
   </div>
 </header>
 
@@ -53,8 +118,13 @@ const { title, description } = Astro.props;
   <slot />
 </main>
 
+<!-- Same footer as site/index.html, tagline included and same 19x26 mark. -->
 <footer class="foot">
-  <div class="foot-brand"><img src="/logo.svg" alt="" width="30" height="26" /> <span>Universal <strong>Till</strong></span></div>
+  <div class="foot-brand">
+    <img src="/logo.svg" alt="" width="19" height="26" />
+    <span>Universal <strong>Till</strong></span>
+  </div>
+  <p class="foot-tagline" data-i18n="foot.tagline">The free, offline-first point of sale.</p>
   <p class="foot-owner" data-i18n="foot.owner">Universal Till is a product of Task Runner Technology LTD.</p>
   <p class="foot-rights" data-i18n="foot.rights">Open source under the MIT licence.</p>
 </footer>
