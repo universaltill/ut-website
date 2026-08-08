@@ -1,6 +1,6 @@
 // Regression tests for ut-docs#458 — mobile nav language pill hidden by a
 // specificity bug, and no hamburger menu at all at <=560px.
-const { test, expect } = require("@playwright/test");
+import { test, expect } from "@playwright/test";
 
 const MOBILE_WIDTHS = [360, 560];
 

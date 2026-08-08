@@ -21,6 +21,49 @@ jobs:
       - uses: actions/checkout@v4
       - run: bash scripts/check-brand-assets.sh
 
+  # The CMS admin and its OAuth relay are NOT on this site any more — both run
+  # on the homelab cluster at admin.universaltill.com (ut-docs#468/#471), where
+  # a real gate can be enforced and where their tests now live. This guards the
+  # removal: an /admin route, an `auth` block that SWA Free cannot enforce, a
+  # resurrected api/ or site/admin/ drifting from the deployed copy.
+  check-swa-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node scripts/check-swa-config.js
+
+  # The site must still build, and the plain-HTML marketing tree must still
+  # reach dist/ byte-for-byte (astro.config.mjs publicDir: 'site').
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22" # Astro 7 requires >=22.12.0; must match deploy.yml
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: site/ must be copied through unchanged
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            rel="${f#site/}"
+            if [ ! -e "dist/$rel" ]; then
+              echo "MISSING from dist/: $rel"; fail=1
+            elif ! cmp -s "$f" "dist/$rel"; then
+              echo "MODIFIED in dist/: $rel"; fail=1
+            fi
+          done < <(find site -type f)
+          if [ "$fail" -ne 0 ]; then
+            echo "publicDir pass-through is broken — the live marketing site would change."
+            exit 1
+          fi
+          echo "OK: every site/ file is present in dist/ byte-for-byte"
+
   playwright:
     runs-on: ubuntu-latest
     steps:
@@ -28,6 +71,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test

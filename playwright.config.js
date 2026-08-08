@@ -1,9 +1,9 @@
 // @ts-check
-const { defineConfig, devices } = require("@playwright/test");
+import { defineConfig, devices } from "@playwright/test";
 
 const PORT = 4173;
 
-module.exports = defineConfig({
+export default defineConfig({
   testDir: "./tests",
   fullyParallel: true,
   reporter: [["list"]],
@@ -12,7 +12,9 @@ module.exports = defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: `node scripts/serve-site.js`,
+    // Build first: the server serves dist/, and a stale dist/ would test the
+    // previous commit's markup while reporting on this one.
+    command: `npm run build && node scripts/serve-site.js`,
     port: PORT,
     reuseExistingServer: !process.env.CI,
     env: { PORT: String(PORT) },

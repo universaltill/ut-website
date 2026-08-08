@@ -1,0 +1,63 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <script is:inline>if(location.hostname==="universaltill.com"){location.replace("https://www.universaltill.com"+location.pathname+location.search+location.hash);}</script>
+  <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title} — Universal Till</title>
+  <meta name="description" content={description} />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <!-- Reuses the existing site's own stylesheet (site/styles.css, served
+       from publicDir) for header/footer/.btn/.card/.section — the blog
+       should look like part of the same site, not a second design system,
+       without re-deriving those tokens in Tailwind tonight. -->
+  <link rel="stylesheet" href="/styles.css" />
+  <script defer src="/i18n.js"></script>
+  <script defer src="/nav.js"></script>
+</head>
+<body>
+
+<header class="nav">
+  <a class="brand" href="/">
+    <img src="/logo.svg" alt="" width="34" height="30" />
+    <span>Universal <strong>Till</strong></span>
+  </a>
+  <nav id="site-nav">
+    <a href="/#solutions" data-i18n="nav.solutions">Solutions</a>
+    <a href="/start" data-i18n="nav.start">Get started</a>
+    <a href="/blog" data-i18n="nav.news">News</a>
+    <a href="/plugins" data-i18n="nav.plugins">Plugins</a>
+  </nav>
+  <div class="nav-actions">
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+    </button>
+    <a class="btn" href="/download" data-i18n="nav.download">Download</a>
+    <a class="lang-link" href="/language" aria-label="Language">🌐 EN</a>
+  </div>
+</header>
+
+<main>
+  <slot />
+</main>
+
+<footer class="foot">
+  <div class="foot-brand"><img src="/logo.svg" alt="" width="30" height="26" /> <span>Universal <strong>Till</strong></span></div>
+  <p class="foot-owner" data-i18n="foot.owner">Universal Till is a product of Task Runner Technology LTD.</p>
+  <p class="foot-rights" data-i18n="foot.rights">Open source under the MIT licence.</p>
+</footer>
+
+</body>
+</html>

@@ -4,12 +4,26 @@
 // built-in http/fs modules rather than adding an http-server devDependency —
 // site/ itself ships with no build step and no runtime dependency, and this
 // script is test tooling, not part of the shipped site.
-"use strict";
-const http = require("http");
-const fs = require("fs");
-const path = require("path");
+// ESM, not CommonJS: package.json declares "type": "module" (required by the
+// Astro build), so `require`/`__dirname` are not defined in this scope —
+// same reasoning as scripts/check-i18n-keys.js.
+import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = path.join(__dirname, "..", "site");
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+// dist/, not site/: since the Astro build landed, dist/ is what deploys —
+// site/ passes through it byte-for-byte (publicDir), but the blog, its posts
+// and /plugins exist ONLY in the build output. Serving site/ makes every test
+// for those pages unreachable rather than failing, which is the same
+// looks-covered-but-isn't trap as this site's navigationFallback.
+const ROOT = path.join(__dirname, "..", "dist");
+
+if (!fs.existsSync(path.join(ROOT, "index.html"))) {
+  console.error("dist/ has no index.html — run `npm run build` first.");
+  process.exit(1);
+}
 const PORT = Number(process.env.PORT) || 4173;
 
 // Mirrors the handful of pretty-URL rewrites in site/staticwebapp.config.json
@@ -52,8 +66,18 @@ const server = http.createServer((req, res) => {
     }
   }
 
-  const filePath = path.join(ROOT, urlPath);
+  let filePath = path.join(ROOT, urlPath);
   if (!filePath.startsWith(ROOT)) return send(res, 403, "Forbidden");
+
+  // Astro emits directory-style URLs (dist/blog/index.html for /blog), which
+  // Azure Static Web Apps resolves in production. Resolve them here too, or
+  // every Astro-built page 404s in tests while working live. Extensionless
+  // paths only, so a genuinely missing /styles.css still 404s rather than
+  // silently answering with HTML.
+  if (!path.extname(filePath)) {
+    const asDirIndex = path.join(filePath, "index.html");
+    if (fs.existsSync(asDirIndex)) filePath = asDirIndex;
+  }
 
   fs.readFile(filePath, (err, data) => {
     if (err) return send(res, 404, "Not found");

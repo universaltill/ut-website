@@ -1,13 +1,12 @@
 node_modules/
 
-# Playwright test run output (site/ has no build step; this is just test
-# tooling scratch space, ut-docs#458).
+# Playwright test run output — test tooling scratch space, ut-docs#458.
 test-results/
 playwright-report/
 
-# Stale local build output from the retired Astro setup. The deploy ships
-# site/ directly (deploy.yml: app_location: site, skip_app_build: true), so
-# these are dead weight — and dist/logo.svg held a stale copy of the old mark,
-# which confused the ut-docs#290 logo audit.
+# Build output. `npm run build` (Astro) generates this from scratch every
+# time — site/ itself has no build step and passes through byte-for-byte
+# (astro.config.mjs publicDir: 'site'), plus the blog/plugins pages Astro
+# renders on top — so none of it is ever something to commit.
 dist/
 .astro/

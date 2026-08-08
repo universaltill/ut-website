@@ -1,10 +1,26 @@
 {
-  "name": "ut-website",
+  "name": "universaltill-website",
+  "type": "module",
+  "version": "1.0.0",
   "private": true,
-  "devDependencies": {
-    "@playwright/test": "1.56.1"
+  "engines": {
+    "node": ">=22.12.0"
   },
   "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
     "test": "playwright test"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^7.0.2",
+    "astro": "^7.0.6"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@tailwindcss/vite": "^4.1.12",
+    "tailwindcss": "^4.1.12"
   }
 }

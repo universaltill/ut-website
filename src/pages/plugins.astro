@@ -1,0 +1,151 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Every plugin listed on THIS page is free, public, and stays that way
+// -- ADR-0027 (ut-docs) rules out quietly relicensing something already
+// free. It does NOT promise every future official plugin is free --
+// Universal Till can ship paid official plugins too, same as vendors
+// can. This page only lists the ones that are (and always have been)
+// free; a future paid plugin simply wouldn't appear here.
+//
+// hasRelease: false means the repo exists and is browsable but hasn't
+// been wired into the release pipeline yet (no packaged download) --
+// shown honestly, not hidden and not given a broken download link.
+const PLUGINS = [
+  { repo: 'ut-plugin-payment-sumup', branch: 'main', hasRelease: true },
+  { repo: 'ut-plugin-payment-stripe', branch: 'main', hasRelease: true },
+  { repo: 'ut-plugin-payment-qrpay', branch: 'main', hasRelease: true },
+  { repo: 'ut-plugin-payment-demo', branch: 'main', hasRelease: true },
+  // Not a stray feature-branch pin: 001-multilingual-faq-page IS this
+  // repo's default branch (it has no `main`). Verified 2026-08-06.
+  { repo: 'ut-plugin-faq', branch: '001-multilingual-faq-page', hasRelease: true },
+  { repo: 'ut-plugin-integration-ai', branch: 'main', hasRelease: true },
+  { repo: 'ut-plugin-integration-webhook', branch: 'main', hasRelease: false },
+  { repo: 'ut-plugin-button-nosale', branch: 'main', hasRelease: true },
+  { repo: 'ut-plugin-language-es', branch: 'main', hasRelease: true },
+  { repo: 'ut-plugin-language-de', branch: 'main', hasRelease: true },
+  { repo: 'ut-plugin-theme-screen-top', branch: 'main', hasRelease: true },
+  { repo: 'ut-plugin-theme-buttons-left', branch: 'main', hasRelease: true },
+  { repo: 'ut-plugin-theme-midnight', branch: 'main', hasRelease: true },
+];
+
+const ORG = 'universaltill';
+
+// Build-time fetch of each plugin's real manifest.json straight from
+// GitHub -- no marketplace API dependency, no manual data-entry to keep
+// in sync. Re-running the site build always picks up current name/
+// description/type.
+// A failed fetch must NOT be fatal. This runs inside `astro build`, so a
+// throw here fails the build, which fails the deploy workflow -- meaning a
+// transient raw.githubusercontent 5xx, anonymous rate-limiting across these
+// requests, or one renamed repo would block EVERY website deploy, including
+// urgent download-page or marketing fixes. Degrade instead: warn, omit that
+// one card, ship the rest of the site.
+const fetched = await Promise.all(
+  PLUGINS.map(async (p) => {
+    const url = `https://raw.githubusercontent.com/${ORG}/${p.repo}/${p.branch}/manifest.json`;
+    let manifest;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      manifest = await res.json();
+    } catch (err) {
+      console.warn(
+        `[plugins] skipping ${p.repo}: manifest fetch failed (${err.message}) -- ${url}`
+      );
+      return null;
+    }
+    return {
+      ...p,
+      id: manifest.id,
+      name: manifest.name,
+      description: manifest.description,
+      type: manifest.canonical_type,
+      repoUrl: `https://github.com/${ORG}/${p.repo}`,
+      // GitHub-native "always current" links -- no automation to maintain.
+      // /releases/latest redirects to whatever tag is newest; the fixed
+      // latest.tar.gz asset name (same on every release) means the direct
+      // download link never needs updating either.
+      releaseUrl: `https://github.com/${ORG}/${p.repo}/releases/latest`,
+      downloadUrl: `https://github.com/${ORG}/${p.repo}/releases/latest/download/latest.tar.gz`,
+    };
+  })
+);
+
+const plugins = fetched.filter(Boolean);
+
+// Object.groupBy needs Node 21+; deploy.yml pins Node 20, so a manual
+// reduce here instead of relying on that.
+const byType = plugins.reduce((acc, p) => {
+  (acc[p.type] ??= []).push(p);
+  return acc;
+}, {});
+const typeOrder = ['payment', 'integration', 'theme', 'language', 'page', 'button'];
+const typeLabel = {
+  payment: 'Payment',
+  integration: 'Integrations',
+  theme: 'Themes',
+  language: 'Language packs',
+  page: 'Pages',
+  button: 'Buttons',
+};
+
+// Render the preferred order first, then ANY remaining type. Iterating
+// typeOrder alone silently dropped every plugin whose ADR-0002 canonical
+// type wasn't hard-coded above (ut-plugin-button-nosale declares
+// "button"), on a page whose own copy claims to list every plugin — with
+// no build error to catch it.
+const renderOrder = [
+  ...typeOrder.filter((t) => byType[t]),
+  ...Object.keys(byType).filter((t) => !typeOrder.includes(t)),
+];
+---
+
+<BaseLayout
+  title="Plugins"
+  description="Every plugin listed here is free to download and install from GitHub, forever — Universal Till may also offer paid official plugins, which simply wouldn't be listed on this page."
+>
+  <section class="section">
+    <div class="section-head">
+      <h1>Plugins</h1>
+      <p class="section-sub">
+        Every plugin listed here is free, open source, and downloadable directly from GitHub —
+        no account, no marketplace, no payment required, and that's not changing for any of
+        these. The marketplace (in the app) is a one-click convenience layer on top of the
+        same public releases linked below. Universal Till may also offer separate paid
+        official plugins in future — those just wouldn't appear on this page.
+      </p>
+    </div>
+
+    {renderOrder.map((type) => (
+      <div style="margin-bottom:3rem">
+        <h2 style="font-size:1.1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:1rem">
+          {typeLabel[type] ?? type}
+        </h2>
+        <div class="grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
+          {byType[type].map((p) => (
+            <div class="card">
+              <h3>{p.name}</h3>
+              <p>{p.description}</p>
+              <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem">
+                <a class="btn" href={p.repoUrl}>Repo</a>
+                {p.hasRelease
+                  ? <a class="btn primary" href={p.downloadUrl}>Download latest</a>
+                  : <span class="muted" style="font-size:.85rem;align-self:center">No packaged release yet</span>
+                }
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+
+    <p class="muted" style="margin-top:2rem">
+      Building your own? Any plugin here is a working reference —
+      see <a href="https://github.com/universaltill/ut-docs">ut-docs</a> for the
+      plugin manifest reference and ADRs.
+    </p>
+  </section>
+</BaseLayout>

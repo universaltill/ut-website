@@ -6,11 +6,16 @@
 // non-null) — a page can look "translated" while actually being English-only.
 // Fails non-zero if any data-i18n key used in site/*.html is missing from
 // any language dict, or if the language dicts don't share the same key set.
-"use strict";
-const fs = require("fs");
-const path = require("path");
+// ESM, not CommonJS: package.json declares "type": "module" (required by the
+// Astro build), so `require`/`__dirname` are not defined in this scope. This
+// file kept its .js extension and was converted rather than renamed to .cjs,
+// so the repo stays one module system throughout.
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const siteDir = path.join(__dirname, "..", "site");
+const scriptDir = path.dirname(fileURLToPath(import.meta.url));
+const siteDir = path.join(scriptDir, "..", "site");
 const i18nSrc = fs.readFileSync(path.join(siteDir, "i18n.js"), "utf8");
 const match = i18nSrc.match(/const I18N = (\{[\s\S]*?\});\s*\n\s*\(function/);
 if (!match) {

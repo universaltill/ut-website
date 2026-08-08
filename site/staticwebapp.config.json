@@ -10,7 +10,11 @@
       "/download.html",
       "/start.html",
       "/store.html",
-      "/language.html"
+      "/language.html",
+      "/blog/*",
+      "/admin",
+      "/admin/*",
+      "/plugins/*"
     ]
   },
   "globalHeaders": {
