@@ -96,7 +96,18 @@ const jsonLd = {
         style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:.5rem;margin:1rem 0"
       />
     )}
-    <div style="line-height:1.7;color:var(--ink-soft)">
+    {/* isFallback means this body is the untranslated English original
+        (see the banner above) — BaseLayout's dir stays whatever the URL's
+        locale calls for (rtl for fa-ir), which is right for the chrome
+        around this article but wrong for English prose sitting inside it.
+        Force ltr on the body itself in that case only; a real translation
+        (including a machine one) is written in its own locale's direction
+        and must not be overridden (ut-docs#353). */}
+    <div
+      style="line-height:1.7;color:var(--ink-soft)"
+      dir={isFallback ? 'ltr' : undefined}
+      lang={isFallback ? 'en' : undefined}
+    >
       <Content />
     </div>
     <p style="margin-top:2rem"><a href={`/${lang}/blog`} data-i18n="news.back">← Back to News</a></p>

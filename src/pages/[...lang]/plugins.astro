@@ -115,7 +115,17 @@ const { lang } = Astro.params;
   lang={lang}
   path="/plugins"
 >
-  <section class="section">
+  {/* This whole page is built-time-fetched from GitHub manifests (names,
+      descriptions) and hand-written English prose — there is no per-locale
+      translation for any of it yet. BaseLayout still sets `dir="rtl"` on
+      `<html>` for fa-ir (that's correct for the nav/footer chrome around
+      this section, which IS translated), so without this override a Farsi
+      visitor got 100% English text laid out right-to-left: word order,
+      punctuation and list markers all mirrored against content that was
+      never written to be read that way (ut-docs#353). Force ltr on the
+      content itself until it's actually translated, rather than silently
+      mis-rendering it. */}
+  <section class="section" dir="ltr" lang="en">
     <div class="section-head">
       <h1>Plugins</h1>
       <p class="section-sub">
