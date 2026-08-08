@@ -2,11 +2,12 @@
 // data-i18n keys; this swaps them and flips dir=rtl for Farsi. Adding a
 // language = adding a column below. Launch markets: EN, TR, ZH, FA.
 const I18N = {
-  en: {
-    _name: "English", _english: "English", _dir: "ltr",
+  "en-gb": {
+    _name: "English", _english: "English (UK)", _dir: "ltr",
     "language.select": "Choose your language", "language.subtitle": "Pick the language for the whole site.", "language.back": "Back",
     "nav.solutions": "Solutions", "nav.why": "Why it's different",
     "nav.hardware": "Hardware", "nav.plugins": "Plugins", "nav.store": "Store", "nav.news": "News",
+    "news.sub": "Release notes, roadmap updates, and stories from shops running Universal Till.", "news.back": "← Back to News",
     "hero.title": "The point of sale that's actually yours.",
     "hero.lede": "Free, open source and offline-first — a full sale completes with no internet at all. Runs on a Raspberry Pi, an old laptop, or a proper touch terminal. No monthly fee for the core. Ever.",
     "hero.cta1": "Get started", "hero.cta2": "See the source",
@@ -135,11 +136,12 @@ const I18N = {
     "dl.note.linux64": "Debian / Ubuntu, 64-bit",
     "dl.version.prefix": "Latest version: ",
   },
-  tr: {
+  "tr-tr": {
     _name: "Türkçe", _english: "Turkish", _dir: "ltr",
     "language.select": "Dilinizi seçin", "language.subtitle": "Tüm site için dili seçin.", "language.back": "Geri",
     "nav.solutions": "Çözümler", "nav.why": "Farkı ne", "nav.hardware": "Donanım",
     "nav.plugins": "Eklentiler", "nav.store": "Mağaza", "nav.news": "Haberler",
+    "news.sub": "Sürüm notları, yol haritası güncellemeleri ve Universal Till kullanan dükkânlardan hikâyeler.", "news.back": "← Haberlere dön",
     "hero.title": "Gerçekten size ait olan satış noktası.",
     "hero.lede": "Ücretsiz, açık kaynak ve çevrimdışı öncelikli — satış, internet olmadan da tamamlanır. Raspberry Pi'de, eski bir dizüstünde ya da dokunmatik terminalde çalışır. Çekirdek için asla aylık ücret yok.",
     "hero.cta1": "Başlayın", "hero.cta2": "Kaynağı görün",
@@ -268,11 +270,12 @@ const I18N = {
     "dl.note.linux64": "Debian / Ubuntu, 64 bit",
     "dl.version.prefix": "Son sürüm: ",
   },
-  zh: {
+  "zh-cn": {
     _name: "中文", _english: "Chinese", _dir: "ltr",
     "language.select": "选择你的语言", "language.subtitle": "为整个网站选择语言。", "language.back": "返回",
     "nav.solutions": "解决方案", "nav.why": "有何不同", "nav.hardware": "硬件",
     "nav.plugins": "插件", "nav.store": "商店", "nav.news": "新闻",
+    "news.sub": "版本说明、路线图更新，以及正在使用 Universal Till 的店铺故事。", "news.back": "← 返回新闻",
     "hero.title": "真正属于你的收银系统。",
     "hero.lede": "免费、开源、离线优先——完全断网也能完成一笔交易。可运行在树莓派、旧笔记本或专业触屏终端上。核心永久免费，绝无月费。",
     "hero.cta1": "开始使用", "hero.cta2": "查看源码",
@@ -401,11 +404,12 @@ const I18N = {
     "dl.note.linux64": "Debian / Ubuntu，64 位",
     "dl.version.prefix": "最新版本：",
   },
-  fa: {
+  "fa-ir": {
     _name: "فارسی", _english: "Persian", _dir: "rtl",
     "language.select": "زبان خود را انتخاب کنید", "language.subtitle": "زبان کل سایت را انتخاب کنید.", "language.back": "بازگشت",
     "nav.solutions": "راهکارها", "nav.why": "چه فرقی دارد", "nav.hardware": "سخت‌افزار",
     "nav.plugins": "افزونه‌ها", "nav.store": "فروشگاه", "nav.news": "اخبار",
+    "news.sub": "یادداشت‌های انتشار، به‌روزرسانی‌های نقشه راه و داستان‌هایی از فروشگاه‌هایی که از Universal Till استفاده می‌کنند.", "news.back": "← بازگشت به اخبار",
     "hero.title": "صندوق فروشی که واقعاً مال شماست.",
     "hero.lede": "رایگان، متن‌باز و آفلاین‌محور — یک فروش کامل بدون هیچ اینترنتی انجام می‌شود. روی رزبری‌پای، لپ‌تاپ قدیمی یا ترمینال لمسی حرفه‌ای کار می‌کند. برای هستهٔ اصلی هرگز هزینهٔ ماهانه‌ای نیست.",
     "hero.cta1": "شروع کنید", "hero.cta2": "دیدن کد منبع",
@@ -538,25 +542,63 @@ const I18N = {
 
 (function () {
   const supported = Object.keys(I18N);
+  // The default locale lives at the root: "/" is en-GB, "/tr-tr/..." is
+  // Turkish. Root-as-default is what x-default means, and it keeps the
+  // shortest URL on the market we launch in.
+  const DEFAULT = "en-gb";
+  // BCP-47 wants the region subtag uppercased ("en-GB"). Browsers and crawlers
+  // treat it case-insensitively, but the <html lang> and hreflang values are
+  // read by people too, and lowercase looks like a typo.
+  function bcp47(code) {
+    const parts = code.split("-");
+    return parts.length === 2 ? parts[0] + "-" + parts[1].toUpperCase() : code;
+  }
   const ORIGIN = "https://www.universaltill.com";
   // Each language has its own URL path (/tr, /zh, /fa; English at root) so
   // crawlers index a distinct, hreflang-linked page per language.
   function langFromPath() {
-    const seg = location.pathname.split("/").filter(Boolean)[0];
+    const seg = (location.pathname.split("/").filter(Boolean)[0] || "").toLowerCase();
     return supported.includes(seg) ? seg : null;
   }
-  function pathFor(lang) { return lang === "en" ? "/" : "/" + lang; }
+  // Strip a leading /tr|/zh|/fa so a path can be re-prefixed with another
+  // language. "/tr/blog" -> "/blog", "/tr" -> "/".
+  function stripLang(pathname) {
+    const parts = pathname.split("/").filter(Boolean);
+    if (parts.length && supported.includes(parts[0].toLowerCase())) parts.shift();
+    return "/" + parts.join("/");
+  }
+  // The language prefix IS the URL, for every page — not just the homepage.
+  // Anything else means the Turkish version of a page has no address a search
+  // engine can index or a visitor can bookmark.
+  function pathFor(lang, path) {
+    const p = path || "/";
+    if (lang === DEFAULT) return p;
+    return p === "/" ? "/" + lang : "/" + lang + p;
+  }
+  // `from` arrives in a query string, so treat it as untrusted: same-origin
+  // absolute paths only. "//evil.example" is a protocol-relative URL, not a
+  // path, and would make the language picker an open redirect.
+  function sanitizeFrom(value) {
+    if (!value || value[0] !== "/" || value[1] === "/" || value.indexOf("\\") !== -1) return "/";
+    return value;
+  }
   function pick() {
     const p = langFromPath();
     if (p) return p;
     const saved = localStorage.getItem("ut_lang");
     if (saved && supported.includes(saved)) return saved;
-    const nav = (navigator.language || "en").slice(0, 2);
-    return supported.includes(nav) ? nav : "en";
+    // Match the browser's full locale first (en-GB beats en-US beats en), then
+    // fall back to any locale sharing its base language — a Turkish speaker in
+    // Germany sends "tr-DE" and should still get Turkish, not English.
+    const nav = (navigator.language || DEFAULT).toLowerCase();
+    if (supported.includes(nav)) return nav;
+    const base = nav.split("-")[0];
+    const sameLanguage = supported.find(function (code) { return code.split("-")[0] === base; });
+    return sameLanguage || DEFAULT;
   }
   function apply(lang) {
     const dict = I18N[lang];
-    document.documentElement.lang = lang;
+    document.documentElement.lang = bcp47(lang);
     document.documentElement.dir = dict._dir;
     document.querySelectorAll("[data-i18n]").forEach(function (el) {
       const v = dict[el.getAttribute("data-i18n")];
@@ -575,16 +617,25 @@ const I18N = {
     // dropdown — lots of languages don't fit a nav bar, see language.html.
     document.querySelectorAll(".lang-link").forEach(function (a) {
       a.textContent = "🌐 " + lang.toUpperCase();
+      // Carry the current page to /language, or picking a language drops the
+      // visitor on the homepage and they have to find their way back — which
+      // is what happened from /blog. On /language itself, keep whatever the
+      // previous page already passed rather than pointing back at /language.
+      const here = stripLang(location.pathname);
+      const from = here === "/language"
+        ? sanitizeFrom(new URLSearchParams(location.search).get("from"))
+        : here;
+      a.setAttribute("href", "/language?from=" + encodeURIComponent(from));
     });
     // Canonical points at THIS language's URL.
     const c = document.getElementById("canonical");
-    if (c) c.setAttribute("href", ORIGIN + pathFor(lang));
+    if (c) c.setAttribute("href", ORIGIN + pathFor(lang, stripLang(location.pathname)));
     localStorage.setItem("ut_lang", lang);
   }
   function go(lang) {
     // Reflect the language in the URL (crawlable) without a reload.
-    if (langFromPath() !== (lang === "en" ? null : lang)) {
-      history.pushState({ lang: lang }, "", pathFor(lang));
+    if (langFromPath() !== (lang === DEFAULT ? null : lang)) {
+      history.pushState({ lang: lang }, "", pathFor(lang, stripLang(location.pathname)));
     }
     apply(lang);
   }
@@ -594,5 +645,8 @@ const I18N = {
   });
   // Exposed so language.html can list/highlight locales without duplicating
   // this logic — real <a href> navigation there, not a JS click handler.
-  window.UT_I18N = { I18N: I18N, supported: supported, pick: pick, pathFor: pathFor, go: go };
+  window.UT_I18N = {
+    I18N: I18N, supported: supported, pick: pick, pathFor: pathFor, go: go,
+    stripLang: stripLang, sanitizeFrom: sanitizeFrom, bcp47: bcp47, DEFAULT: DEFAULT,
+  };
 })();

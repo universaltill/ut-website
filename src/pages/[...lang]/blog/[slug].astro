@@ -1,20 +1,26 @@
 ---
 import { getCollection, render } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import BaseLayout, { LANGS } from '../../../layouts/BaseLayout.astro';
 
+// Cross-product of posts and languages: /blog/<slug> plus /tr/blog/<slug>
+// and friends, so every post has a real URL in every language rather than one
+// that only works if you already had the language stored locally.
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
-  return posts.map((post) => ({
-    params: { slug: post.id },
-    props: { post },
-  }));
+  return posts.flatMap((post) =>
+    [undefined, ...LANGS].map((lang) => ({
+      params: { lang, slug: post.id },
+      props: { post },
+    })),
+  );
 }
 
 const { post } = Astro.props;
+const { lang } = Astro.params;
 const { Content } = await render(post);
 ---
 
-<BaseLayout title={post.data.title} description={post.data.excerpt}>
+<BaseLayout title={post.data.title} description={post.data.excerpt} lang={lang} path={`/blog/${post.id}`}>
   <article class="section" style="max-width:44rem">
     <p style="color:var(--muted);font-size:.9rem;margin-bottom:.3rem">
       {post.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
@@ -32,6 +38,6 @@ const { Content } = await render(post);
     <div style="line-height:1.7;color:var(--ink-soft)">
       <Content />
     </div>
-    <p style="margin-top:2rem"><a href="/blog">← Back to blog</a></p>
+    <p style="margin-top:2rem"><a href={lang ? `/${lang}/blog` : '/blog'} data-i18n="news.back">← Back to News</a></p>
   </article>
 </BaseLayout>

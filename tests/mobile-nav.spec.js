@@ -89,9 +89,9 @@ test.describe("mobile nav — index.html", () => {
     }
   });
 
-  test("RTL: /fa mobile menu opens correctly, mirrors, and stays within the viewport", async ({ page }) => {
+  test("RTL: /fa-ir mobile menu opens correctly, mirrors, and stays within the viewport", async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 800 });
-    await page.goto("/fa");
+    await page.goto("/fa-ir");
 
     expect(await page.evaluate(() => document.documentElement.dir)).toBe("rtl");
 

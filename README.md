@@ -25,6 +25,15 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   what gets deployed. `dist/`, `.astro/` and `node_modules/` are git-ignored.
   `package.json`'s `devDependencies` also carry Playwright (`tests/`,
   test-only, never part of what ships).
+- **Every page has a URL per locale**: `en-GB` at the root, `/tr-tr/…`,
+  `/zh-cn/…`, `/fa-ir/…` — region-tagged because VAT, receipt law and payment
+  rails differ by country, not by language, and because a language that only
+  exists behind a click is one search engines never index. `site/i18n.js`
+  derives the locale (and RTL) from the first path segment; the Astro pages
+  build one file per locale; `staticwebapp.config.json` maps the prefixed
+  pretty-URLs and 301s the old language-only `/tr`, `/zh`, `/fa`. The globe in
+  the nav carries the current page (`/language?from=…`) so choosing a language
+  returns you to where you were, not to the homepage.
 - `scripts/check-i18n-keys.js` (run on every push/PR via `.github/workflows/ci.yml`)
   guards `site/i18n.js`: every `data-i18n`/`data-i18n-html` key used across
   `site/*.html` must exist in all four locale dicts (en/tr/zh/fa), and the

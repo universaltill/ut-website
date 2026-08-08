@@ -1,6 +1,5 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
-import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   site: 'https://www.universaltill.com',
@@ -15,7 +14,4 @@ export default defineConfig({
   // i18n routing is a real, separate decision — see docs/astro-migration.md.
   publicDir: 'site',
   integrations: [mdx()],
-  vite: {
-    plugins: [tailwindcss()],
-  },
 });

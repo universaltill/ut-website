@@ -38,6 +38,69 @@
     {
       "route": "/language",
       "rewrite": "/language.html"
+    },
+    {
+      "route": "/tr-tr/download",
+      "rewrite": "/download.html"
+    },
+    {
+      "route": "/tr-tr/start",
+      "rewrite": "/start.html"
+    },
+    {
+      "route": "/tr-tr/store",
+      "rewrite": "/store.html"
+    },
+    {
+      "route": "/tr-tr/language",
+      "rewrite": "/language.html"
+    },
+    {
+      "route": "/zh-cn/download",
+      "rewrite": "/download.html"
+    },
+    {
+      "route": "/zh-cn/start",
+      "rewrite": "/start.html"
+    },
+    {
+      "route": "/zh-cn/store",
+      "rewrite": "/store.html"
+    },
+    {
+      "route": "/zh-cn/language",
+      "rewrite": "/language.html"
+    },
+    {
+      "route": "/fa-ir/download",
+      "rewrite": "/download.html"
+    },
+    {
+      "route": "/fa-ir/start",
+      "rewrite": "/start.html"
+    },
+    {
+      "route": "/fa-ir/store",
+      "rewrite": "/store.html"
+    },
+    {
+      "route": "/fa-ir/language",
+      "rewrite": "/language.html"
+    },
+    {
+      "route": "/tr",
+      "redirect": "/tr-tr",
+      "statusCode": 301
+    },
+    {
+      "route": "/zh",
+      "redirect": "/zh-cn",
+      "statusCode": 301
+    },
+    {
+      "route": "/fa",
+      "redirect": "/fa-ir",
+      "statusCode": 301
     }
   ]
 }

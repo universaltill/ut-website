@@ -63,12 +63,18 @@
     var api = window.UT_I18N;
     if (!api) return;
     var current = api.pick();
+    // Where the visitor was before they clicked the globe. Every locale link
+    // and the Back link return THERE, in the chosen language — landing on the
+    // homepage instead is how you lose someone mid-article.
+    var from = api.sanitizeFrom(new URLSearchParams(location.search).get("from"));
+    var back = document.querySelector(".back-link a");
+    if (back) back.href = api.pathFor(current, from);
     var host = document.getElementById("locale-grid");
     api.supported.forEach(function (code) {
       var dict = api.I18N[code];
       var a = document.createElement("a");
       a.className = "locale-card" + (code === current ? " active" : "");
-      a.href = api.pathFor(code);
+      a.href = api.pathFor(code, from);
       a.innerHTML =
         '<div class="locale-name">' + dict._name +
         (dict._dir === "rtl" ? '<span class="rtl-badge">RTL</span>' : '') +

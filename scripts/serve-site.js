@@ -36,7 +36,11 @@ const ROUTES = {
   "/store": "/store.html",
   "/language": "/language.html",
 };
-const LANGS = new Set(["tr", "zh", "fa"]);
+const LANGS = new Set(["tr-tr", "zh-cn", "fa-ir"]);
+// The language-only prefixes these replaced were live and hreflang-advertised,
+// so they 301 rather than break. Mirrors the redirects in
+// site/staticwebapp.config.json.
+const LEGACY_LANGS = { "/tr": "/tr-tr", "/zh": "/zh-cn", "/fa": "/fa-ir" };
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -53,6 +57,11 @@ function send(res, status, body, type) {
 
 const server = http.createServer((req, res) => {
   let urlPath = decodeURIComponent((req.url || "/").split("?")[0]);
+
+  if (LEGACY_LANGS[urlPath]) {
+    res.writeHead(301, { Location: LEGACY_LANGS[urlPath] });
+    return res.end();
+  }
 
   if (ROUTES[urlPath]) {
     urlPath = ROUTES[urlPath];
