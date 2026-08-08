@@ -10,16 +10,22 @@
   <link rel="icon" type="image/svg+xml" href="/logo.svg">
   <link rel="stylesheet" href="/styles.css">
   <script defer src="/i18n.js"></script>
+  <script defer src="/nav.js"></script>
 </head>
 <body>
 <header class="nav">
   <a class="brand" href="/"><img src="/logo.svg" alt="" width="22" height="30"> <span>Universal <strong>Till</strong></span></a>
-  <nav>
+  <nav id="site-nav">
     <a href="/#solutions" data-i18n="nav.solutions">Solutions</a>
     <a href="/#hardware" data-i18n="nav.hardware">Hardware</a>
     <a href="/#about" data-i18n="nav.about">About</a>
-    <a class="lang-link" href="/language" aria-label="Language">🌐 EN</a>
   </nav>
+  <div class="nav-actions">
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+    </button>
+    <a class="lang-link" href="/language" aria-label="Language">🌐 EN</a>
+  </div>
 </header>
 
 <main>
