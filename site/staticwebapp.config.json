@@ -11,7 +11,8 @@
       "/store.html",
       "/language.html",
       "/blog/*",
-      "/admin/*"
+      "/admin/*",
+      "/plugins/*"
     ]
   },
   "globalHeaders": {

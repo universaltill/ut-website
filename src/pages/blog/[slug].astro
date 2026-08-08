@@ -21,6 +21,14 @@ const { Content } = await render(post);
       {' · '}{post.data.author}
     </p>
     <h1>{post.data.title}</h1>
+    {post.data.coverImage && (
+      <img
+        src={post.data.coverImage}
+        alt={post.data.title}
+        loading="lazy"
+        style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:.5rem;margin:1rem 0"
+      />
+    )}
     <div style="line-height:1.7;color:var(--ink-soft)">
       <Content />
     </div>

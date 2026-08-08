@@ -19,6 +19,14 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
     <div class="grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
       {posts.map((post) => (
         <a class="card" style="display:block" href={`/blog/${post.id}`}>
+          {post.data.coverImage && (
+            <img
+              src={post.data.coverImage}
+              alt={post.data.title}
+              loading="lazy"
+              style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:.5rem;margin-bottom:.75rem"
+            />
+          )}
           <h3>{post.data.title}</h3>
           <p style="color:var(--muted);font-size:.85rem;margin:.3rem 0">
             {post.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
