@@ -21,6 +21,21 @@ jobs:
       - uses: actions/checkout@v4
       - run: bash scripts/check-brand-assets.sh
 
+  # Any /opt or /usr path the site tells a shop owner to run must exist in the
+  # shipped package (ut-docs#541: download.html pointed at
+  # /opt/unitill/bin/unitill-kiosk-setup, which the .deb has never contained).
+  # The site and the packaging live in different repos, so only a check against
+  # the real released artifact can catch this drift.
+  check-documented-paths:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/check-documented-paths.sh
+        env:
+          # `gh release download` needs a token even for a public repo, to avoid
+          # unauthenticated rate limits on busy runners.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   # The CMS admin and its OAuth relay are NOT on this site any more — both run
   # on the homelab cluster at admin.universaltill.com (ut-docs#468/#471), where
   # a real gate can be enforced and where their tests now live. This guards the
