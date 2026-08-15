@@ -12,7 +12,7 @@
 import { expect, test } from "@playwright/test";
 
 const ASTRO_PAGES = ["/en-gb/blog", "/en-gb/plugins", "/en-gb/blog/whats-new-v0-2-70"];
-const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir"];
+const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
 
 async function headerFingerprint(page, path) {
   await page.goto(path);
@@ -100,7 +100,7 @@ test.describe("language lives in the URL", () => {
 
     // Region-tagged and correctly cased, one per locale plus x-default.
     expect(alternates.map((a) => a.hreflang).sort()).toEqual(
-      ["en-GB", "fa-IR", "tr-TR", "x-default", "zh-CN"].sort(),
+      ["en-GB", "fa-IR", "tr-TR", "de-DE", "x-default", "zh-CN"].sort(),
     );
     // x-default points at a real page, never at a redirect.
     expect(alternates.find((a) => a.hreflang === "x-default").href).toBe(
@@ -208,7 +208,7 @@ test.describe("posts are translated, not just the chrome", () => {
 
   test("every locale lists the same posts — never a shorter blog in one language", async ({ page }) => {
     const counts = {};
-    for (const locale of ["en-gb", "tr-tr", "zh-cn", "fa-ir"]) {
+    for (const locale of ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"]) {
       await page.goto(`/${locale}/blog`);
       counts[locale] = await page.locator('a[href*="/blog/"]').count();
     }

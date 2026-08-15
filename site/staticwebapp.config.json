@@ -86,6 +86,26 @@
       "rewrite": "/language.html"
     },
     {
+      "route": "/de-de",
+      "rewrite": "/index.html"
+    },
+    {
+      "route": "/de-de/download",
+      "rewrite": "/download.html"
+    },
+    {
+      "route": "/de-de/start",
+      "rewrite": "/start.html"
+    },
+    {
+      "route": "/de-de/store",
+      "rewrite": "/store.html"
+    },
+    {
+      "route": "/de-de/language",
+      "rewrite": "/language.html"
+    },
+    {
       "route": "/",
       "redirect": "/en-gb",
       "statusCode": 301

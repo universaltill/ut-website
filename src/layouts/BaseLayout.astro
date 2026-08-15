@@ -16,12 +16,12 @@
 // rails differ by COUNTRY, not by language, so "tr" has nowhere to put a
 // future difference between two markets sharing a language. en-GB is the
 // default and lives at the root.
-export const LANGS = ['en-gb', 'tr-tr', 'zh-cn', 'fa-ir'];
+export const LANGS = ['en-gb', 'tr-tr', 'zh-cn', 'fa-ir', 'de-de'];
 // The locale content is authored in, and the fallback when a translation is
 // missing. Exported so the blog pages don't each hard-code "en-gb".
 export const SOURCE_LOCALE = 'en-gb';
 const DEFAULT_LANG = SOURCE_LOCALE;
-const DIR = { 'en-gb': 'ltr', 'tr-tr': 'ltr', 'zh-cn': 'ltr', 'fa-ir': 'rtl' };
+const DIR = { 'en-gb': 'ltr', 'tr-tr': 'ltr', 'zh-cn': 'ltr', 'fa-ir': 'rtl', 'de-de': 'ltr' };
 
 // BCP-47 uppercases the region subtag; crawlers accept either, humans read it.
 // Exported so JSON-LD's `inLanguage` (blog/[slug].astro) uses the exact same

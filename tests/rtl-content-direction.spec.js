@@ -7,7 +7,7 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("/plugins is entirely untranslated content and must force ltr", () => {
-  for (const locale of ["fa-ir", "en-gb", "tr-tr", "zh-cn"]) {
+  for (const locale of ["fa-ir", "en-gb", "tr-tr", "zh-cn", "de-de"]) {
     test(`${locale}/plugins: the content section renders dir="ltr"`, async ({ page }) => {
       await page.goto(`/${locale}/plugins`);
 
@@ -55,7 +55,7 @@ test.describe("blog post title/byline follow the post's own translation state", 
 });
 
 test.describe("homepage links to the real plugin catalogue (ut-docs#353 AC2)", () => {
-  for (const locale of ["en-gb", "fa-ir", "tr-tr", "zh-cn"]) {
+  for (const locale of ["en-gb", "fa-ir", "tr-tr", "zh-cn", "de-de"]) {
     test(`${locale}: the #plugins section has a working link to /plugins`, async ({ page }) => {
       await page.goto(`/${locale}`);
       const cta = page.locator('#plugins a[data-i18n="plugins.cta"]');
@@ -75,6 +75,7 @@ test.describe("homepage links to the real plugin catalogue (ut-docs#353 AC2)", (
     "tr-tr": "Tüm eklentilere göz atın",
     "zh-cn": "浏览所有插件",
     "fa-ir": "مشاهدهٔ همهٔ افزونه‌ها",
+    "de-de": "Alle Plugins durchsuchen",
   };
 
   for (const [locale, expected] of Object.entries(EXPECTED_CTA)) {

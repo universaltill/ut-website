@@ -2,7 +2,7 @@
 
 Public website for Universal Till — a product of **Task Runner Technology LTD**.
 
-- `site/` — the plain-HTML marketing site (en/tr/zh/fa). Deliberately **not**
+- `site/` — the plain-HTML marketing site (en/tr/zh/fa/de). Deliberately **not**
   rewritten into Astro components: it is proven and multilingual, and
   re-transcribing ~500 translated strings by hand would risk silently
   introducing translation bugs. `astro.config.mjs` sets `publicDir: 'site'`,
@@ -38,7 +38,7 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `package.json`'s `devDependencies` also carry Playwright (`tests/`,
   test-only, never part of what ships).
 - **Every page has a URL per locale, English included**: `/en-gb/…`,
-  `/tr-tr/…`, `/zh-cn/…`, `/fa-ir/…`. Region-tagged because VAT, receipt law
+  `/tr-tr/…`, `/zh-cn/…`, `/fa-ir/…`, `/de-de/…`. Region-tagged because VAT, receipt law
   and payment rails differ by country, not by language — and prefixed even for
   the default, because an unprefixed URL states no language, so "switch back to
   English" would land on a URL that still renders Turkish from the stored
@@ -65,7 +65,7 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `scripts/check-swa-config.js` fails if it returns without excluding `/admin`.
 - `scripts/check-i18n-keys.js` (run on every push/PR via `.github/workflows/ci.yml`)
   guards `site/i18n.js`: every `data-i18n`/`data-i18n-html` key used across
-  `site/*.html` must exist in all four locale dicts (en/tr/zh/fa), and the
+  `site/*.html` must exist in all five locale dicts (en/tr/zh/fa/de), and the
   dicts must share the same key set — a missing key otherwise fails silently
   (the untranslated string just keeps its English source text in every
   locale).
