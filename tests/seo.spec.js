@@ -25,7 +25,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
-const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir"];
+const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
 
 // Same route table sitemap.xml.ts itself reads — not a second hand-kept
 // copy of the five paths, so this test can't drift from the config the
