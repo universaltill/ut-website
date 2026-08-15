@@ -1,6 +1,6 @@
 // Universal Till website i18n (static, no build step). Text nodes carry
 // data-i18n keys; this swaps them and flips dir=rtl for Farsi. Adding a
-// language = adding a column below. Launch markets: EN, TR, ZH, FA.
+// language = adding a column below. Launch markets: EN, TR, ZH, FA, DE.
 const I18N = {
   "en-gb": {
     _name: "English", _english: "English (UK)", _dir: "ltr",
