@@ -21,6 +21,17 @@ jobs:
       - uses: actions/checkout@v4
       - run: bash scripts/check-brand-assets.sh
 
+  # ut-docs#702, immediate follow-up to ut-docs#681/#667: the same
+  # product-owner-approved fiscal-compliance wording denylist universal-till
+  # enforces on its own UI/help/locales, ported here — this is the public
+  # marketing site, the surface most likely to carry a claim in sales copy.
+  check-compliance-claims:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/guard-compliance-claims.sh
+      - run: bash scripts/guard-compliance-claims_test.sh
+
   # Any /opt or /usr path the site tells a shop owner to run must exist in the
   # shipped package (ut-docs#541: download.html pointed at
   # /opt/unitill/bin/unitill-kiosk-setup, which the .deb has never contained).

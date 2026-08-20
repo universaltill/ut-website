@@ -69,6 +69,16 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   dicts must share the same key set — a missing key otherwise fails silently
   (the untranslated string just keeps its English source text in every
   locale).
+- `scripts/guard-compliance-claims.sh` + `scripts/guard-compliance-claims_test.sh`
+  (ut-docs#702, the `check-compliance-claims` CI job) enforce the
+  product-owner-approved fiscal-compliance wording denylist (ut-docs#667) —
+  no "GoBD-compliant", "revisionssicher"/"audit-proof", "certified by the
+  Finanzamt", or claims of filing a merchant's §146a notification on their
+  behalf, anywhere this site's copy can appear: `site/i18n.js`,
+  `src/content/blog/**/*.mdx`, `site/*.html`, `src/**/*.astro`. Same
+  denylist and `compliance-claim:allow` escape-hatch convention as
+  `universal-till`'s own `scripts/ci/guard-compliance-claims.sh` — kept in
+  sync by hand across the two repos.
 - `tests/mobile-nav.spec.js` is a Playwright regression suite covering the
   mobile hamburger nav and the language pill (ut-docs#458) — desktop vs.
   mobile layout, open/close via toggle/link-click/Escape/outside-click, and
