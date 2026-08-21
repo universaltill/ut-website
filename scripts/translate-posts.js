@@ -71,6 +71,7 @@ const LOCALES = {
   "tr-tr": { language: "Turkish (Türkçe)", audience: "shop owners in Turkey" },
   "zh-cn": { language: "Simplified Chinese (简体中文)", audience: "shop owners in China" },
   "fa-ir": { language: "Persian/Farsi (فارسی)", audience: "shop owners in Iran" },
+  "de-de": { language: "German (Deutsch)", audience: "shop owners in Germany" },
 };
 
 const args = process.argv.slice(2);
