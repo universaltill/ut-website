@@ -233,10 +233,17 @@ function verify(source, translated, locale) {
   // on a perfectly good Chinese title.
   const SCRIPT = { "zh-cn": /\p{Script=Han}/u, "fa-ir": /\p{Script=Arabic}/u };
   const expected = SCRIPT[locale];
-  if (expected && !expected.test(translated.title)) {
-    problems.push("title is not in the target script — it came back untranslated");
-  }
-  if (locale === "tr-tr" && translated.title === source.title) {
+  if (expected) {
+    if (!expected.test(translated.title)) {
+      problems.push("title is not in the target script — it came back untranslated");
+    }
+  } else if (translated.title === source.title) {
+    // Every Latin-script locale (any LOCALES entry with no SCRIPT map entry —
+    // tr-tr, de-de, and any future addition) needs this same fallback: a
+    // same-script target can't be caught by a script regex, so an identical
+    // title is the only cheap signal that the model handed back English
+    // untranslated (ut-docs#871 — de-de shipped in #756 with no protection
+    // at all, since this check used to be hardcoded to locale === "tr-tr").
     problems.push("title is identical to the English — it came back untranslated");
   }
   return problems;
@@ -258,68 +265,80 @@ ${translated.body}
 `;
 }
 
-const sources = fs
-  .readdirSync(path.join(BLOG, SOURCE_LOCALE))
-  .filter((f) => f.endsWith(".mdx"))
-  .filter((f) => !onlySlug || f === `${onlySlug}.mdx`);
+async function main() {
+  const sources = fs
+    .readdirSync(path.join(BLOG, SOURCE_LOCALE))
+    .filter((f) => f.endsWith(".mdx"))
+    .filter((f) => !onlySlug || f === `${onlySlug}.mdx`);
 
-const targets = Object.keys(LOCALES).filter((l) => !onlyLocale || l === onlyLocale);
+  const targets = Object.keys(LOCALES).filter((l) => !onlyLocale || l === onlyLocale);
 
-let written = 0;
-let failed = 0;
+  let written = 0;
+  let failed = 0;
 
-for (const file of sources) {
-  const slug = file.replace(/\.mdx$/, "");
-  const raw = fs.readFileSync(path.join(BLOG, SOURCE_LOCALE, file), "utf8");
-  const { frontmatter, body } = splitFrontmatter(raw);
-  const source = {
-    frontmatter,
-    body,
-    title: field(frontmatter, "title"),
-    excerpt: field(frontmatter, "excerpt"),
-  };
+  for (const file of sources) {
+    const slug = file.replace(/\.mdx$/, "");
+    const raw = fs.readFileSync(path.join(BLOG, SOURCE_LOCALE, file), "utf8");
+    const { frontmatter, body } = splitFrontmatter(raw);
+    const source = {
+      frontmatter,
+      body,
+      title: field(frontmatter, "title"),
+      excerpt: field(frontmatter, "excerpt"),
+    };
 
-  for (const locale of targets) {
-    const out = path.join(BLOG, locale, file);
-    if (fs.existsSync(out) && !force) {
-      console.log(`skip   ${locale}/${file} (exists — use --force to redo)`);
-      continue;
-    }
-
-    process.stdout.write(`write  ${locale}/${file} … `);
-    try {
-      // Retry with the complaint fed back in. A model that summarised a
-      // section usually stops doing it when told exactly what it dropped, and
-      // silently shipping a shortened translation is worse than a slow one.
-      let translated;
-      let problems = [];
-      for (let attempt = 1; attempt <= 3; attempt++) {
-        const extra = problems.length
-          ? `\n\nYour previous attempt was rejected: ${problems.join("; ")}. Translate the WHOLE post, keeping every heading and link exactly as in the source.`
-          : "";
-        translated = parseResponse(await ask(promptFor(locale, source) + extra, SYSTEM));
-        problems = verify(source, translated, locale);
-        if (!problems.length) break;
-        process.stdout.write(`retry ${attempt} … `);
-      }
-      if (problems.length) {
-        console.log(`REJECTED\n       ${problems.join("\n       ")}`);
-        failed++;
+    for (const locale of targets) {
+      const out = path.join(BLOG, locale, file);
+      if (fs.existsSync(out) && !force) {
+        console.log(`skip   ${locale}/${file} (exists — use --force to redo)`);
         continue;
       }
-      fs.mkdirSync(path.dirname(out), { recursive: true });
-      fs.writeFileSync(out, render(locale, source, translated, slug));
-      console.log("ok");
-      written++;
-    } catch (err) {
-      console.log(`FAILED: ${err.message}`);
-      failed++;
+
+      process.stdout.write(`write  ${locale}/${file} … `);
+      try {
+        // Retry with the complaint fed back in. A model that summarised a
+        // section usually stops doing it when told exactly what it dropped, and
+        // silently shipping a shortened translation is worse than a slow one.
+        let translated;
+        let problems = [];
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          const extra = problems.length
+            ? `\n\nYour previous attempt was rejected: ${problems.join("; ")}. Translate the WHOLE post, keeping every heading and link exactly as in the source.`
+            : "";
+          translated = parseResponse(await ask(promptFor(locale, source) + extra, SYSTEM));
+          problems = verify(source, translated, locale);
+          if (!problems.length) break;
+          process.stdout.write(`retry ${attempt} … `);
+        }
+        if (problems.length) {
+          console.log(`REJECTED\n       ${problems.join("\n       ")}`);
+          failed++;
+          continue;
+        }
+        fs.mkdirSync(path.dirname(out), { recursive: true });
+        fs.writeFileSync(out, render(locale, source, translated, slug));
+        console.log("ok");
+        written++;
+      } catch (err) {
+        console.log(`FAILED: ${err.message}`);
+        failed++;
+      }
     }
+  }
+
+  console.log(`\n${written} written, ${failed} failed.`);
+  if (failed) {
+    console.log("Failures leave the English post in place — the site falls back to it.");
+    process.exit(1);
   }
 }
 
-console.log(`\n${written} written, ${failed} failed.`);
-if (failed) {
-  console.log("Failures leave the English post in place — the site falls back to it.");
-  process.exit(1);
+// Only run the CLI when invoked directly (`node scripts/translate-posts.js`),
+// not when imported — scripts/translate-posts_test.mjs imports `verify` in
+// isolation to regression-test its pure logic without touching the LAN-only
+// endpoint or the real blog content.
+if (import.meta.url === `file://${process.argv[1]}`) {
+  await main();
 }
+
+export { verify };
