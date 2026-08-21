@@ -61,6 +61,18 @@ jobs:
           node-version: "22"
       - run: node scripts/check-swa-config.js
 
+  # translate-posts.js itself is LAN-only (talks to Ollama on the NAS) and
+  # can't run in GitHub-hosted CI, but its verify() safety-net logic is a
+  # pure function — regression-test that in isolation (ut-docs#871).
+  check-translate-posts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test scripts/translate-posts_test.mjs
+
   # The site must still build, and the plain-HTML marketing tree must still
   # reach dist/ byte-for-byte (astro.config.mjs publicDir: 'site').
   build:
