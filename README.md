@@ -52,7 +52,7 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `src/content/blog/en-gb/` and are the only ones written by hand (that is the
   folder the CMS files into). `node scripts/translate-posts.js` fills in
   `tr-tr/`, `zh-cn/`, `fa-ir/` and `de-de/` using the **self-hosted** model on the
-  homelab (LM Studio, LAN-only — never a paid AI API), and the output is
+  homelab (Ollama on the NAS, LAN-only — never a paid AI API), and the output is
   committed like any other content, so the site depends on files in git rather
   than on a model being up. Translations carry `machineTranslated: true` and
   say so on the page, with a link to the English original. A missing
