@@ -111,13 +111,13 @@ const alternates = LANGS.map((code) => ({
     <a href={`${L('/')}#about`} data-i18n="nav.about">About</a>
   </nav>
   <div class="nav-actions">
-    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu" data-i18n-aria-label="nav.menu">
       <span class="nav-toggle-bars" aria-hidden="true"></span>
     </button>
     <a class="btn" href={L('/start')} data-i18n="nav.get">Get started</a>
     <!-- i18n.js rewrites this href at runtime to carry the current page, so
          choosing a language returns you HERE rather than to the homepage. -->
-    <a class="lang-link" href={`/${current}/language?from=${encodeURIComponent(path)}`} aria-label="Language">🌐 EN</a>
+    <a class="lang-link" href={`/${current}/language?from=${encodeURIComponent(path)}`} aria-label="Language" data-i18n-aria-label="nav.language">🌐 EN</a>
   </div>
 </header>
 

@@ -64,11 +64,11 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   existed, and why `/admin` looked like it was still served. Unknown paths 404.
   `scripts/check-swa-config.js` fails if it returns without excluding `/admin`.
 - `scripts/check-i18n-keys.js` (run on every push/PR via `.github/workflows/ci.yml`)
-  guards `site/i18n.js`: every `data-i18n`/`data-i18n-html` key used across
-  `site/*.html` must exist in all five locale dicts (en/tr/zh/fa/de), and the
-  dicts must share the same key set — a missing key otherwise fails silently
-  (the untranslated string just keeps its English source text in every
-  locale).
+  guards `site/i18n.js`: every `data-i18n`/`data-i18n-html`/`data-i18n-aria-label`
+  key used across `site/*.html` and `src/**/*.astro` must exist in all five
+  locale dicts (en/tr/zh/fa/de), and the dicts must share the same key set —
+  a missing key otherwise fails silently (the untranslated string, or
+  aria-label, just keeps its English source text in every locale).
 - `scripts/guard-compliance-claims.sh` + `scripts/guard-compliance-claims_test.sh`
   (ut-docs#702, the `check-compliance-claims` CI job) enforce the
   product-owner-approved fiscal-compliance wording denylist (ut-docs#667) —
