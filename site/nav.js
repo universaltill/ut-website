@@ -14,16 +14,31 @@
 // Escape + outside-click + returning focus to the toggle is a documented,
 // deliberate choice, not an oversight (ut-docs#458 AC2).
 (function () {
+  // Localized aria-label text for the toggle's two states. i18n.js's own
+  // data-i18n-aria-label pass (apply()) sets the initial closed-state label
+  // from markup, but open/close is stateful — driven by this click handler,
+  // not by a page load — so it needs its own lookup here. i18n.js's script
+  // tag loads (and its DOMContentLoaded listener registers and runs) before
+  // nav.js's on every page, so window.UT_I18N is always populated by the
+  // time a user can actually click the toggle; the English literal fallback
+  // only matters if i18n.js ever failed to load at all.
+  function menuLabel(key, fallback) {
+    var ut = window.UT_I18N;
+    var dict = ut && ut.I18N[ut.pick()];
+    var v = dict && dict[key];
+    return v != null ? v : fallback;
+  }
+
   function closeMenu(nav, toggle) {
     nav.classList.remove("nav-open");
     toggle.setAttribute("aria-expanded", "false");
-    toggle.setAttribute("aria-label", "Menu");
+    toggle.setAttribute("aria-label", menuLabel("nav.menu", "Menu"));
   }
 
   function openMenu(nav, toggle, panel) {
     nav.classList.add("nav-open");
     toggle.setAttribute("aria-expanded", "true");
-    toggle.setAttribute("aria-label", "Close menu");
+    toggle.setAttribute("aria-label", menuLabel("nav.menu.close", "Close menu"));
     // The toggle sits after #site-nav in DOM order (it's visually below the
     // header but the panel it reveals is earlier in source), so a keyboard
     // user pressing Enter/Space on the toggle would otherwise Tab straight

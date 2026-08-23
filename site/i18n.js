@@ -7,6 +7,7 @@ const I18N = {
     "language.select": "Choose your language", "language.subtitle": "Pick the language for the whole site.", "language.back": "Back",
     "nav.solutions": "Solutions", "nav.why": "Why it's different",
     "nav.hardware": "Hardware", "nav.plugins": "Plugins", "nav.store": "Store", "nav.news": "News",
+    "nav.menu": "Menu", "nav.menu.close": "Close menu", "nav.language": "Language",
     "news.sub": "Release notes, roadmap updates, and stories from shops running Universal Till.", "news.back": "← Back to News",
     "news.machine": "Translated automatically.", "news.original": "Read the English original", "news.untranslated": "This post isn't translated yet, so it's shown in English.",
     "hero.title": "The point of sale that's actually yours.",
@@ -143,6 +144,7 @@ const I18N = {
     "language.select": "Dilinizi seçin", "language.subtitle": "Tüm site için dili seçin.", "language.back": "Geri",
     "nav.solutions": "Çözümler", "nav.why": "Farkı ne", "nav.hardware": "Donanım",
     "nav.plugins": "Eklentiler", "nav.store": "Mağaza", "nav.news": "Haberler",
+    "nav.menu": "Menü", "nav.menu.close": "Menüyü kapat", "nav.language": "Dil",
     "news.sub": "Sürüm notları, yol haritası güncellemeleri ve Universal Till kullanan dükkânlardan hikâyeler.", "news.back": "← Haberlere dön",
     "news.machine": "Otomatik olarak çevrildi.", "news.original": "İngilizce aslını okuyun", "news.untranslated": "Bu yazı henüz çevrilmedi, bu yüzden İngilizce gösteriliyor.",
     "hero.title": "Gerçekten size ait olan satış noktası.",
@@ -279,6 +281,7 @@ const I18N = {
     "language.select": "选择你的语言", "language.subtitle": "为整个网站选择语言。", "language.back": "返回",
     "nav.solutions": "解决方案", "nav.why": "有何不同", "nav.hardware": "硬件",
     "nav.plugins": "插件", "nav.store": "商店", "nav.news": "新闻",
+    "nav.menu": "菜单", "nav.menu.close": "关闭菜单", "nav.language": "语言",
     "news.sub": "版本说明、路线图更新，以及正在使用 Universal Till 的店铺故事。", "news.back": "← 返回新闻",
     "news.machine": "本文为自动翻译。", "news.original": "阅读英文原文", "news.untranslated": "本文尚未翻译，因此以英文显示。",
     "hero.title": "真正属于你的收银系统。",
@@ -415,6 +418,7 @@ const I18N = {
     "language.select": "زبان خود را انتخاب کنید", "language.subtitle": "زبان کل سایت را انتخاب کنید.", "language.back": "بازگشت",
     "nav.solutions": "راهکارها", "nav.why": "چه فرقی دارد", "nav.hardware": "سخت‌افزار",
     "nav.plugins": "افزونه‌ها", "nav.store": "فروشگاه", "nav.news": "اخبار",
+    "nav.menu": "منو", "nav.menu.close": "بستن منو", "nav.language": "زبان",
     "news.sub": "یادداشت‌های انتشار، به‌روزرسانی‌های نقشه راه و داستان‌هایی از فروشگاه‌هایی که از Universal Till استفاده می‌کنند.", "news.back": "← بازگشت به اخبار",
     "news.machine": "به‌صورت خودکار ترجمه شده است.", "news.original": "خواندن متن اصلی انگلیسی", "news.untranslated": "این نوشته هنوز ترجمه نشده است، بنابراین به انگلیسی نمایش داده می‌شود.",
     "hero.title": "صندوق فروشی که واقعاً مال شماست.",
@@ -551,6 +555,7 @@ const I18N = {
     "language.select": "Sprache wählen", "language.subtitle": "Wählen Sie die Sprache für die gesamte Website.", "language.back": "Zurück",
     "nav.solutions": "Lösungen", "nav.why": "Was uns unterscheidet",
     "nav.hardware": "Hardware", "nav.plugins": "Plugins", "nav.store": "Shop", "nav.news": "Neuigkeiten",
+    "nav.menu": "Menü", "nav.menu.close": "Menü schließen", "nav.language": "Sprache",
     "news.sub": "Versionshinweise, Roadmap-Updates und Erfahrungsberichte von Geschäften, die Universal Till nutzen.", "news.back": "← Zurück zu den Neuigkeiten",
     "news.machine": "Automatisch übersetzt.", "news.original": "Englisches Original lesen", "news.untranslated": "Dieser Beitrag ist noch nicht übersetzt und wird daher auf Englisch angezeigt.",
     "hero.title": "Das Kassensystem, das wirklich Ihnen gehört.",
@@ -759,6 +764,13 @@ const I18N = {
     document.querySelectorAll("[data-i18n-html]").forEach(function (el) {
       const v = dict[el.getAttribute("data-i18n-html")];
       if (v != null) el.innerHTML = v;
+    });
+    // Same lookup for aria-label: assistive tech announces whatever's in the
+    // attribute, so an untranslated aria-label is just as much an English
+    // leak as untranslated visible text (ut-docs#467).
+    document.querySelectorAll("[data-i18n-aria-label]").forEach(function (el) {
+      const v = dict[el.getAttribute("data-i18n-aria-label")];
+      if (v != null) el.setAttribute("aria-label", v);
     });
     // Nav shows a single compact link to /language instead of an inline
     // dropdown — lots of languages don't fit a nav bar, see language.html.

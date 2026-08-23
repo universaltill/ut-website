@@ -148,3 +148,64 @@ test.describe("mobile nav — smoke check on other pages", () => {
     });
   }
 });
+
+test.describe("aria-label localization (ut-docs#467)", () => {
+  test("toggle's aria-label is translated, both closed and open, and reverts on close", async ({ page }) => {
+    await page.setViewportSize({ width: 400, height: 800 });
+    await page.goto("/tr-tr");
+    const toggle = page.locator(".nav-toggle");
+
+    // Static data-i18n-aria-label pass (i18n.js apply()) sets the closed
+    // state on load — not the English literal still sitting in markup.
+    await expect(toggle).toHaveAttribute("aria-label", "Menü");
+
+    // The dynamic open/close handler (nav.js) must translate too — this is
+    // the part apply() alone can't reach, since it only runs once on load.
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-label", "Menüyü kapat");
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-label", "Menü");
+  });
+
+  test("language pill's aria-label is translated, not left as the English literal", async ({ page }) => {
+    await page.setViewportSize({ width: 400, height: 800 });
+    await page.goto("/de-de");
+    await expect(page.locator(".lang-link")).toHaveAttribute("aria-label", "Sprache");
+  });
+
+  test("English default still reads 'Menu' / 'Close menu' (no regression for the base locale)", async ({ page }) => {
+    await page.setViewportSize({ width: 400, height: 800 });
+    await page.goto("/en-gb");
+    const toggle = page.locator(".nav-toggle");
+    await expect(toggle).toHaveAttribute("aria-label", "Menu");
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-label", "Close menu");
+  });
+
+  // The Astro-rendered pages (/blog, /plugins) share BaseLayout.astro's
+  // header, not one of the hand-written site/*.html pages — same bug, same
+  // fix, different template. Caught by the independent review: the
+  // hand-written pages alone left the Astro pages still shipping #467's
+  // original defect, and search traffic lands on /blog and /plugins more
+  // than on the static marketing pages.
+  test("Astro-rendered /blog header: toggle and language pill are also translated", async ({ page }) => {
+    await page.setViewportSize({ width: 400, height: 800 });
+    await page.goto("/tr-tr/blog");
+    const toggle = page.locator(".nav-toggle");
+    await expect(toggle).toHaveAttribute("aria-label", "Menü");
+    await expect(page.locator(".lang-link")).toHaveAttribute("aria-label", "Dil");
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-label", "Menüyü kapat");
+  });
+
+  test("Astro-rendered /plugins header: toggle and language pill are also translated", async ({ page }) => {
+    await page.setViewportSize({ width: 400, height: 800 });
+    await page.goto("/fa-ir/plugins");
+    const toggle = page.locator(".nav-toggle");
+    await expect(toggle).toHaveAttribute("aria-label", "منو");
+    await expect(page.locator(".lang-link")).toHaveAttribute("aria-label", "زبان");
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-label", "بستن منو");
+  });
+});
