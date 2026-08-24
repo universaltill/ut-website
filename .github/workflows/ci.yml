@@ -101,6 +101,19 @@ jobs:
             exit 1
           fi
           echo "OK: every site/ file is present in dist/ byte-for-byte"
+      # ut-docs#442: the Content-Security-Policy's script-src is a hash
+      # allowlist over the site's EXECUTABLE inline <script>s only (see
+      # scripts/generate-csp.js's file header — a blog post's JSON-LD
+      # deliberately needs no hash at all, CSP doesn't govern it). A new or
+      # changed executable inline script (download.html, language.html, the
+      # www-canonicalization redirect) needs its hash regenerated and
+      # committed, or the CSP silently goes stale: the page still renders,
+      # only the un-hashed script gets blocked, with nothing in a normal
+      # review to notice. This guard fails loud instead. Folded into this
+      # job (not a separate one) since it needs the exact same
+      # `npm ci && npm run build` this job already runs — a second job would
+      # just pay that cost twice for no extra guarantee.
+      - run: node scripts/generate-csp.js --check
 
   playwright:
     runs-on: ubuntu-latest

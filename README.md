@@ -79,6 +79,33 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   denylist and `compliance-claim:allow` escape-hatch convention as
   `universal-till`'s own `scripts/ci/guard-compliance-claims.sh` — kept in
   sync by hand across the two repos.
+- **Content-Security-Policy (ut-docs#442).** `site/staticwebapp.config.json`'s
+  `globalHeaders` carries a restrictive CSP (`default-src 'none'`, everything
+  else opted in narrowly: `script-src`, `connect-src https://api.github.com`
+  for `download.html`'s live-release upgrade, `style-src 'unsafe-inline'` for
+  this site's one-off `style="…"` attributes, `img-src data:` for the CSS
+  icon masks). `script-src` allowlists inline `<script>` bodies by SHA-256
+  hash rather than `'unsafe-inline'` — there's no per-request nonce a static
+  host can hand out. `scripts/generate-csp.js` computes and writes that hash
+  list from a real `dist/` build rather than it being hand-maintained (a
+  script silently drifting out of sync with its hash is exactly the kind of
+  gap that stays invisible — a CSP violation doesn't fail a build, it just
+  quietly drops the blocked script's effect for a reader — the same failure
+  class `check-i18n-keys.js` and `check-swa-config.js` already guard). Each
+  blog post's own JSON-LD `<script type="application/ld+json">` is
+  deliberately **excluded** from this hash list — CSP's `script-src` only
+  ever governs a script whose type is empty/a JS MIME type/`module`/
+  `importmap`, so a non-script `type` needs no hash at all (see
+  `scripts/generate-csp.js`'s file header for the full story, including the
+  mistake an earlier draft made and an independent review caught). Run
+  `node scripts/generate-csp.js --write` after `npm run build` whenever an
+  *executable* inline script changes and commit the diff; the `build` CI job
+  runs `generate-csp.js --check` and fails if the committed hash list
+  doesn't match a fresh build. `tests/csp.spec.js` drives real Chromium
+  against `scripts/serve-site.js` (which now applies `globalHeaders` to
+  every response, not just routes) and asserts zero
+  `securitypolicyviolation` events, across every page shape this site
+  serves.
 - `tests/mobile-nav.spec.js` is a Playwright regression suite covering the
   mobile hamburger nav and the language pill (ut-docs#458) — desktop vs.
   mobile layout, open/close via toggle/link-click/Escape/outside-click, and
