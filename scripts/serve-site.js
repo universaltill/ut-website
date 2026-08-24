@@ -13,10 +13,12 @@
 // its posts and /plugins exist ONLY in the build output. Serving site/ makes
 // every test for those pages unreachable rather than failing.
 //
-// **It reads site/staticwebapp.config.json and applies those routes** instead
-// of reimplementing them. Routing IS the thing under test on this site: a
-// locale prefix resolving to the wrong file, or navigationFallback answering
-// 200-with-the-homepage for a path that does not exist, are exactly the
+// **It reads site/staticwebapp.config.json and applies those routes and
+// globalHeaders** instead of reimplementing them. Routing (and, since
+// ut-docs#442, the CSP) IS the thing under test on this site: a locale
+// prefix resolving to the wrong file, or navigationFallback answering
+// 200-with-the-homepage for a path that does not exist, or a real browser
+// silently blocking a script the CSP doesn't actually cover, are exactly the
 // failures that keep reaching production looking like successes. A
 // hand-maintained approximation here would drift from the real config and
 // quietly bless it.
@@ -39,6 +41,7 @@ const config = JSON.parse(
 );
 const ROUTES = config.routes ?? [];
 const FALLBACK = config.navigationFallback ?? {};
+const GLOBAL_HEADERS = config.globalHeaders ?? {};
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -60,7 +63,7 @@ function matches(pattern, urlPath) {
 }
 
 function send(res, status, body, type) {
-  res.writeHead(status, { "Content-Type": type || "text/plain; charset=utf-8" });
+  res.writeHead(status, { ...GLOBAL_HEADERS, "Content-Type": type || "text/plain; charset=utf-8" });
   res.end(body);
 }
 
@@ -70,7 +73,7 @@ const server = http.createServer((req, res) => {
 
   const route = ROUTES.find((r) => matches(r.route, urlPath));
   if (route?.redirect) {
-    res.writeHead(route.statusCode ?? 302, { Location: route.redirect + query });
+    res.writeHead(route.statusCode ?? 302, { ...GLOBAL_HEADERS, Location: route.redirect + query });
     return res.end();
   }
   if (route?.rewrite) urlPath = route.rewrite;
