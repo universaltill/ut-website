@@ -115,11 +115,16 @@
   // keys (resolved once translations are available); os/note are the
   // English fallback text used if the i18n dict is somehow unavailable —
   // never fall back to the raw key itself, that's not fit for display.
+  // Shared with the Client Hints re-detect below so both paths describe
+  // "Android" identically (ut-docs#1238).
+  function androidResult() {
+    return { key: "android", osKey: "dl.os.android", os: "Android", noteKey: "dl.note.android", note: "Android 7.0+ — sideloaded, allow “unknown sources” when prompted" };
+  }
   function detect() {
     var ua = navigator.userAgent, p = (navigator.platform || "");
     // Must come before the generic /Linux/ check below — Android's UA
     // string also matches "Linux".
-    if (/Android/i.test(ua)) return { key: "android", osKey: "dl.os.android", os: "Android", noteKey: "dl.note.android", note: "Android 7.0+ — sideloaded, allow “unknown sources” when prompted" };
+    if (/Android/i.test(ua)) return androidResult();
     if (/Win/i.test(ua) || /Win/i.test(p)) return { key: "wininstaller", osKey: "dl.os.windows", os: "Windows", noteKey: "dl.note.windows", note: "Windows 10 / 11, 64-bit — guided installer" };
     if (/Mac/i.test(ua) || /Mac/i.test(p)) return { key: "macapp", osKey: "dl.os.macos", os: "macOS (Apple Silicon)", noteKey: "dl.note.macos", note: "Apple Silicon (M1 and newer) — the app (.dmg)" };
     // armv6l/armv7l/armv8l cover 32-bit-userland Raspberry Pi OS builds that
@@ -184,11 +189,34 @@
     // Chromium-only (Firefox never implemented the Client Hints API at all)
     // — but Chromium is Raspberry Pi OS's bundled default browser, so this
     // covers the real case that was actually reported broken.
+    //
+    // Also requests "platform" (ut-docs#1238): Chrome defaults to desktop
+    // site on large-screen Android tablets, so the sync UA string above
+    // never sees "Android" and this falls through to the generic Linux
+    // guess exactly like a real ARM box would — architecture alone can't
+    // tell an ARM tablet apart from a Raspberry Pi. Not confirmed on real
+    // hardware whether desktop-mode Chrome spoofs the platform hint to
+    // "Linux" too — the maxTouchPoints check below is the fallback for if
+    // it does.
     if (best && (best.key === "lx64deb" || best.key === "lx64tar") &&
         navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
-      navigator.userAgentData.getHighEntropyValues(["architecture"]).then(function (hints) {
+      navigator.userAgentData.getHighEntropyValues(["architecture", "platform"]).then(function (hints) {
+        // The platform hint, when honest, is authoritative — stronger than
+        // the arm-architecture guess below.
+        if (/android/i.test(hints.platform || "")) {
+          best = androidResult();
+          setPrimary(currentHrefFor);
+          return;
+        }
         if (/arm/i.test(hints.architecture || "")) {
-          best = { key: "pi", osKey: "dl.os.pi", os: "Raspberry Pi / ARM64", noteKey: "dl.note.pi.hints", note: "64-bit Raspberry Pi OS or ARM Linux (detected via Client Hints)" };
+          // An ARM "Linux" platform report is ambiguous between a real ARM
+          // Linux box/Raspberry Pi (no touchscreen) and a desktop-mode
+          // Android tablet that spoofs "platform" to "Linux" too (touch
+          // screen, multiple simultaneous touch points). Prefer Android
+          // when that secondary signal is present rather than silently
+          // picking Pi.
+          best = (navigator.maxTouchPoints > 1) ? androidResult() :
+            { key: "pi", osKey: "dl.os.pi", os: "Raspberry Pi / ARM64", noteKey: "dl.note.pi.hints", note: "64-bit Raspberry Pi OS or ARM Linux (detected via Client Hints)" };
           setPrimary(currentHrefFor);
         }
       }).catch(function () { /* keep the UA-string guess */ });
