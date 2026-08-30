@@ -75,7 +75,7 @@
       <div class="card dl-card">
         <h3>🤖 Android</h3>
         <p class="muted" data-i18n="dl.android.d">Android 7.0+. Sideloaded — not on the Play Store.</p>
-        <a class="btn" data-dl="android" href="https://github.com/universaltill/universal-till/releases/latest" data-i18n="dl.android.apk">Android app (.apk)</a>
+        <a class="btn" data-dl="android" href="https://github.com/universaltill/universal-till/releases/latest/download/unitill-pos-android-latest.apk" data-i18n="dl.android.apk">Android app (.apk)</a>
       </div>
     </div>
     <p class="muted" data-i18n="dl.android.note" style="max-width:40rem;margin:1rem auto 0">
@@ -168,10 +168,17 @@
       // until the live API (below) upgrades the button to the real .dmg.
       if (k === "macapp") return "/downloads/unitill-pos_darwin_arm64.tar.gz";
       // The APK (~180MB) isn't mirrored either — it alone pushed the whole
-      // site over Azure SWA's free-tier size cap (see deploy.yml). Fall back
-      // to the GitHub releases page until the live API upgrades this to the
-      // real asset URL.
-      if (k === "android") return "https://github.com/universaltill/universal-till/releases/latest";
+      // site over Azure SWA's free-tier size cap (see deploy.yml). Rather
+      // than fall back to the bare releases page (a dead end if the live
+      // API fetch below fails or is rate-limited — GitHub's unauthenticated
+      // API is 60 req/hr per IP, genuinely reachable on a real page, and the
+      // old fallback silently stayed the releases page forever whenever it
+      // was hit, not just until the API answered), point straight at
+      // GitHub's own stable "latest release" redirect for a FIXED-name copy
+      // of the APK the release workflow now also uploads alongside the
+      // versioned one (unitill-pos-android-latest.apk, release.yml's
+      // android-app job) — a direct download with zero JS/API dependency.
+      if (k === "android") return "https://github.com/universaltill/universal-till/releases/latest/download/unitill-pos-android-latest.apk";
       return "/downloads/unitill-pos_" + SUFFIX[k];
     }
     setPrimary(mirror);
