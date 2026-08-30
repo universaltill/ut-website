@@ -3,7 +3,7 @@
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "strict-origin-when-cross-origin",
-    "Content-Security-Policy": "default-src 'none'; script-src 'self' 'sha256-4yk2lWZVXqqXmhFZ13aMSYifxHEQT6GtRRpK0JWD7TM=' 'sha256-v8LYbXvGiVduonVkr8dB+G/i9iHig+gQA7RWZlK9Uhs=' 'sha256-wBr7utg6HJ3CmztmKfVGV23pLoC5YVvgqHYg2fzE+Ao='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    "Content-Security-Policy": "default-src 'none'; script-src 'self' 'sha256-4yk2lWZVXqqXmhFZ13aMSYifxHEQT6GtRRpK0JWD7TM=' 'sha256-AXatMkxesyvyMuUisrCmEOrjnr7xB/YzWgWOR+kNYpY=' 'sha256-wBr7utg6HJ3CmztmKfVGV23pLoC5YVvgqHYg2fzE+Ao='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.github.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
   },
   "routes": [
     {
