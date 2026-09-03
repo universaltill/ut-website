@@ -4,9 +4,56 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # ut-docs#1503: the installers below are staged at DEPLOY time, so
+  # /downloads froze at whatever release was newest the last time this site
+  # happened to ship. On 2026-09-03 that meant the site served v0.9.1 while
+  # v0.9.3 was out — and because v0.9.1 predates the ADR-0074 schema reset,
+  # a shop installing from the website got a database the next update
+  # refuses to migrate. A product release cannot push to this repo without
+  # handing another repo's workflow a write token, so the site pulls
+  # instead: check hourly, redeploy only when actually behind.
+  schedule:
+    - cron: "17 * * * *"
 
 jobs:
+  # Cheap gate for the scheduled run: is the site's staged installer version
+  # behind the newest product release? Every other trigger deploys
+  # unconditionally, exactly as before.
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_deploy: ${{ steps.stale.outputs.should_deploy }}
+    steps:
+      - id: stale
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+            echo "trigger ${{ github.event_name }} — deploying unconditionally" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          LATEST=$(gh release view --repo universaltill/universal-till --json tagName --jq '.tagName' | sed 's/^v//')
+          LIVE=$(curl -fsS --max-time 20 https://universaltill.com/downloads/latest.json | jq -r '.version // "none"')
+          echo "newest release: ${LATEST:-unknown} · staged on the site: ${LIVE}" >> "$GITHUB_STEP_SUMMARY"
+          # Fail closed on an unreadable release: a missing answer must not
+          # look like "up to date" and silently stop refreshing the site.
+          if [ -z "${LATEST}" ]; then
+            echo "::error::could not read the newest release — refusing to conclude the site is current"
+            exit 1
+          fi
+          if [ "$LIVE" = "$LATEST" ]; then
+            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+            echo "site is current — nothing to do" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::site serves ${LIVE}, newest release is ${LATEST} — redeploying (ut-docs#1503)"
+          fi
+
   deploy:
+    needs: check
+    if: needs.check.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
