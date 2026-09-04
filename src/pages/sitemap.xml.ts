@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { LANGS } from '../layouts/BaseLayout.astro';
 import { getAllLocalizedPosts } from '../lib/blogPosts';
+import { getAllLocalizedLegalPages } from '../lib/legalPages';
 // Marketing pages (site/*.html) are plain HTML served via publicDir — they
 // never pass through Astro's own routing, so nothing here would otherwise
 // know they exist. site/staticwebapp.config.json is the actual source of
@@ -59,11 +60,15 @@ export const GET: APIRoute = async ({ site }) => {
   // Astro.url.pathname — a sitemap URL that disagrees with the page's own
   // canonical just tells a crawler which one to distrust.
   const byLocale = await getAllLocalizedPosts();
+  const legalByLocale = await getAllLocalizedLegalPages();
   for (const lang of LANGS) {
     entries.push(urlEntry(`${base}/${lang}/blog/`));
     entries.push(urlEntry(`${base}/${lang}/plugins/`));
     for (const { slug, post } of byLocale[lang] ?? []) {
       entries.push(urlEntry(`${base}/${lang}/blog/${slug}/`, post.data.date.toISOString()));
+    }
+    for (const { slug, page } of legalByLocale[lang] ?? []) {
+      entries.push(urlEntry(`${base}/${lang}/legal/${slug}/`, page.data.updated.toISOString()));
     }
   }
 

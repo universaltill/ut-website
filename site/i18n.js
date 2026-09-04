@@ -114,6 +114,27 @@ const I18N = {
     "foot.tagline": "The free, offline-first point of sale.",
     "foot.owner": "Universal Till is a product of Task Runner Technology LTD.",
     "foot.rights": "Open source under the MIT licence.",
+    // ut-docs#1552: foot.privacy/foot.terms are English placeholders in the
+    // other four locales below — the homelab Ollama translation endpoint
+    // (reference/translation.md) is unreachable from this cloud pipeline
+    // session, so these two ship untranslated for now, same accepted
+    // degraded state ut-docs#1292 hit for the same reason. A local session
+    // should run the real translation and replace them (this needs
+    // scripts/translate-posts.js extended to cover src/content/legal/
+    // first — see src/content.config.ts's comment on the `legal`
+    // collection — it doesn't do that today).
+    // foot.impressum is DIFFERENT: every non-English locale below uses the
+    // bare word "Impressum" rather than a translated phrase. That isn't an
+    // English placeholder — it's the actual term the DDG obligation this
+    // page exists for is named after, already the standard label on
+    // German (and many other) commercial sites regardless of UI language,
+    // so it needs no translation to be correct. en-gb spells it out in
+    // full ("Legal notice (Impressum)") since an English-only reader
+    // benefits from the plain-English half; the other locales don't need
+    // that scaffolding.
+    "foot.impressum": "Legal notice (Impressum)",
+    "foot.privacy": "Privacy policy",
+    "foot.terms": "Terms of use",
     "nav.about": "About",
     "nav.get": "Get started",
     "get.title": "Up and running in three steps",
@@ -265,6 +286,9 @@ const I18N = {
     "foot.tagline": "Ücretsiz, çevrimdışı öncelikli satış noktası.",
     "foot.owner": "Universal Till, Task Runner Technology LTD ürünüdür.",
     "foot.rights": "MIT lisansı altında açık kaynak.",
+    "foot.impressum": "Impressum",
+    "foot.privacy": "Privacy policy",
+    "foot.terms": "Terms of use",
     "nav.about": "Hakkımızda",
     "nav.get": "Başlayın",
     "get.title": "Üç adımda hazır",
@@ -416,6 +440,9 @@ const I18N = {
     "foot.tagline": "免费、离线优先的收银系统。",
     "foot.owner": "Universal Till 是 Task Runner Technology LTD 的产品。",
     "foot.rights": "基于 MIT 许可的开源软件。",
+    "foot.impressum": "Impressum",
+    "foot.privacy": "Privacy policy",
+    "foot.terms": "Terms of use",
     "nav.about": "关于我们",
     "nav.get": "开始使用",
     "get.title": "三步即可上手",
@@ -567,6 +594,9 @@ const I18N = {
     "foot.tagline": "صندوق فروش رایگان و آفلاین‌محور.",
     "foot.owner": "Universal Till محصولی از Task Runner Technology LTD است.",
     "foot.rights": "متن‌باز تحت مجوز MIT.",
+    "foot.impressum": "Impressum",
+    "foot.privacy": "Privacy policy",
+    "foot.terms": "Terms of use",
     "nav.about": "درباره ما",
     "nav.get": "شروع کنید",
     "get.title": "در سه گام آماده به کار",
@@ -718,6 +748,9 @@ const I18N = {
     "foot.tagline": "Das kostenlose, offline-first Kassensystem.",
     "foot.owner": "Universal Till ist ein Produkt der Task Runner Technology LTD.",
     "foot.rights": "Open Source unter der MIT-Lizenz.",
+    "foot.impressum": "Impressum",
+    "foot.privacy": "Privacy policy",
+    "foot.terms": "Terms of use",
     "nav.about": "Über uns",
     "nav.get": "Loslegen",
     "get.title": "In drei Schritten einsatzbereit",

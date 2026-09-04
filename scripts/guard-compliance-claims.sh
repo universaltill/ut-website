@@ -29,6 +29,15 @@
 #                                   literal here would bypass data-i18n
 #                                   entirely, same blind spot guard-i18n.sh's
 #                                   own check 5 documents in universal-till)
+#   - src/content/legal/**/*.mdx — Impressum/privacy/terms content
+#                                   (ut-docs#1552): long-form legal prose,
+#                                   arguably the single surface most likely
+#                                   to ever state a compliance outcome, and
+#                                   NOT covered by the src/**/*.astro glob
+#                                   above (that only matches *.astro, never
+#                                   *.mdx) — its own surface, not folded into
+#                                   ASTRO_DIR, so it fails closed on its own
+#                                   too.
 #
 # Case- and language-insensitive: the German forms are where the actual
 # pilot risk sits, not the English ones (ut-docs#667) — deliberate emphasis.
@@ -66,17 +75,23 @@ LOCALES_FILE="${ROOT_DIR}/site/i18n.js"
 BLOG_DIR="${ROOT_DIR}/src/content/blog"
 HTML_DIR="${ROOT_DIR}/site"
 ASTRO_DIR="${ROOT_DIR}/src"
+# ut-docs#1552: the Impressum/privacy/terms content collection — same kind of
+# long-form prose surface as the blog, and the one most likely to accumulate
+# a legal-outcome claim, so it gets its own surface rather than silently
+# riding along inside ASTRO_DIR (which only globs *.astro, never *.mdx).
+LEGAL_DIR="${ROOT_DIR}/src/content/legal"
 
 if [ "$#" -ge 1 ]; then LOCALES_FILE="$1"; fi
 if [ "$#" -ge 2 ]; then BLOG_DIR="$2"; fi
 if [ "$#" -ge 3 ]; then HTML_DIR="$3"; fi
 if [ "$#" -ge 4 ]; then ASTRO_DIR="$4"; fi
+if [ "$#" -ge 5 ]; then LEGAL_DIR="$5"; fi
 
 if [ ! -f "$LOCALES_FILE" ]; then
   echo "❌ compliance-claims guard: ${LOCALES_FILE} does not exist" >&2
   exit 1
 fi
-for d in "$BLOG_DIR" "$HTML_DIR" "$ASTRO_DIR"; do
+for d in "$BLOG_DIR" "$HTML_DIR" "$ASTRO_DIR" "$LEGAL_DIR"; do
   if [ ! -d "$d" ]; then
     echo "❌ compliance-claims guard: ${d} does not exist" >&2
     exit 1
@@ -168,6 +183,12 @@ while IFS= read -r -d '' f; do
   scan_file "$f" 1
 done < <(find "$ASTRO_DIR" -name '*.astro' -print0)
 
+legal_checked=0
+while IFS= read -r -d '' f; do
+  legal_checked=$((legal_checked + 1))
+  scan_file "$f" 1
+done < <(find "$LEGAL_DIR" -name '*.mdx' -print0)
+
 if [ "$blog_checked" -eq 0 ]; then
   echo "❌ compliance-claims guard: no *.mdx files found under ${BLOG_DIR#"${ROOT_DIR}/"} — blog content is no longer being scanned." >&2
   exit 1
@@ -180,8 +201,12 @@ if [ "$astro_checked" -eq 0 ]; then
   echo "❌ compliance-claims guard: no *.astro files found under ${ASTRO_DIR#"${ROOT_DIR}/"} — Astro pages/layouts are no longer being scanned." >&2
   exit 1
 fi
+if [ "$legal_checked" -eq 0 ]; then
+  echo "❌ compliance-claims guard: no *.mdx files found under ${LEGAL_DIR#"${ROOT_DIR}/"} — legal pages are no longer being scanned." >&2
+  exit 1
+fi
 
-checked=$((1 + blog_checked + html_checked + astro_checked))
+checked=$((1 + blog_checked + html_checked + astro_checked + legal_checked))
 
 if [ "$failed" -ne 0 ]; then
   exit 1

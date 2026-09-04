@@ -201,6 +201,9 @@ img { max-width: 100%; }
 .foot-tagline { color: var(--ink-soft); margin: .6rem 0 1.2rem; }
 .foot-owner { color: var(--ink); font-weight: 600; margin: 0; }
 .foot-rights { color: var(--muted); font-size: .85rem; margin: .3rem 0 0; }
+.foot-legal { color: var(--muted); font-size: .85rem; margin: .6rem 0 0; }
+.foot-legal a { color: var(--muted); text-decoration: underline; }
+.foot-legal a:hover { color: var(--brand); }
 
 /* Responsive */
 @media (max-width: 900px) {

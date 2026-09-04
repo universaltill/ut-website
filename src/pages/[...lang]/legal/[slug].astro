@@ -1,0 +1,68 @@
+---
+import { render } from 'astro:content';
+import BaseLayout, { LANGS } from '../../../layouts/BaseLayout.astro';
+import { getAllLocalizedLegalPages } from '../../../lib/legalPages';
+
+// One page per legal doc PER LOCALE, same fallback shape as blog/[slug].astro
+// — serving that locale's own translation where it exists and the English
+// original where it does not, rather than 404ing between the moment English
+// ships and the moment scripts/translate-posts.js-style translation catches
+// up (ut-docs#1552: the homelab Ollama endpoint is unreachable from a cloud
+// pipeline session, so tr-tr/zh-cn/fa-ir/de-de start life as English
+// fallbacks — same accepted degraded state #1292 hit for the same reason).
+export async function getStaticPaths() {
+  const byLocale = await getAllLocalizedLegalPages();
+  return LANGS.flatMap((lang) =>
+    (byLocale[lang] ?? []).map(({ page, slug, isFallback }) => ({
+      params: { lang, slug },
+      props: { page, isFallback },
+    })),
+  );
+}
+
+const { page, isFallback } = Astro.props;
+const { lang, slug } = Astro.params;
+const { Content } = await render(page);
+---
+
+<BaseLayout title={page.data.title} description={page.data.summary} lang={lang} path={`/legal/${slug}`}>
+  <article class="section" style="max-width:44rem">
+    <h1 dir={isFallback ? 'ltr' : undefined} lang={isFallback ? 'en' : undefined}>{page.data.title}</h1>
+
+    {/* dir/lang here too, not just the h1 and the body div below — blog/
+        [slug].astro's own history (ut-docs#353) is a reviewer catching the
+        first fix for exactly this class of miss: forcing ltr only on the
+        body left this kind of standalone line (a date, in that case a
+        title/byline) sitting under the surrounding rtl chrome. */}
+    <p
+      class="muted"
+      style="font-size:.85rem;margin:.2rem 0 1rem"
+      dir={isFallback ? 'ltr' : undefined}
+      lang={isFallback ? 'en' : undefined}
+    >
+      {page.data.updated.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
+    </p>
+
+    {/* Reuses blog's existing "news.untranslated" key rather than minting a
+        new one: a fresh key would itself need translating into tr/zh/fa/de
+        before it could honestly appear on a non-English URL, which is
+        exactly the capability this fallback exists to work around. The
+        wording says "post" rather than "page", which is a little loose for
+        a legal document, but it's already translated in all five locales
+        and understating precision here is a smaller honesty cost than a
+        hardcoded English banner sitting on a de-de/tr-tr/zh-cn/fa-ir URL. */}
+    {isFallback && (
+      <p class="muted" style="font-size:.85rem;margin:.2rem 0 1rem" data-i18n="news.untranslated">
+        This post isn't translated yet, so it's shown in English.
+      </p>
+    )}
+
+    <div
+      style="line-height:1.7;color:var(--ink-soft)"
+      dir={isFallback ? 'ltr' : undefined}
+      lang={isFallback ? 'en' : undefined}
+    >
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

@@ -62,6 +62,16 @@ const EXPECTED_SLUGS = fs
   .map((f) => f.replace(/\.mdx$/, ""))
   .sort();
 
+// Same derivation for the legal pages (ut-docs#1552) — impressum/privacy/
+// terms, one MDX per slug, no draft flag (there's no unpublished-legal-page
+// concept the way there's an unpublished blog post).
+const LEGAL_SOURCE_DIR = path.join(ROOT, "src/content/legal/en-gb");
+const EXPECTED_LEGAL_SLUGS = fs
+  .readdirSync(LEGAL_SOURCE_DIR)
+  .filter((f) => f.endsWith(".mdx"))
+  .map((f) => f.replace(/\.mdx$/, ""))
+  .sort();
+
 async function fetchXml(page, path) {
   return page.evaluate(async (p) => {
     const res = await fetch(p);
@@ -112,11 +122,15 @@ test.describe("sitemap.xml", () => {
       for (const slug of EXPECTED_SLUGS) {
         expect(text, `missing /${locale}/blog/${slug}`).toContain(`/${locale}/blog/${slug}/</loc>`);
       }
+      for (const slug of EXPECTED_LEGAL_SLUGS) {
+        expect(text, `missing /${locale}/legal/${slug}`).toContain(`/${locale}/legal/${slug}/</loc>`);
+      }
     }
-    // Nothing extra: total <loc> count is exactly what the two derived
-    // lists predict — catches a slug/route sitting in the sitemap that
-    // shouldn't be there just as much as a missing one.
-    const perLocale = EXPECTED_MARKETING_SUFFIXES.length + 2 /* blog index + plugins */ + EXPECTED_SLUGS.length;
+    // Nothing extra: total <loc> count is exactly what the derived lists
+    // predict — catches a slug/route sitting in the sitemap that shouldn't
+    // be there just as much as a missing one.
+    const perLocale =
+      EXPECTED_MARKETING_SUFFIXES.length + 2 /* blog index + plugins */ + EXPECTED_SLUGS.length + EXPECTED_LEGAL_SLUGS.length;
     const locCount = (text.match(/<loc>/g) || []).length;
     expect(locCount).toBe(perLocale * LOCALES.length);
   });
