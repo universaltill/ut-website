@@ -167,6 +167,21 @@
       "statusCode": 301
     },
     {
+      "route": "/legal/impressum",
+      "redirect": "/en-gb/legal/impressum",
+      "statusCode": 301
+    },
+    {
+      "route": "/legal/privacy",
+      "redirect": "/en-gb/legal/privacy",
+      "statusCode": 301
+    },
+    {
+      "route": "/legal/terms",
+      "redirect": "/en-gb/legal/terms",
+      "statusCode": 301
+    },
+    {
       "route": "/blog/*",
       "redirect": "/en-gb/blog",
       "statusCode": 301

@@ -9,20 +9,35 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   so Astro copies this tree into `dist/` **byte-for-byte unchanged**. Edit
   these files exactly as before.
 - Astro builds only genuinely *new* surface on top of that: the blog
-  (`src/content/blog/`, MDX content collections) and `/plugins`. See
+  (`src/content/blog/`, MDX content collections), `/plugins`, and the
+  Impressum/privacy/terms pages (`src/content/legal/`, ut-docs#1552 — same
+  collection-plus-fallback shape as the blog, via its own
+  `src/lib/legalPages.ts` and `src/pages/[...lang]/legal/[slug].astro`,
+  because long-form legal prose has the same "translated per locale,
+  fall back to English honestly" problem a blog post does, not the short
+  reusable-string problem `site/i18n.js` solves). See
   `docs/astro-migration.md`.
 - **SEO plumbing (ut-docs#482):** every blog post carries a JSON-LD
-  `BlogPosting` block; `sitemap.xml` covers the blog, `/plugins` and the
-  `site/` marketing pages in every locale (built from
+  `BlogPosting` block; `sitemap.xml` covers the blog, `/plugins`, the legal
+  pages, and the `site/` marketing pages in every locale (built from
   `site/staticwebapp.config.json`'s route table, not a hand-kept copy of
   it); each locale gets its own RSS feed at `/{locale}/blog/rss.xml`,
   discoverable via a `<link rel="alternate" type="application/rss+xml">`
-  on every Astro-rendered page (blog index/posts, `/plugins` — the plain
-  `site/*.html` marketing pages don't carry it, same as they don't carry
-  BaseLayout's other `<head>` mechanics). `src/lib/blogPosts.ts` is the
-  one place "which posts
-  exist, in which locale" is decided — the blog index, the sitemap and
-  every RSS feed all read from it.
+  on every Astro-rendered page (blog index/posts, `/plugins`, legal — the
+  plain `site/*.html` marketing pages don't carry it, same as they don't
+  carry BaseLayout's other `<head>` mechanics). `src/lib/blogPosts.ts` is
+  the one place "which posts exist, in which locale" is decided — the blog
+  index, the sitemap and every RSS feed all read from it; `src/lib/
+  legalPages.ts` is the same thing for the legal pages, deliberately kept
+  as a separate, parallel file rather than a shared abstraction across two
+  collections that happen to look alike today but don't have to stay that
+  way (blog gained `draft`/date-sorting/`excerpt` over time; legal
+  hasn't needed any of that yet).
+- **Legal pages currently ship English-only** in `tr-tr`/`zh-cn`/`fa-ir`/
+  `de-de` (an honest "not yet translated" fallback banner, not a 404) —
+  `scripts/translate-posts.js` only reads/writes `src/content/blog/` today
+  and would need extending to cover `src/content/legal/` before that can
+  change; see `src/content.config.ts`'s comment on the `legal` collection.
 - **The Decap CMS admin does NOT live here.** It's served from the homelab
   cluster at `admin.universaltill.com`, gated by Zitadel via oauth2-proxy
   (`taskrunnertech/homelab-k8s`'s `kubernetes/apps/ut-admin/`) — this SWA
@@ -75,10 +90,14 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   no "GoBD-compliant", "revisionssicher"/"audit-proof", "certified by the
   Finanzamt", or claims of filing a merchant's §146a notification on their
   behalf, anywhere this site's copy can appear: `site/i18n.js`,
-  `src/content/blog/**/*.mdx`, `site/*.html`, `src/**/*.astro`. Same
-  denylist and `compliance-claim:allow` escape-hatch convention as
-  `universal-till`'s own `scripts/ci/guard-compliance-claims.sh` — kept in
-  sync by hand across the two repos.
+  `src/content/blog/**/*.mdx`, `site/*.html`, `src/**/*.astro`, and
+  `src/content/legal/**/*.mdx` (ut-docs#1552 — the Impressum/privacy/terms
+  pages are exactly the surface most likely to ever state a compliance
+  outcome, so they get their own fail-closed check, not a ride inside the
+  `.astro` glob, which never matches `.mdx`). Same denylist and
+  `compliance-claim:allow` escape-hatch convention as `universal-till`'s own
+  `scripts/ci/guard-compliance-claims.sh` — kept in sync by hand across the
+  two repos.
 - **Content-Security-Policy (ut-docs#442).** `site/staticwebapp.config.json`'s
   `globalHeaders` carries a restrictive CSP (`default-src 'none'`, everything
   else opted in narrowly: `script-src`, `connect-src https://api.github.com`

@@ -134,6 +134,25 @@ const alternates = LANGS.map((code) => ({
   <p class="foot-tagline" data-i18n="foot.tagline">The free, offline-first point of sale.</p>
   <p class="foot-owner" data-i18n="foot.owner">Universal Till is a product of Task Runner Technology LTD.</p>
   <p class="foot-rights" data-i18n="foot.rights">Open source under the MIT licence.</p>
+  <!-- Same three links as site/*.html's footer (ut-docs#1552) — but here,
+       unlike site/*.html, THROUGH L() like every other link in this file
+       (review caught an earlier draft hardcoding these unprefixed, which
+       is right for site/*.html — plain HTML pages never rewrite a generic
+       href — but wrong here: this file's whole point is that every link
+       stays in the current locale, and an unprefixed /legal/impressum
+       301s to /en-gb/legal/impressum, ejecting a tr-tr/de-de/fa-ir/zh-cn
+       reader out of their own locale on click). A real space (not just
+       adjacent whitespace) around "·" so Astro's HTML compression can't
+       collapse it away the way it does a newline+indent — verified against
+       site/*.html's own rendering, where the newline is preserved and
+       renders as a space; tests/site-consistency.spec.js doesn't compare
+       this footer link-for-link (only .foot-tagline's presence), but no
+       reason to let it drift anyway. -->
+  <p class="foot-legal">
+    <a href={L('/legal/impressum')} data-i18n="foot.impressum">Legal notice (Impressum)</a>{' · '}
+    <a href={L('/legal/privacy')} data-i18n="foot.privacy">Privacy policy</a>{' · '}
+    <a href={L('/legal/terms')} data-i18n="foot.terms">Terms of use</a>
+  </p>
 </footer>
 
 </body>
