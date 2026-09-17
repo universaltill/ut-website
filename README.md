@@ -35,8 +35,8 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   hasn't needed any of that yet).
 - **Legal pages currently ship English-only** in `tr-tr`/`zh-cn`/`fa-ir`/
   `de-de` (an honest "not yet translated" fallback banner, not a 404) —
-  `scripts/translate-posts.js` only reads/writes `src/content/blog/` today
-  and would need extending to cover `src/content/legal/` before that can
+  `scripts/translate-posts.js` only checks `src/content/blog/` today and
+  would need extending to cover `src/content/legal/` before that can
   change; see `src/content.config.ts`'s comment on the `legal` collection.
 - **The Decap CMS admin does NOT live here.** It's served from the homelab
   cluster at `admin.universaltill.com`, gated by Zitadel via oauth2-proxy
@@ -65,15 +65,21 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   you were, not to the homepage.
 - **Posts are translated, not just the chrome.** English posts live in
   `src/content/blog/en-gb/` and are the only ones written by hand (that is the
-  folder the CMS files into). `node scripts/translate-posts.js` fills in
-  `tr-tr/`, `zh-cn/`, `fa-ir/` and `de-de/` using the **self-hosted** model on the
-  homelab (Ollama on the NAS, LAN-only — never a paid AI API), and the output is
-  committed like any other content, so the site depends on files in git rather
-  than on a model being up. Translations carry `machineTranslated: true` and
-  say so on the page, with a link to the English original. A missing
-  translation is not an error: that locale falls back to English and tells the
-  reader. The script rejects output that drops a section, rewrites a link,
-  translates the product name or comes back in the wrong script, and retries.
+  folder the CMS files into). Translations into `tr-tr/`, `zh-cn/`, `fa-ir/`
+  and `de-de/` are written by the pipeline cycle's own model (Claude or
+  Codex, whichever is running the Dev step) directly into those folders,
+  following the checklist in `ut-docs/reference/translation.md`, and
+  committed like any other content — so the site depends on files in git
+  rather than on a model being up when someone builds (ut-docs#2291 retired
+  the self-hosted Ollama endpoint this used to call for build-time
+  translation; the in-product runtime translation paths are unaffected, see
+  that doc). Translations carry `machineTranslated: true` and say so on the
+  page, with a link to the English original. A missing translation is not an
+  error: that locale falls back to English and tells the reader.
+  `node scripts/translate-posts.js` is a pure, no-network checker (runs in CI
+  — see `check-translate-posts` in `.github/workflows/ci.yml`) that flags a
+  committed translation which drops a section, rewrites a link, translates
+  the product name, or comes back in the wrong script/untranslated.
 - **There is no `navigationFallback`.** It answered every unknown path with the
   homepage at HTTP 200 — which is why `/blog` looked live for weeks before it
   existed, and why `/admin` looked like it was still served. Unknown paths 404.

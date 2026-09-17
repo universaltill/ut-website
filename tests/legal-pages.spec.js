@@ -1,9 +1,10 @@
 // ut-docs#1552: Impressum, privacy policy and terms of use pages, and the
 // footer links to them from every page. Only en-gb has real page content
-// right now (the homelab Ollama translation endpoint is unreachable from a
-// cloud pipeline session — same accepted degraded state as ut-docs#1292),
-// so the other locales are checked for the honest-fallback state instead of
-// a translated one. The footer LINK LABEL is a narrower exception: "foot.
+// right now (the pipeline's own-model translation workflow only targets
+// src/content/blog/ so far, not this collection — same accepted degraded
+// state as ut-docs#1292), so the other locales are checked for the
+// honest-fallback state instead of a translated one. The footer LINK LABEL
+// is a narrower exception: "foot.
 // impressum" uses the bare term "Impressum" in every locale (not a
 // translation — the DDG obligation's own name), so that one is checked for
 // real content everywhere.

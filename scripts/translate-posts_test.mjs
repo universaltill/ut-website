@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Regression test for translate-posts.js's verify() heuristic (ut-docs#871):
+// Regression test for translate-posts.js's verify() heuristic (ut-docs#871)
+// and, since ut-docs#2293, checkTranslation()'s file-level wiring around it:
 // proves every Latin-script locale (any LOCALES entry with no SCRIPT-map
 // entry) gets the same "model handed back English unchanged" protection
 // tr-tr had before this fix, and that the non-Latin-script (SCRIPT-mapped)
@@ -10,7 +11,7 @@
 // just in JS since the unit under test is a JS function, not a shell guard.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { verify } from "./translate-posts.js";
+import { verify, checkTranslation } from "./translate-posts.js";
 
 // A source/translated pair with matching headings, links and product name —
 // isolates each case to the one check it's meant to exercise.
@@ -62,4 +63,40 @@ test("a dropped heading or changed link is still caught, independent of locale",
   const problems = verify(source, translated, "de-de");
   assert.ok(problems.some((p) => p.includes("heading count")));
   assert.ok(problems.some((p) => p.includes("link targets changed")));
+});
+
+// checkTranslation() is the no-network file-level wiring added in ut-docs#2293
+// when this script stopped generating translations (retired Ollama endpoint)
+// and became a pure checker over translations the cycle's own model already
+// wrote to disk. It parses the translated file's own frontmatter/body — same
+// shape `main()` reads from a real committed .mdx — and hands both sides to
+// verify() unchanged.
+function mdx(fm, body) {
+  return `---\n${fm}\n---\n\n${body}\n`;
+}
+
+test("checkTranslation parses the translated file's own frontmatter and flags a real drop", () => {
+  const source = { title: "What's new", excerpt: "E", body: "## Universal Till\n## Two\n[a](/x)" };
+  const translatedRaw = mdx(
+    'title: "Was ist neu"\nexcerpt: "E"\nmachineTranslated: true',
+    "## Universal Till\n[a](/x)", // second heading dropped
+  );
+  const problems = checkTranslation(source, "de-de", translatedRaw);
+  assert.ok(problems.some((p) => p.includes("heading count")));
+});
+
+test("checkTranslation passes a genuinely complete, translated file", () => {
+  const source = { title: "What's new", excerpt: "E", body: "## Universal Till\n[a](/x)" };
+  const translatedRaw = mdx(
+    'title: "Was ist neu"\nexcerpt: "E"\nmachineTranslated: true',
+    "## Universal Till\n[a](/x)",
+  );
+  assert.deepEqual(checkTranslation(source, "de-de", translatedRaw), []);
+});
+
+test("checkTranslation still catches an untranslated title read from real frontmatter", () => {
+  const source = { title: "What's new", excerpt: "E", body: "## Universal Till" };
+  const translatedRaw = mdx('title: "What\'s new"\nexcerpt: "E"\nmachineTranslated: true', "## Universal Till");
+  const problems = checkTranslation(source, "de-de", translatedRaw);
+  assert.ok(problems.some((p) => p.includes("identical to the English")));
 });
