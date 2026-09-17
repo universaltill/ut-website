@@ -9,10 +9,11 @@ import { getAllLocalizedPosts } from '../../../lib/blogPosts';
 // the slug in the URL is the part after the locale.
 //
 // Falling back rather than 404ing matters: an editor publishes English through
-// the CMS, and the translations are generated separately
-// (scripts/translate-posts.js, against the self-hosted model). Between those
-// two moments /tr-tr/blog/<slug> must still be a real page, in English, saying
-// so — not a dead link in the Turkish blog listing.
+// the CMS, and the translations are written separately, by the pipeline
+// cycle's own model (ut-docs/reference/translation.md) — scripts/
+// translate-posts.js only checks them afterwards, it doesn't produce them.
+// Between those two moments /tr-tr/blog/<slug> must still be a real page, in
+// English, saying so — not a dead link in the Turkish blog listing.
 //
 // Which posts exist, in which locale, with what fallback state is decided in
 // exactly one place (src/lib/blogPosts.ts) — this page used to carry its own
@@ -62,8 +63,9 @@ const jsonLd = {
       "quotes into &quot;, breaking it as JSON); < guards the one
       character that actually matters inside a <script> body — a title or
       excerpt containing "</script>" would otherwise close the tag early.
-      Post content passes through scripts/translate-posts.js (a model),
-      so it isn't strictly developer-controlled text. */}
+      Post content is written by a model (the pipeline cycle's own, per
+      ut-docs/reference/translation.md), so it isn't strictly
+      developer-controlled text. */}
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />
   <article class="section" style="max-width:44rem">
     {/* isFallback: this date/author line and the title below are the

@@ -6,10 +6,11 @@ import { getAllLocalizedLegalPages } from '../../../lib/legalPages';
 // One page per legal doc PER LOCALE, same fallback shape as blog/[slug].astro
 // — serving that locale's own translation where it exists and the English
 // original where it does not, rather than 404ing between the moment English
-// ships and the moment scripts/translate-posts.js-style translation catches
-// up (ut-docs#1552: the homelab Ollama endpoint is unreachable from a cloud
-// pipeline session, so tr-tr/zh-cn/fa-ir/de-de start life as English
-// fallbacks — same accepted degraded state #1292 hit for the same reason).
+// ships and the moment a translation lands (ut-docs#1552: the pipeline's
+// own-model translation workflow, ut-docs/reference/translation.md, only
+// targets `src/content/blog/` today — not this collection — so
+// tr-tr/zh-cn/fa-ir/de-de start life as English fallbacks until that's
+// extended here, same accepted degraded state #1292 hit for the same reason).
 export async function getStaticPaths() {
   const byLocale = await getAllLocalizedLegalPages();
   return LANGS.flatMap((lang) =>

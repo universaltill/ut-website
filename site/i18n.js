@@ -115,14 +115,14 @@ const I18N = {
     "foot.owner": "Universal Till is a product of Task Runner Technology LTD.",
     "foot.rights": "Open source under the MIT licence.",
     // ut-docs#1552: foot.privacy/foot.terms are English placeholders in the
-    // other four locales below — the homelab Ollama translation endpoint
-    // (reference/translation.md) is unreachable from this cloud pipeline
-    // session, so these two ship untranslated for now, same accepted
-    // degraded state ut-docs#1292 hit for the same reason. A local session
-    // should run the real translation and replace them (this needs
-    // scripts/translate-posts.js extended to cover src/content/legal/
-    // first — see src/content.config.ts's comment on the `legal`
-    // collection — it doesn't do that today).
+    // other four locales below — the pipeline's own-model translation
+    // workflow (ut-docs/reference/translation.md) only targets
+    // src/content/blog/ so far, not this collection, so these two ship
+    // untranslated for now, same accepted degraded state ut-docs#1292 hit
+    // for the same reason. A future cycle should write the real translation
+    // and replace them (this needs the workflow extended to
+    // src/content/legal/ first — see src/content.config.ts's comment on the
+    // `legal` collection — it doesn't cover that today).
     // foot.impressum is DIFFERENT: every non-English locale below uses the
     // bare word "Impressum" rather than a translated phrase. That isn't an
     // English placeholder — it's the actual term the DDG obligation this

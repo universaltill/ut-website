@@ -10,9 +10,12 @@ const blog = defineCollection({
     author: z.string().default('Universal Till'),
     coverImage: z.string().optional(),
     draft: z.boolean().default(false),
-    // Set by scripts/translate-posts.js. Drives the "translated automatically"
-    // note on the post — an unlabelled machine translation is a small
-    // dishonesty that costs trust the first time a reader hits an odd phrase.
+    // Set by whoever writes the translated file (the pipeline cycle's own
+    // model, per ut-docs/reference/translation.md — scripts/translate-posts.js
+    // only checks these files now, it doesn't write them, ut-docs#2293).
+    // Drives the "translated automatically" note on the post — an unlabelled
+    // machine translation is a small dishonesty that costs trust the first
+    // time a reader hits an odd phrase.
     machineTranslated: z.boolean().default(false),
   }),
 });
@@ -24,9 +27,10 @@ const blog = defineCollection({
 // site/i18n.js's short-string dictionary (ut-docs#1552). No `date`/`excerpt`/
 // `author`/`coverImage` — these aren't articles — but `updated` drives the
 // "last updated" line every legal page needs.
-// No `machineTranslated` field (unlike `blog`, above): `scripts/
-// translate-posts.js` only ever reads/writes `src/content/blog/`, so there
-// is no mechanism yet that could produce one for this collection — adding
+// No `machineTranslated` field (unlike `blog`, above): nothing writes a
+// translation for this collection yet — the pipeline's own-model workflow
+// (ut-docs/reference/translation.md) only targets `src/content/blog/` today,
+// and `scripts/translate-posts.js` only checks that collection too — adding
 // the field before the script exists to set it would be a flag nobody sets
 // and no page reads, exactly the kind of unwired-looking-wired gap an
 // independent review of this ticket caught. When a real translation pass
