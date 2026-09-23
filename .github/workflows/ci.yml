@@ -31,6 +31,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: bash scripts/guard-compliance-claims.sh
       - run: bash scripts/guard-compliance-claims_test.sh
+      - run: bash scripts/stage-downloads_test.sh
 
   # Any /opt or /usr path the site tells a shop owner to run must exist in the
   # shipped package (ut-docs#541: download.html pointed at
