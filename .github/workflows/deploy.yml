@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  # ut-docs#1503: the installers below are staged at DEPLOY time, so
-  # /downloads froze at whatever release was newest the last time this site
+  # ut-docs#1503: the /downloads redirects below are written at DEPLOY time
+  # (pinned to that release's versioned assets), so /downloads froze at whatever release was newest the last time this site
   # happened to ship. On 2026-09-03 that meant the site served v0.9.1 while
   # v0.9.3 was out — and because v0.9.1 predates the ADR-0074 schema reset,
   # a shop installing from the website got a database the next update
@@ -16,7 +16,7 @@ on:
     - cron: "17 * * * *"
 
 jobs:
-  # Cheap gate for the scheduled run: is the site's staged installer version
+  # Cheap gate for the scheduled run: is the release the site's download links point at
   # behind the newest product release? Every other trigger deploys
   # unconditionally, exactly as before.
   check:
@@ -36,7 +36,7 @@ jobs:
           fi
           LATEST=$(gh release view --repo universaltill/universal-till --json tagName --jq '.tagName' | sed 's/^v//')
           LIVE=$(curl -fsS --max-time 20 https://universaltill.com/downloads/latest.json | jq -r '.version // "none"')
-          echo "newest release: ${LATEST:-unknown} · staged on the site: ${LIVE}" >> "$GITHUB_STEP_SUMMARY"
+          echo "newest release: ${LATEST:-unknown} · site links point at: ${LIVE}" >> "$GITHUB_STEP_SUMMARY"
           # Fail closed on an unreadable release: a missing answer must not
           # look like "up to date" and silently stop refreshing the site.
           if [ -z "${LATEST}" ]; then
@@ -57,29 +57,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # Pull the latest release installers onto OUR domain (stable names,
-      # version stripped) so /download links to www.universaltill.com/…
-      # and shop owners never touch GitHub. Non-fatal if a release is
-      # missing (the download page still ships).
-      - name: Stage release installers + write latest.json manifest
+      # Installers are served straight from GitHub releases (ut-docs#2489):
+      # every /downloads/<stable-name> path becomes a 302 to the versioned
+      # release asset (GitHub sends it as an attachment, so a click starts the
+      # download) and latest.json lists the same URLs. Nothing is copied onto
+      # the site — mirroring them outgrew the 250MB SWA cap (ut-docs#2486).
+      # Non-fatal if a release is missing (the download page still ships).
+      - name: Write download redirects + latest.json manifest
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           mkdir -p site/downloads
           VER=$(gh release view --repo universaltill/universal-till --json tagName --jq '.tagName' 2>/dev/null | sed 's/^v//')
-          if [ -n "$VER" ] && gh release download "v$VER" --repo universaltill/universal-till --pattern 'unitill-pos_*' --dir /tmp/rel 2>/dev/null; then
-            # Mirror by priority within a byte budget; the rest become 302s to
-            # the GitHub asset (ut-docs#2486 — all six at ~50MB each broke
-            # every deploy against the 250MB SWA cap). 180MB leaves headroom
-            # for the site itself.
-            bash scripts/stage-downloads.sh "$VER" /tmp/rel site 188743680
-            ls -la site/downloads/
+          if [ -n "$VER" ] && gh release view "v$VER" --repo universaltill/universal-till --json assets --jq '.assets[].name' > /tmp/assets.txt 2>/dev/null; then
+            bash scripts/download-redirects.sh "$VER" /tmp/assets.txt site
           else
             echo '{"version":null}' > site/downloads/latest.json
-            echo "no release assets found — download page ships, manifest empty"
+            echo "no release found — download page ships, manifest empty"
           fi
-      # Re-validate the SWA config AFTER stage-downloads.sh added its
-      # redirect routes (ut-docs#2486) — CI only checks the committed copy.
+      # Re-validate the SWA config AFTER download-redirects.sh added its
+      # redirect routes (ut-docs#2489) — CI only checks the committed copy.
       - name: Validate the deployed SWA config
         run: node scripts/check-swa-config.js
       - uses: actions/setup-node@v4
@@ -99,7 +96,7 @@ jobs:
           bytes=$(du -sb dist | cut -f1)
           echo "dist is $bytes bytes (cap 262144000)" >> "$GITHUB_STEP_SUMMARY"
           if [ "$bytes" -gt 250000000 ]; then
-            echo "::error::dist is $bytes bytes — over the Static Web Apps cap; lower the budget in stage-downloads or move downloads off the SWA"
+            echo "::error::dist is $bytes bytes — over the Static Web Apps cap; something large is being staged into dist"
             du -sh dist/* | sort -h | tail -5; exit 1
           fi
       - name: Deploy to Azure Static Web Apps

@@ -47,7 +47,7 @@
       <div class="card dl-card">
         <h3>🪟 Windows</h3>
         <p class="muted" data-i18n="dl.win.d">Windows 10 or 11, 64-bit.</p>
-        <a class="btn" data-dl="wininstaller" href="/downloads/unitill-pos_windows_amd64.zip" download data-i18n="dl.win.exe">Windows installer (.exe)</a>
+        <a class="btn" data-dl="wininstaller" href="/downloads/unitill-pos-setup.exe" download data-i18n="dl.win.exe">Windows installer (.exe)</a>
         <a class="btn ghost" data-dl="win" href="/downloads/unitill-pos_windows_amd64.zip" download style="margin-top:.4rem" data-i18n="dl.win.zip">Portable (.zip)</a>
       </div>
       <div class="card dl-card">
@@ -75,7 +75,7 @@
       <div class="card dl-card">
         <h3>🤖 Android</h3>
         <p class="muted" data-i18n="dl.android.d">Android 7.0+. Sideloaded — not on the Play Store.</p>
-        <a class="btn" data-dl="android" href="https://github.com/universaltill/universal-till/releases/latest/download/unitill-pos-android-latest.apk" data-i18n="dl.android.apk">Android app (.apk)</a>
+        <a class="btn" data-dl="android" href="/downloads/unitill-pos_android.apk" data-i18n="dl.android.apk">Android app (.apk)</a>
       </div>
     </div>
     <p class="muted" data-i18n="dl.android.note" style="max-width:40rem;margin:1rem auto 0">
@@ -104,10 +104,10 @@
 </footer>
 
 <script>
-  // Each button maps to an asset-name suffix. Static hrefs point at our
-  // own-domain mirror (/downloads/, staged by the site deploy) as a
-  // fallback; the GitHub Releases API (below) upgrades them to the LIVE
-  // latest release so the page is always current with zero maintenance.
+  // Each button maps to an asset-name suffix. Static hrefs point at stable
+  // /downloads/ paths (302s to the release asset on GitHub, written by the
+  // site deploy); the GitHub Releases API (below) upgrades them to the LIVE
+  // latest release's asset URLs directly. Either way a click downloads.
   var SUFFIX = {
     "wininstaller": "-setup-", // unitill-pos-setup-<ver>.exe (guided installer)
     "win":    "windows_amd64.zip",
@@ -167,27 +167,16 @@
       document.getElementById("primary-note").textContent = t(best.noteKey, best.note);
       document.getElementById("primary").style.display = "block";
     }
-    // Fallback: our-domain mirror paths. The installer isn't mirrored, so the
-    // Windows primary safely falls back to the portable zip until the live API
-    // (below) upgrades it to the real Setup.exe.
+    // Fallback until the live API (below) answers: stable /downloads/ paths,
+    // each a 302 to the current release's asset on GitHub (written by the
+    // site deploy, ut-docs#2489) — a click starts the download directly.
+    var STABLE = {
+      "wininstaller": "unitill-pos-setup.exe",
+      "macapp": "unitill-pos-macOS-arm64.dmg",
+      "android": "unitill-pos_android.apk"
+    };
     function mirror(k) {
-      if (k === "wininstaller") return "/downloads/unitill-pos_windows_amd64.zip";
-      // The .dmg isn't in the staged mirror; fall back to the portable tar.gz
-      // until the live API (below) upgrades the button to the real .dmg.
-      if (k === "macapp") return "/downloads/unitill-pos_darwin_arm64.tar.gz";
-      // The APK (~180MB) isn't mirrored either — it alone pushed the whole
-      // site over Azure SWA's free-tier size cap (see deploy.yml). Rather
-      // than fall back to the bare releases page (a dead end if the live
-      // API fetch below fails or is rate-limited — GitHub's unauthenticated
-      // API is 60 req/hr per IP, genuinely reachable on a real page, and the
-      // old fallback silently stayed the releases page forever whenever it
-      // was hit, not just until the API answered), point straight at
-      // GitHub's own stable "latest release" redirect for a FIXED-name copy
-      // of the APK the release workflow now also uploads alongside the
-      // versioned one (unitill-pos-android-latest.apk, release.yml's
-      // android-app job) — a direct download with zero JS/API dependency.
-      if (k === "android") return "https://github.com/universaltill/universal-till/releases/latest/download/unitill-pos-android-latest.apk";
-      return "/downloads/unitill-pos_" + SUFFIX[k];
+      return "/downloads/" + (STABLE[k] || ("unitill-pos_" + SUFFIX[k]));
     }
     setPrimary(mirror);
 
