@@ -68,42 +68,20 @@ jobs:
           mkdir -p site/downloads
           VER=$(gh release view --repo universaltill/universal-till --json tagName --jq '.tagName' 2>/dev/null | sed 's/^v//')
           if [ -n "$VER" ] && gh release download "v$VER" --repo universaltill/universal-till --pattern 'unitill-pos_*' --dir /tmp/rel 2>/dev/null; then
-            for f in /tmp/rel/unitill-pos_*; do
-              # The Android APK is ~180MB on its own — mirroring it pushed the
-              # whole site over Azure Static Web Apps' free-tier 250MB content
-              # cap and broke deploys entirely (discovered 2026-07-27, deploy
-              # 30313779077 rejected with BadRequest/size-too-large). Every
-              # other installer is 15-20MB; only this one doesn't fit. The
-              # download page's data-dl="android" button already has its own
-              # fallback (see download.html's mirror()) and gets upgraded to
-              # the real GitHub asset URL by the live Releases API call, same
-              # pattern already used for the Windows installer + macOS .dmg.
-              case "$f" in *_android.apk) continue ;; esac
-              stable=$(basename "$f" | sed -E 's/_[0-9]+\.[0-9]+\.[0-9]+_/_/')
-              cp "$f" "site/downloads/$stable"
-            done
-            # Manifest the /download page reads at runtime — version + our-domain URLs.
-            # android points straight at the GitHub release asset (not mirrored, see above).
-            cat > site/downloads/latest.json <<JSON
-          {
-            "version": "$VER",
-            "released": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "downloads": {
-              "windows_amd64": "/downloads/unitill-pos_windows_amd64.zip",
-              "darwin_arm64":  "/downloads/unitill-pos_darwin_arm64.tar.gz",
-              "linux_arm64_deb": "/downloads/unitill-pos_linux_arm64.deb",
-              "linux_arm64_tar": "/downloads/unitill-pos_linux_arm64.tar.gz",
-              "linux_amd64_deb": "/downloads/unitill-pos_linux_amd64.deb",
-              "linux_amd64_tar": "/downloads/unitill-pos_linux_amd64.tar.gz",
-              "android": "https://github.com/universaltill/universal-till/releases/download/v$VER/unitill-pos_${VER}_android.apk"
-            }
-          }
-          JSON
-            echo "staged installers for v$VER"; ls -la site/downloads/
+            # Mirror by priority within a byte budget; the rest become 302s to
+            # the GitHub asset (ut-docs#2486 — all six at ~50MB each broke
+            # every deploy against the 250MB SWA cap). 180MB leaves headroom
+            # for the site itself.
+            bash scripts/stage-downloads.sh "$VER" /tmp/rel site 188743680
+            ls -la site/downloads/
           else
             echo '{"version":null}' > site/downloads/latest.json
             echo "no release assets found — download page ships, manifest empty"
           fi
+      # Re-validate the SWA config AFTER stage-downloads.sh added its
+      # redirect routes (ut-docs#2486) — CI only checks the committed copy.
+      - name: Validate the deployed SWA config
+        run: node scripts/check-swa-config.js
       - uses: actions/setup-node@v4
         with:
           # Astro 7 requires >=22.12.0 and hard-exits below it. Build toolchain
@@ -114,6 +92,16 @@ jobs:
         run: npm ci
       - name: Build (Astro — site/ is publicDir, copied through unchanged)
         run: npm run build
+      # Fail here, with the reason, rather than at Azure's opaque BadRequest
+      # (ut-docs#2486): the free SWA plan rejects content over 262144000 bytes.
+      - name: Check deploy size against the SWA cap
+        run: |
+          bytes=$(du -sb dist | cut -f1)
+          echo "dist is $bytes bytes (cap 262144000)" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$bytes" -gt 250000000 ]; then
+            echo "::error::dist is $bytes bytes — over the Static Web Apps cap; lower the budget in stage-downloads or move downloads off the SWA"
+            du -sh dist/* | sort -h | tail -5; exit 1
+          fi
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
