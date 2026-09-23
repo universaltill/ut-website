@@ -60,13 +60,13 @@ test.describe("download page: Android tablet vs. Raspberry Pi/ARM Linux detectio
   test("desktop-mode Android tablet with an honest platform hint -> Android, not Pi", async ({ page }) => {
     await gotoWithOverrides(page, { uaDataPlatform: "Android", uaDataArchitecture: "arm", maxTouchPoints: 5 });
     const { href } = await primaryCard(page);
-    expect(href).toContain("universal-till/releases/latest");
+    expect(href).toContain("android.apk");
   });
 
   test("desktop-mode Android tablet whose platform hint is ALSO spoofed to Linux -> maxTouchPoints tips it to Android", async ({ page }) => {
     await gotoWithOverrides(page, { uaDataPlatform: "Linux", uaDataArchitecture: "arm", maxTouchPoints: 5 });
     const { href } = await primaryCard(page);
-    expect(href).toContain("universal-till/releases/latest");
+    expect(href).toContain("android.apk");
   });
 
   test("no regression: a real ARM Linux box / Raspberry Pi (no touchscreen) still gets the Pi card", async ({ page }) => {
