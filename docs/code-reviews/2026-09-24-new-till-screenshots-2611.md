@@ -24,3 +24,14 @@ Otherwise clean:
 - The fa strings use Persian ی/ک.
 
 **Exposure.** No new data. All screens show demo or sample data. The version label v0.21.4 is public anyway.
+
+## Follow-up: design-canvas shots in #manage
+
+At the product owner's request, the #manage images are now renders of the owner-approved design canvas for my.universaltill.com.
+- **How they were made:** the canvas's own `dc-runtime.js` was served locally, and each view was reached by clicking the tree (catalog, sales overview, modifier groups). The owner's avatar initials were swapped for neutral "AO".
+- **Images:** they replace the three app-rendered shots (quick buttons and tills removed).
+- **Strings:** `manage.catalog` and `manage.reports` added in 5 locales; `manage.buttons` and `manage.tills` removed.
+
+The Reports screen is design, not shipped, so the section sub says "some screens are still being built" and the Reports caption says "Coming soon".
+
+**Review:** a Sonnet subagent confirmed the translations match, the fa strings use Persian letter forms, the images hold sample data only, and nothing references the removed keys or images. Its one finding ("ready to print" read as shipped) is **fixed**. 174 tests pass.
