@@ -46,7 +46,7 @@ const scannedFiles = [...htmlFiles.map((f) => path.join(siteDir, f)), ...astroFi
 const used = new Set();
 for (const f of scannedFiles) {
   const html = fs.readFileSync(f, "utf8");
-  for (const m of html.matchAll(/data-i18n(?:-html|-aria-label)?="([^"]+)"/g)) used.add(m[1]);
+  for (const m of html.matchAll(/data-i18n(?:-html|-aria-label|-alt)?="([^"]+)"/g)) used.add(m[1]);
 }
 if (used.size === 0) {
   console.error("check-i18n-keys: found zero data-i18n usages across site/*.html or src/**/*.astro — the extraction regex is broken, not the site");

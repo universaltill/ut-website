@@ -91,6 +91,11 @@ const I18N = {
     "start.sell.plug.t": "Add plugins", "start.sell.plug.d": "Open the plugin store for payments, loyalty, themes and more — verified, one-click.",
     "start.help.t": "Need a hand?",
     "start.help.d": "The till has a built-in “How to use the till” guide in your language. And you can always reach the download page for a fresh copy.",
+    "manage.title": "Manage your shop from anywhere",
+    "manage.sub": "my.universaltill.com: change your catalogue, quick buttons and till settings from any browser. Every till picks the change up on its next check-in. Shown here with sample data.",
+    "manage.mods": "Options and add-ons", "manage.mods.d": "Milk choices, sizes and extras, with their prices, in one place.",
+    "manage.buttons": "Quick buttons", "manage.buttons.d": "Rearrange the sale screen once and every till follows.",
+    "manage.tills": "Every till at a glance", "manage.tills.d": "Main and additional tills, their health and version.",
     "tour.title": "See it in action",
     "tour.sub": "Real screens from a running till — not mock-ups.",
     "tour.sale": "Fast touch sale screen", "tour.sale.d": "Product tiles, scan, and one-tap tender.",
@@ -263,6 +268,11 @@ const I18N = {
     "start.sell.plug.t": "Eklenti ekleyin", "start.sell.plug.d": "Ödemeler, sadakat, temalar ve daha fazlası için eklenti mağazasını açın — doğrulanmış, tek tıkla.",
     "start.help.t": "Yardım mı lazım?",
     "start.help.d": "Kasada, kendi dilinizde yerleşik bir “Kasa nasıl kullanılır” kılavuzu var. Ayrıca yeni bir kopya için her zaman indirme sayfasına ulaşabilirsiniz.",
+    "manage.title": "Dükkanınızı her yerden yönetin",
+    "manage.sub": "my.universaltill.com: ürün kataloğunuzu, hızlı düğmelerinizi ve kasa ayarlarınızı herhangi bir tarayıcıdan değiştirin. Her kasa değişikliği bir sonraki bağlantısında alır. Burada örnek verilerle gösterilmiştir.",
+    "manage.mods": "Seçenekler ve ekstralar", "manage.mods.d": "Süt seçenekleri, boyutlar ve ekstralar, fiyatlarıyla tek bir yerde.",
+    "manage.buttons": "Hızlı düğmeler", "manage.buttons.d": "Satış ekranını bir kez düzenleyin, tüm kasalar aynısını uygular.",
+    "manage.tills": "Tüm kasalar bir bakışta", "manage.tills.d": "Ana ve ek kasalar, durumları ve sürümleri.",
     "tour.title": "İş başında görün",
     "tour.sub": "Çalışan bir kasadan gerçek ekranlar — maket değil.",
     "tour.sale": "Hızlı dokunmatik satış ekranı", "tour.sale.d": "Ürün kutucukları, tarama ve tek dokunuşla ödeme.",
@@ -417,6 +427,11 @@ const I18N = {
     "start.sell.plug.t": "添加插件", "start.sell.plug.d": "打开插件商店，获取支付、会员、主题等——均经验证，一键安装。",
     "start.help.t": "需要帮助？",
     "start.help.d": "收银台内置了以你的语言呈现的“如何使用收银台”指南。你也随时可以到下载页获取最新副本。",
+    "manage.title": "随时随地管理您的店铺",
+    "manage.sub": "my.universaltill.com：在任何浏览器中修改商品目录、快捷按钮和收银台设置。每台收银台会在下次连接时获取更改。此处使用示例数据展示。",
+    "manage.mods": "选项与加料", "manage.mods.d": "奶类选择、杯型和加料及其价格，集中管理。",
+    "manage.buttons": "快捷按钮", "manage.buttons.d": "只需调整一次销售界面，所有收银台同步生效。",
+    "manage.tills": "所有收银台一目了然", "manage.tills.d": "主收银台和附加收银台的状态与版本。",
     "tour.title": "实际操作演示",
     "tour.sub": "来自真实运行收银台的实拍界面 — 并非效果图。",
     "tour.sale": "快速触屏销售界面", "tour.sale.d": "商品磁贴、扫码，一键结算。",
@@ -571,6 +586,11 @@ const I18N = {
     "start.sell.plug.t": "افزودن افزونه‌ها", "start.sell.plug.d": "فروشگاه افزونه را برای پرداخت‌ها، وفاداری، پوسته‌ها و بیشتر باز کنید — تأییدشده، با یک کلیک.",
     "start.help.t": "کمک می‌خواهید؟",
     "start.help.d": "صندوق یک راهنمای داخلی «نحوهٔ استفاده از صندوق» به زبان شما دارد. همچنین همیشه می‌توانید برای یک نسخهٔ تازه به صفحهٔ دانلود بروید.",
+    "manage.title": "فروشگاهتان را از هر جایی مدیریت کنید",
+    "manage.sub": "my.universaltill.com: کاتالوگ کالا، دکمه‌های سریع و تنظیمات صندوق را از هر مرورگری تغییر دهید. هر صندوق تغییر را در اتصال بعدی خود دریافت می‌کند. اینجا با داده‌های نمونه نشان داده شده است.",
+    "manage.mods": "گزینه‌ها و افزودنی‌ها", "manage.mods.d": "نوع شیر، اندازه و افزودنی‌ها همراه با قیمت، در یک جا.",
+    "manage.buttons": "دکمه‌های سریع", "manage.buttons.d": "صفحهٔ فروش را یک بار مرتب کنید تا همهٔ صندوق‌ها همان را نشان دهند.",
+    "manage.tills": "همهٔ صندوق‌ها در یک نگاه", "manage.tills.d": "صندوق اصلی و صندوق‌های اضافی، وضعیت و نسخهٔ آن‌ها.",
     "tour.title": "آن را در عمل ببینید",
     "tour.sub": "تصاویر واقعی از یک صندوق در حال کار — نه ماکت.",
     "tour.sale": "صفحهٔ فروش لمسی و سریع", "tour.sale.d": "کاشی محصولات، اسکن و پرداخت با یک لمس.",
@@ -725,6 +745,11 @@ const I18N = {
     "start.sell.plug.t": "Plugins hinzufügen", "start.sell.plug.d": "Öffnen Sie den Plugin-Shop für Zahlungen, Treueprogramme, Designs und mehr — geprüft, mit einem Klick.",
     "start.help.t": "Brauchen Sie Hilfe?",
     "start.help.d": "Die Kasse enthält eine integrierte Anleitung „So nutzen Sie die Kasse“ in Ihrer Sprache. Und Sie erreichen jederzeit die Download-Seite für eine neue Kopie.",
+    "manage.title": "Verwalten Sie Ihr Geschäft von überall",
+    "manage.sub": "my.universaltill.com: Ändern Sie Sortiment, Schnelltasten und Kasseneinstellungen in jedem Browser. Jede Kasse übernimmt die Änderung bei ihrer nächsten Verbindung. Hier mit Beispieldaten gezeigt.",
+    "manage.mods": "Optionen und Extras", "manage.mods.d": "Milchsorten, Größen und Extras mit ihren Preisen an einem Ort.",
+    "manage.buttons": "Schnelltasten", "manage.buttons.d": "Den Verkaufsbildschirm einmal anordnen, und jede Kasse folgt.",
+    "manage.tills": "Alle Kassen auf einen Blick", "manage.tills.d": "Haupt- und Zusatzkassen, ihr Zustand und ihre Version.",
     "tour.title": "In Aktion erleben",
     "tour.sub": "Echte Bildschirme einer laufenden Kasse — keine Attrappen.",
     "tour.sale": "Schneller Touch-Verkaufsbildschirm", "tour.sale.d": "Produktkacheln, Scannen und Zahlung mit einem Tipp.",
@@ -874,6 +899,12 @@ const I18N = {
     document.querySelectorAll("[data-i18n-aria-label]").forEach(function (el) {
       const v = dict[el.getAttribute("data-i18n-aria-label")];
       if (v != null) el.setAttribute("aria-label", v);
+    });
+    // Same again for <img alt>: a screenshot's alt text is read aloud in
+    // place of the image, so it must follow the page language too.
+    document.querySelectorAll("[data-i18n-alt]").forEach(function (el) {
+      const v = dict[el.getAttribute("data-i18n-alt")];
+      if (v != null) el.setAttribute("alt", v);
     });
     // Nav shows a single compact link to /language instead of an inline
     // dropdown — lots of languages don't fit a nav bar, see language.html.
