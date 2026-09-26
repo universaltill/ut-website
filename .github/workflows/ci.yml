@@ -20,6 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: bash scripts/check-brand-assets.sh
+      - run: bash scripts/check-brand-assets_test.sh
 
   # ut-docs#702, immediate follow-up to ut-docs#681/#667: the same
   # product-owner-approved fiscal-compliance wording denylist universal-till

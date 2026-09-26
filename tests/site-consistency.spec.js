@@ -25,10 +25,21 @@ async function headerFingerprint(page, path) {
       text: a.textContent.trim(),
     });
     const logo = document.querySelector(".brand img");
+    const footLogo = document.querySelector(".foot-brand img");
+    // The rendered box, not just the attributes: a CSS sizing rule loaded
+    // only on the Astro pages (Tailwind preflight's img{height:auto} did this,
+    // drawing the /blog and /plugins logo ~54% taller from a 34x30 pair —
+    // ut-docs#476) changes the box while the attributes still match.
+    const box = (img) => {
+      const r = img.getBoundingClientRect();
+      return { width: Math.round(r.width), height: Math.round(r.height) };
+    };
     return {
       nav: [...document.querySelectorAll("#site-nav a")].map(link),
       actions: [...document.querySelectorAll(".nav-actions a")].map(link),
       logo: { width: logo.getAttribute("width"), height: logo.getAttribute("height") },
+      logoBox: box(logo),
+      footLogoBox: box(footLogo),
       hasToggle: !!document.querySelector(".nav-toggle"),
       font: getComputedStyle(document.body).fontFamily,
       fontSize: getComputedStyle(document.body).fontSize,
@@ -55,6 +66,11 @@ test.describe("the blog must not look like a different website", () => {
       expect(astro.actions.map((l) => l.key)).toEqual(home.actions.map((l) => l.key));
 
       expect(astro.logo).toEqual(home.logo);
+      // A hidden logo on both pages would compare {0,0} to {0,0}.
+      expect(home.logoBox.height).toBeGreaterThan(0);
+      expect(home.footLogoBox.height).toBeGreaterThan(0);
+      expect(astro.logoBox).toEqual(home.logoBox);
+      expect(astro.footLogoBox).toEqual(home.footLogoBox);
       expect(astro.hasToggle).toBe(home.hasToggle);
       expect(astro.footerTagline).toBe(home.footerTagline);
     });
