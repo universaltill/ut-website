@@ -136,7 +136,7 @@ test.describe("mobile nav — index.html", () => {
 });
 
 test.describe("mobile nav — smoke check on other pages", () => {
-  for (const p of ["/download", "/start", "/store", "/language"]) {
+  for (const p of ["/download", "/start", "/language"]) {
     test(`toggle works on ${p}`, async ({ page }) => {
       await page.setViewportSize({ width: 400, height: 800 });
       await page.goto(p);

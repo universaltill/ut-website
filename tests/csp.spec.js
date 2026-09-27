@@ -37,7 +37,7 @@ const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
 const swaConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "site/staticwebapp.config.json"), "utf8"));
 const MARKETING_SUFFIXES = swaConfig.routes
   .filter((r) => r.route.startsWith("/en-gb") && typeof r.rewrite === "string" && r.rewrite.endsWith(".html"))
-  .map((r) => r.route.slice("/en-gb".length)); // "", "/download", "/start", "/store", "/language"
+  .map((r) => r.route.slice("/en-gb".length)); // "", "/download", "/start", "/pilot", "/language"
 
 const BLOG_SOURCE_DIR = path.join(ROOT, "src/content/blog/en-gb");
 const FIRST_SLUG = fs

@@ -41,7 +41,7 @@ const EXPECTED_MARKETING_SUFFIXES = swaConfig.routes
     const html = fs.readFileSync(path.join(ROOT, "site", r.rewrite), "utf8");
     return !/<meta\s+name="robots"\s+content="[^"]*noindex/i.test(html);
   })
-  .map((r) => r.route.slice("/en-gb".length)); // "", "/download", "/start", "/store"
+  .map((r) => r.route.slice("/en-gb".length)); // "", "/download", "/start", "/pilot"
 
 // site/language.html is real but explicitly noindex (a language picker,
 // not indexable content) — assert the derivation actually excludes it,

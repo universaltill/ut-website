@@ -11,7 +11,7 @@
 import { expect, test } from "@playwright/test";
 
 const SLUGS = ["impressum", "privacy", "terms"];
-const HOME_PAGES = ["/en-gb", "/en-gb/download", "/en-gb/start", "/en-gb/pilot", "/en-gb/store", "/en-gb/language"];
+const HOME_PAGES = ["/en-gb", "/en-gb/download", "/en-gb/start", "/en-gb/pilot", "/en-gb/language"];
 
 test.describe("footer legal links", () => {
   for (const path of HOME_PAGES) {
