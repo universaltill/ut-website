@@ -20,7 +20,8 @@
     },
     {
       "route": "/en-gb/store",
-      "rewrite": "/store.html"
+      "redirect": "/en-gb",
+      "statusCode": 301
     },
     {
       "route": "/en-gb/pilot",
@@ -44,7 +45,8 @@
     },
     {
       "route": "/tr-tr/store",
-      "rewrite": "/store.html"
+      "redirect": "/tr-tr",
+      "statusCode": 301
     },
     {
       "route": "/tr-tr/pilot",
@@ -68,7 +70,8 @@
     },
     {
       "route": "/zh-cn/store",
-      "rewrite": "/store.html"
+      "redirect": "/zh-cn",
+      "statusCode": 301
     },
     {
       "route": "/zh-cn/pilot",
@@ -92,7 +95,8 @@
     },
     {
       "route": "/fa-ir/store",
-      "rewrite": "/store.html"
+      "redirect": "/fa-ir",
+      "statusCode": 301
     },
     {
       "route": "/fa-ir/pilot",
@@ -116,7 +120,8 @@
     },
     {
       "route": "/de-de/store",
-      "rewrite": "/store.html"
+      "redirect": "/de-de",
+      "statusCode": 301
     },
     {
       "route": "/de-de/pilot",
@@ -143,7 +148,7 @@
     },
     {
       "route": "/store",
-      "redirect": "/en-gb/store",
+      "redirect": "/en-gb",
       "statusCode": 301
     },
     {
