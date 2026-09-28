@@ -4,7 +4,7 @@
 `/admin` on this Static Web App via Azure's native Zitadel OIDC provider was
 **not viable** — that feature requires the SWA Standard plan, and this site
 runs on Free. The product owner chose instead to serve the Decap admin from
-the homelab cluster at `admin.universaltill.com`, gated by Zitadel via
+the homelab cluster at `cms.universaltill.com`, gated by Zitadel via
 oauth2-proxy (`taskrunnertech/homelab-k8s`'s `kubernetes/apps/ut-admin/`).
 This repo's `site/admin/`, `staticwebapp.config.json`'s `auth` block and
 `/admin` routes have been removed accordingly (ut-docs#471) — `/admin` and

@@ -39,7 +39,7 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   would need extending to cover `src/content/legal/` before that can
   change; see `src/content.config.ts`'s comment on the `legal` collection.
 - **The Decap CMS admin does NOT live here.** It's served from the homelab
-  cluster at `admin.universaltill.com`, gated by Zitadel via oauth2-proxy
+  cluster at `cms.universaltill.com`, gated by Zitadel via oauth2-proxy
   (`taskrunnertech/homelab-k8s`'s `kubernetes/apps/ut-admin/`) — this SWA
   intentionally has no `/admin` route and no `auth` block; `site/admin/*` and
   `/admin` are explicitly excluded from `navigationFallback` so a request to
