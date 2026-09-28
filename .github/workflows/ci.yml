@@ -50,7 +50,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # The CMS admin and its OAuth relay are NOT on this site any more — both run
-  # on the homelab cluster at admin.universaltill.com (ut-docs#468/#471), where
+  # on the homelab cluster at cms.universaltill.com (ut-docs#468/#471), where
   # a real gate can be enforced and where their tests now live. This guards the
   # removal: an /admin route, an `auth` block that SWA Free cannot enforce, a
   # resurrected api/ or site/admin/ drifting from the deployed copy.

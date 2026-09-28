@@ -3,7 +3,7 @@
 // back into the public marketing site.
 //
 // The CMS admin does NOT live here any more — it runs on the homelab cluster at
-// https://admin.universaltill.com, behind oauth2-proxy/Zitadel, with its own
+// https://cms.universaltill.com, behind oauth2-proxy/Zitadel, with its own
 // GitHub OAuth relay (homelab-k8s: kubernetes/apps/ut-admin/). Two things this
 // file used to declare are worse than useless now:
 //
@@ -51,7 +51,7 @@ for (const route of config.routes || []) {
     problems.push(`route ${route.route} carries allowedRoles — nothing on this site is gated.`);
   }
   if (String(route.route).startsWith('/admin')) {
-    problems.push(`route ${route.route} — the admin lives at admin.universaltill.com, not here.`);
+    problems.push(`route ${route.route} — the admin lives at cms.universaltill.com, not here.`);
   }
 }
 
@@ -75,7 +75,7 @@ if (fallback && fallback.rewrite) {
 
 // One relay, not two that drift. The Decap<->GitHub OAuth functions moved into
 // the ut-admin pod (they had to: postMessage is origin-pinned, so a relay on
-// this domain could never talk to a CMS on admin.universaltill.com).
+// this domain could never talk to a CMS on cms.universaltill.com).
 if (fs.existsSync(path.join(root, 'api'))) {
   problems.push('api/ is back. The OAuth relay lives in homelab-k8s (ut-docs#468) — one copy only.');
 }
