@@ -171,7 +171,7 @@ test.describe("aria-label localization (ut-docs#467)", () => {
   test("language pill's aria-label is translated, not left as the English literal", async ({ page }) => {
     await page.setViewportSize({ width: 400, height: 800 });
     await page.goto("/de-de");
-    await expect(page.locator(".lang-link")).toHaveAttribute("aria-label", "Sprache");
+    await expect(page.locator(".lang-link")).toHaveAttribute("aria-label", "DE-DE — Sprache");
   });
 
   test("English default still reads 'Menu' / 'Close menu' (no regression for the base locale)", async ({ page }) => {
@@ -194,7 +194,7 @@ test.describe("aria-label localization (ut-docs#467)", () => {
     await page.goto("/tr-tr/blog");
     const toggle = page.locator(".nav-toggle");
     await expect(toggle).toHaveAttribute("aria-label", "Menü");
-    await expect(page.locator(".lang-link")).toHaveAttribute("aria-label", "Dil");
+    await expect(page.locator(".lang-link")).toHaveAttribute("aria-label", "TR-TR — Dil");
     await toggle.click();
     await expect(toggle).toHaveAttribute("aria-label", "Menüyü kapat");
   });
@@ -204,7 +204,7 @@ test.describe("aria-label localization (ut-docs#467)", () => {
     await page.goto("/fa-ir/plugins");
     const toggle = page.locator(".nav-toggle");
     await expect(toggle).toHaveAttribute("aria-label", "منو");
-    await expect(page.locator(".lang-link")).toHaveAttribute("aria-label", "زبان");
+    await expect(page.locator(".lang-link")).toHaveAttribute("aria-label", "FA-IR — زبان");
     await toggle.click();
     await expect(toggle).toHaveAttribute("aria-label", "بستن منو");
   });

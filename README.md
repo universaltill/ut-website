@@ -44,6 +44,14 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `/<locale>/<page>.html`; i18n.js still runs on top for language switching.
   `site/robots.txt` allows everything and names the sitemap.
   `tests/seo-prerender.spec.js` checks all of it on the raw, JS-free response.
+- **Responsive screenshots (ut-docs#3493).** Each full-size screenshot
+  `site/images/<name>.webp` has `<name>-640.webp` and `<name>-1024.webp`
+  beside it, listed in the `<img srcset>` with a `sizes` that matches the real
+  CSS layout. After replacing a screenshot run `scripts/make-image-variants.sh`
+  (needs `cwebp`) and commit the output; convert any PNG to WebP first
+  (`cwebp -q 85 in.png -o out.webp`). `tests/responsive-images.spec.js` fails
+  if a variant is missing, lies about its width, or the browser would pick a
+  blurry or oversized one at 390/1280/1920px × DPR 1/2.
 - **Legal pages currently ship English-only** in `tr-tr`/`zh-cn`/`fa-ir`/
   `de-de` (an honest "not yet translated" fallback banner, not a 404) —
   `scripts/translate-posts.js` only checks `src/content/blog/` today and

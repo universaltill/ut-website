@@ -1,4 +1,5 @@
 ---
+import { langPillLabel, langPillText } from '../lib/marketingPages';
 // No stylesheet import here on purpose. site/styles.css (linked below, served
 // straight from publicDir) is the ONLY stylesheet on this site — these pages
 // used to also load a Tailwind-based global.css that redeclared the same
@@ -116,7 +117,7 @@ const alternates = LANGS.map((code) => ({
     <a class="btn" href={L('/start')} data-i18n="nav.get">Get started</a>
     <!-- i18n.js rewrites this href at runtime to carry the current page, so
          choosing a language returns you HERE rather than to the homepage. -->
-    <a class="lang-link" href={`/${current}/language?from=${encodeURIComponent(path)}`} aria-label="Language" data-i18n-aria-label="nav.language">🌐 EN</a>
+    <a class="lang-link" href={`/${current}/language?from=${encodeURIComponent(path)}`} aria-label={langPillLabel(current)} data-i18n-aria-label="nav.language">{langPillText(current)}</a>
   </div>
 </header>
 

@@ -852,6 +852,10 @@ const I18N = {
     // dropdown — lots of languages don't fit a nav bar, see language.html.
     document.querySelectorAll(".lang-link").forEach(function (a) {
       a.textContent = "🌐 " + lang.toUpperCase();
+      // The accessible name must contain the visible text (WCAG 2.5.3,
+      // Lighthouse label-content-name-mismatch — ut-docs#3493): "DE-DE —
+      // Sprache", not a bare "Sprache" that voice control can't match.
+      a.setAttribute("aria-label", lang.toUpperCase() + " — " + dict["nav.language"]);
       // Carry the current page to /language, or picking a language drops the
       // visitor on the homepage and they have to find their way back — which
       // is what happened from /blog. On /language itself, keep whatever the

@@ -50,6 +50,10 @@ const bcp47 = (code: string) => {
   return parts.length === 2 ? `${parts[0]}-${parts[1].toUpperCase()}` : code;
 };
 
+/** The language pill's visible text and accessible name — same as i18n.js. */
+export const langPillText = (locale: string) => '🌐 ' + locale.toUpperCase();
+export const langPillLabel = (locale: string) => locale.toUpperCase() + ' — ' + I18N[locale]['nav.language'];
+
 export interface MarketingRoute {
   /** e.g. "de-de" */
   locale: string;
@@ -128,6 +132,12 @@ export function renderMarketingPage(route: MarketingRoute, routes: MarketingRout
     if ((k = attr(n, 'data-i18n-aria-label')) && dict[k] != null) setAttr(n, 'aria-label', dict[k]);
     if ((k = attr(n, 'data-i18n-alt')) && dict[k] != null) setAttr(n, 'alt', dict[k]);
     if ((k = attr(n, 'data-i18n-content')) && dict[k] != null) setAttr(n, 'content', dict[k]);
+    // The language pill, exactly as i18n.js renders it — visible locale code,
+    // accessible name containing it (WCAG 2.5.3, ut-docs#3493).
+    if (n.nodeName === 'a' && (attr(n, 'class') ?? '').split(/\s+/).includes('lang-link')) {
+      setChildren(n, [textNode(langPillText(route.locale))]);
+      setAttr(n, 'aria-label', langPillLabel(route.locale));
+    }
   });
 
   // Self-referencing canonical, and the full hreflang set (only on indexable
