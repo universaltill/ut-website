@@ -105,3 +105,21 @@ test("the language pill is already right in the raw HTML (no JS), marketing and 
     expect(pill, url).toMatch(new RegExp(`aria-label="${loc} — [^"]+"`));
   }
 });
+
+// ut-docs#3498: at ≤900px `.hero-art` was a shrink-to-fit grid item
+// (margin: auto), so before its image arrived the box was ~2px wide and the
+// image's arrival pushed the page down (live mobile CLS 0.25). The box must
+// have its final width while the image is still in flight.
+for (const width of [390, 800]) {
+  test(`screenshot boxes keep their size before the image loads (${width}px)`, async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width, height: 900 } });
+    const page = await ctx.newPage();
+    await page.route("**/images/**", () => {}); // never answer: images stay in flight
+    await page.goto("/en-gb", { waitUntil: "domcontentloaded" });
+    for (const sel of [".hero .hero-art img", "#hardware .hero-art img"]) {
+      const w = await page.locator(sel).evaluate((el) => el.getBoundingClientRect().width);
+      expect(w, `${sel} width before load`).toBeGreaterThan(Math.min(520, width - 64) - 1);
+    }
+    await ctx.close();
+  });
+}

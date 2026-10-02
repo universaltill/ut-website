@@ -135,7 +135,6 @@ img { max-width: 100%; }
 .lede { font-size: clamp(1.05rem, 2vw, 1.2rem); color: var(--ink-soft); margin: 0 0 1.6rem; }
 .cta { display: flex; gap: .7rem; flex-wrap: wrap; }
 .hero-note { color: var(--muted); font-size: .9rem; margin-top: 1rem; }
-.hero-art svg { width: 100%; height: auto; filter: drop-shadow(0 20px 40px rgba(79,70,229,.18)); }
 /* Real product screenshots — framed like a device screen. */
 .screenshot { width: 100%; height: auto; display: block; background: #fff;
   border-radius: 16px; border: 1px solid var(--border);
@@ -208,7 +207,9 @@ img { max-width: 100%; }
 /* Responsive */
 @media (max-width: 900px) {
   .hero { grid-template-columns: 1fr; }
-  .hero-art { order: -1; max-width: 520px; margin: 0 auto; }
+  /* width: 100% — a shrink-to-fit item is ~2px wide until its image loads,
+     then jumps (mobile CLS 0.25, ut-docs#3498). */
+  .hero-art { order: -1; width: 100%; max-width: 520px; margin: 0 auto; }
   .grid.solutions { grid-template-columns: repeat(2, 1fr); }
   .grid.two { grid-template-columns: 1fr; }
   .gallery { grid-template-columns: repeat(2, 1fr); }
