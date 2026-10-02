@@ -38,7 +38,7 @@ const swaConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "site/staticwebapp.
 const EXPECTED_MARKETING_SUFFIXES = swaConfig.routes
   .filter((r) => r.route.startsWith("/en-gb") && typeof r.rewrite === "string" && r.rewrite.endsWith(".html") && !r.route.includes("*"))
   .filter((r) => {
-    const html = fs.readFileSync(path.join(ROOT, "site", r.rewrite), "utf8");
+    const html = fs.readFileSync(path.join(ROOT, "site", path.basename(r.rewrite)), "utf8");
     return !/<meta\s+name="robots"\s+content="[^"]*noindex/i.test(html);
   })
   .map((r) => r.route.slice("/en-gb".length)); // "", "/download", "/start", "/pilot"
