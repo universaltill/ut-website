@@ -82,6 +82,11 @@ if (!fs.existsSync(path.join(distDir, "index.html"))) {
 // today — see docs/code-reviews/2026-08-24-website-csp-442.md for the
 // inventory this was built from). script-src's hash list is the only part
 // this script computes.
+// GA4 measurement hosts (ut-docs#3507), shared by img-src and connect-src.
+const GA_HOSTS = ["https://*.google-analytics.com", "https://*.googletagmanager.com"];
+// gtag.js itself — one exact host, not a wildcard (site/consent.js).
+const GA_SCRIPT = "https://www.googletagmanager.com";
+
 const STATIC_DIRECTIVES = {
   "default-src": ["'none'"],
   // style-src: 'unsafe-inline' is a deliberate, documented exception (not the
@@ -96,12 +101,16 @@ const STATIC_DIRECTIVES = {
   // a class is out of scope for this card.
   "style-src": ["'self'", "'unsafe-inline'"],
   // data: covers the SVG data-URI icon masks in styles.css
-  // (.ico-grocery/.ico-retail/etc.) — no other image source exists.
-  "img-src": ["'self'", "data:"],
+  // (.ico-grocery/.ico-retail/etc.). The Google hosts here and in
+  // connect-src are GA4's measurement endpoints, exactly the list in
+  // https://developers.google.com/tag-platform/security/guides/csp (GA4,
+  // Google signals off) — reached only after the visitor accepts the cookie
+  // banner (site/consent.js, ut-docs#3507).
+  "img-src": ["'self'", "data:", ...GA_HOSTS],
   "font-src": ["'self'"],
   // download.html's client-side "upgrade to the live release" fetch
-  // (site/download.html) is the one cross-origin call this site makes.
-  "connect-src": ["'self'", "https://api.github.com"],
+  // (site/download.html), plus GA4 after consent (see img-src).
+  "connect-src": ["'self'", "https://api.github.com", ...GA_HOSTS, "https://*.analytics.google.com"],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],
   "form-action": ["'self'"],
@@ -163,7 +172,7 @@ function findInlineScriptHashes() {
 function buildCSP(scriptHashes) {
   const directives = {
     ...STATIC_DIRECTIVES,
-    "script-src": ["'self'", ...scriptHashes],
+    "script-src": ["'self'", GA_SCRIPT, ...scriptHashes],
   };
   // Fixed key order so the generated value — and its diffs — are stable.
   const order = [

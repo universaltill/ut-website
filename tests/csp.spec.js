@@ -75,8 +75,9 @@ test.describe("Content-Security-Policy header", () => {
       expect(csp).toBeTruthy();
       expect(csp).toContain("default-src 'none'");
       expect(csp).not.toContain("unsafe-eval");
-      // script-src must never blanket-allow inline — hashes only (plus 'self').
-      expect(csp).toMatch(/script-src 'self'( 'sha256-[^']+')+/);
+      // script-src must never blanket-allow inline — hashes only, plus 'self'
+      // and the one exact GA4 host (ut-docs#3507), never a wildcard.
+      expect(csp).toMatch(/script-src 'self' https:\/\/www\.googletagmanager\.com( 'sha256-[^']+')+;/);
     });
   }
 
