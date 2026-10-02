@@ -284,3 +284,31 @@ img { max-width: 100%; }
 .steps-list { margin: .5rem 0 0; padding-inline-start: 1.3rem; }
 .steps-list li { margin: .45rem 0; color: var(--ink-soft); }
 .steps-list code { background: var(--band); padding: .05rem .3rem; border-radius: 5px; font-size: .9em; }
+
+/* Cookie consent banner (ut-docs#3507) — built by consent.js. Non-modal
+   bottom bar: the page stays readable and usable before a choice (no cookie
+   wall). Accept and Reject share one class so neither is nudged. */
+.consent {
+  position: fixed; inset-inline: 1rem; inset-block-end: 1rem; z-index: 50;
+  max-width: 46rem; margin-inline: auto;
+  display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem;
+  padding: 1rem 1.1rem; background: #fff; color: var(--ink);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(15,23,42,.15);
+}
+.consent[hidden] { display: none; }
+.consent-text { flex: 1 1 18rem; margin: 0; font-size: .92rem; color: var(--ink-soft); }
+.consent-privacy { text-decoration: underline; }
+.consent-actions { display: flex; gap: .6rem; flex: 0 0 auto; }
+.consent-actions .btn { min-height: 44px; min-width: 7rem; cursor: pointer; font-family: inherit; }
+.consent .btn:focus-visible, .link-btn:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+.link-btn {
+  background: none; border: 0; padding: 0; font: inherit; color: var(--muted);
+  text-decoration: underline; cursor: pointer;
+}
+.link-btn:hover { color: var(--brand); }
+@media (max-width: 560px) {
+  .consent { inset-inline: .5rem; inset-block-end: .5rem; }
+  .consent-actions { flex: 1 1 100%; }
+  .consent-actions .btn { flex: 1 1 0; min-width: 0; }
+}

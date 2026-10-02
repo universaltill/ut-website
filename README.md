@@ -44,6 +44,15 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `/<locale>/<page>.html`; i18n.js still runs on top for language switching.
   `site/robots.txt` allows everything and names the sitemap.
   `tests/seo-prerender.spec.js` checks all of it on the raw, JS-free response.
+- **Analytics only after consent (ut-docs#3507).** `site/consent.js` (loaded
+  `defer` after `i18n.js` on every page, `site/*.html` and `BaseLayout.astro`)
+  builds the cookie banner and the footer "Cookie settings" button, keeps the
+  choice in `localStorage.ut_consent`, and injects Google Analytics 4
+  (`G-6WZY1CZ94Q`) only after Accept — nothing reaches Google before that.
+  Reject after Accept deletes the `_ga*` cookies. The GA4 hosts in the CSP live
+  in `scripts/generate-csp.js` (`GA_HOSTS`/`GA_SCRIPT`); the privacy policy
+  describes it. `tests/consent.spec.js` checks no Google request before consent,
+  the tag + Consent Mode signals after Accept, Reject, withdrawal, translations.
 - **Responsive screenshots (ut-docs#3493).** Each full-size screenshot
   `site/images/<name>.webp` has `<name>-640.webp` and `<name>-1024.webp`
   beside it, listed in the `<img srcset>` with a `sizes` that matches the real
