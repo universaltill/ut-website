@@ -69,6 +69,10 @@ test.describe("legal pages render", () => {
     // around it is de-de — same rule blog/[slug].astro already applies.
     const bodyLang = await page.locator("article div[lang]").getAttribute("lang");
     expect(bodyLang).toBe("en");
+    // ut-docs#3268: the fallback must carry the same fix as en-gb, not a
+    // stale pre-fallback copy.
+    const body = await page.locator("article").innerText();
+    expect(body).toContain("Farshid Mirza");
   });
 
   test("the Impressum names the current registered office and company number", async ({ page }) => {
@@ -77,5 +81,9 @@ test.describe("legal pages render", () => {
     expect(body).toContain("82 A James Carter Road");
     expect(body).toContain("11442274");
     expect(body).toContain("support@universaltill.com");
+    // ut-docs#1553 item 4 / ut-docs#3268: the owner-approved authorised
+    // representative name, correctly spelled (a prior pass shipped
+    // "Farsid", missing the h).
+    expect(body).toContain("Farshid Mirza");
   });
 });
