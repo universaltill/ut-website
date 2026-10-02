@@ -80,7 +80,12 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
 - **There is a build step now**: `npm ci && npm run build` → `dist/`, which is
   what gets deployed. `dist/`, `.astro/` and `node_modules/` are git-ignored.
   `package.json`'s `devDependencies` also carry Playwright (`tests/`,
-  test-only, never part of what ships).
+  test-only, never part of what ships). After `astro build`,
+  `scripts/postbuild.mjs` (ut-docs#3520) inlines `site/styles.css` into every
+  built page and minifies `i18n.js`/`nav.js`/`consent.js` with esbuild, so
+  edit the readable sources in `site/` and never hand-edit `dist/`.
+  `tests/build-assets.spec.js` fails if a page links `/styles.css` again or a
+  script ships unminified.
 - **Every page has a URL per locale, English included**: `/en-gb/…`,
   `/tr-tr/…`, `/zh-cn/…`, `/fa-ir/…`, `/de-de/…`. Region-tagged because VAT, receipt law
   and payment rails differ by country, not by language — and prefixed even for
