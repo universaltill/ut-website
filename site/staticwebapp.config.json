@@ -8,15 +8,15 @@
   "routes": [
     {
       "route": "/en-gb",
-      "rewrite": "/index.html"
+      "rewrite": "/en-gb/index.html"
     },
     {
       "route": "/en-gb/download",
-      "rewrite": "/download.html"
+      "rewrite": "/en-gb/download.html"
     },
     {
       "route": "/en-gb/start",
-      "rewrite": "/start.html"
+      "rewrite": "/en-gb/start.html"
     },
     {
       "route": "/en-gb/store",
@@ -25,23 +25,23 @@
     },
     {
       "route": "/en-gb/pilot",
-      "rewrite": "/pilot.html"
+      "rewrite": "/en-gb/pilot.html"
     },
     {
       "route": "/en-gb/language",
-      "rewrite": "/language.html"
+      "rewrite": "/en-gb/language.html"
     },
     {
       "route": "/tr-tr",
-      "rewrite": "/index.html"
+      "rewrite": "/tr-tr/index.html"
     },
     {
       "route": "/tr-tr/download",
-      "rewrite": "/download.html"
+      "rewrite": "/tr-tr/download.html"
     },
     {
       "route": "/tr-tr/start",
-      "rewrite": "/start.html"
+      "rewrite": "/tr-tr/start.html"
     },
     {
       "route": "/tr-tr/store",
@@ -50,23 +50,23 @@
     },
     {
       "route": "/tr-tr/pilot",
-      "rewrite": "/pilot.html"
+      "rewrite": "/tr-tr/pilot.html"
     },
     {
       "route": "/tr-tr/language",
-      "rewrite": "/language.html"
+      "rewrite": "/tr-tr/language.html"
     },
     {
       "route": "/zh-cn",
-      "rewrite": "/index.html"
+      "rewrite": "/zh-cn/index.html"
     },
     {
       "route": "/zh-cn/download",
-      "rewrite": "/download.html"
+      "rewrite": "/zh-cn/download.html"
     },
     {
       "route": "/zh-cn/start",
-      "rewrite": "/start.html"
+      "rewrite": "/zh-cn/start.html"
     },
     {
       "route": "/zh-cn/store",
@@ -75,23 +75,23 @@
     },
     {
       "route": "/zh-cn/pilot",
-      "rewrite": "/pilot.html"
+      "rewrite": "/zh-cn/pilot.html"
     },
     {
       "route": "/zh-cn/language",
-      "rewrite": "/language.html"
+      "rewrite": "/zh-cn/language.html"
     },
     {
       "route": "/fa-ir",
-      "rewrite": "/index.html"
+      "rewrite": "/fa-ir/index.html"
     },
     {
       "route": "/fa-ir/download",
-      "rewrite": "/download.html"
+      "rewrite": "/fa-ir/download.html"
     },
     {
       "route": "/fa-ir/start",
-      "rewrite": "/start.html"
+      "rewrite": "/fa-ir/start.html"
     },
     {
       "route": "/fa-ir/store",
@@ -100,23 +100,23 @@
     },
     {
       "route": "/fa-ir/pilot",
-      "rewrite": "/pilot.html"
+      "rewrite": "/fa-ir/pilot.html"
     },
     {
       "route": "/fa-ir/language",
-      "rewrite": "/language.html"
+      "rewrite": "/fa-ir/language.html"
     },
     {
       "route": "/de-de",
-      "rewrite": "/index.html"
+      "rewrite": "/de-de/index.html"
     },
     {
       "route": "/de-de/download",
-      "rewrite": "/download.html"
+      "rewrite": "/de-de/download.html"
     },
     {
       "route": "/de-de/start",
-      "rewrite": "/start.html"
+      "rewrite": "/de-de/start.html"
     },
     {
       "route": "/de-de/store",
@@ -125,11 +125,11 @@
     },
     {
       "route": "/de-de/pilot",
-      "rewrite": "/pilot.html"
+      "rewrite": "/de-de/pilot.html"
     },
     {
       "route": "/de-de/language",
-      "rewrite": "/language.html"
+      "rewrite": "/de-de/language.html"
     },
     {
       "route": "/",

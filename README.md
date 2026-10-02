@@ -33,6 +33,17 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   collections that happen to look alike today but don't have to stay that
   way (blog gained `draft`/date-sorting/`excerpt` over time; legal
   hasn't needed any of that yet).
+- **Marketing pages are prerendered per locale (ut-docs#3480).** `site/*.html`
+  is the template; `src/pages/[lang]/[file].ts` (logic in
+  `src/lib/marketingPages.ts`) emits `dist/<locale>/<page>.html` with the
+  `site/i18n.js` dict already applied — `<html lang dir>`, every
+  `data-i18n*` string, the `<title>` and meta description (`meta.<page>.*`
+  keys, via `data-i18n-content`), a self-referencing canonical and the full
+  hreflang set — so a crawler gets `/de-de` in German without running JS.
+  Each locale route in `staticwebapp.config.json` rewrites to
+  `/<locale>/<page>.html`; i18n.js still runs on top for language switching.
+  `site/robots.txt` allows everything and names the sitemap.
+  `tests/seo-prerender.spec.js` checks all of it on the raw, JS-free response.
 - **Legal pages currently ship English-only** in `tr-tr`/`zh-cn`/`fa-ir`/
   `de-de` (an honest "not yet translated" fallback banner, not a 404) —
   `scripts/translate-posts.js` only checks `src/content/blog/` today and
