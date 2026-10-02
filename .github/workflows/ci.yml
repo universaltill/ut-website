@@ -90,7 +90,11 @@ jobs:
           node-version: "22" # Astro 7 requires >=22.12.0; must match deploy.yml
           cache: npm
       - run: npm ci
-      - run: npm run build
+      # `npm run build` = `astro build && node scripts/postbuild.mjs`. Run
+      # the two halves separately so this guard still checks Astro's
+      # publicDir pass-through byte-for-byte BEFORE postbuild deliberately
+      # inlines styles.css and minifies the site JS (ut-docs#3520).
+      - run: npx astro build
       - name: site/ must be copied through unchanged
         run: |
           fail=0
@@ -107,6 +111,7 @@ jobs:
             exit 1
           fi
           echo "OK: every site/ file is present in dist/ byte-for-byte"
+      - run: node scripts/postbuild.mjs
       # ut-docs#442: the Content-Security-Policy's script-src is a hash
       # allowlist over the site's EXECUTABLE inline <script>s only (see
       # scripts/generate-csp.js's file header — a blog post's JSON-LD
