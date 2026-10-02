@@ -6,10 +6,10 @@
 // priority hint.
 import { expect, test } from "@playwright/test";
 
-const WIDTHS = [640, 1024];
+const WIDTHS = [480, 640, 768, 1024, 1280];
 
 test.describe("home-page screenshots are responsive", () => {
-  test("each screenshot offers 640w/1024w/full variants whose descriptors are true", async ({ page }) => {
+  test("each screenshot offers the 480w–1280w ladder plus the full original whose descriptors are true", async ({ page }) => {
     await page.goto("/en-gb");
     const imgs = await page.$$eval("main img[src^='/images/'], section img[src^='/images/']", (els) =>
       els.map((el) => ({ src: el.getAttribute("src"), srcset: el.getAttribute("srcset"), sizes: el.getAttribute("sizes"), width: Number(el.getAttribute("width")) })),
@@ -37,7 +37,7 @@ test.describe("home-page screenshots are responsive", () => {
     const page = await ctx.newPage();
     await page.goto("/en-gb");
     const hero = page.locator(".hero .hero-art img");
-    await expect.poll(() => hero.evaluate((el) => el.currentSrc)).toMatch(/-640\.webp$/);
+    await expect.poll(() => hero.evaluate((el) => el.currentSrc)).toMatch(/-480\.webp$/);
     await ctx.close();
   });
 
@@ -63,37 +63,42 @@ test("the language link's accessible name contains its visible text (WCAG 2.5.3)
 // wide as the image is drawn (else it's blurry), and the next-smaller
 // candidate would NOT have been enough (else bytes are wasted). A `sizes`
 // that disagrees with the real CSS layout fails here.
-for (const width of [390, 1280, 1920]) {
-  for (const dpr of [1, 2]) {
-    test(`screenshots are sharp and not oversized at ${width}px, DPR ${dpr}`, async ({ browser }) => {
-      const ctx = await browser.newContext({ viewport: { width, height: 900 }, deviceScaleFactor: dpr });
-      const page = await ctx.newPage();
-      await page.goto("/en-gb");
-      const imgs = page.locator("img[srcset]");
-      const n = await imgs.count();
-      for (let i = 0; i < n; i++) {
-        const img = imgs.nth(i);
-        await img.scrollIntoViewIfNeeded();
-        await expect.poll(() => img.evaluate((el) => el.complete && !!el.currentSrc)).toBe(true);
-        const { src, drawn, candidates } = await img.evaluate((el) => ({
-          src: el.currentSrc,
-          drawn: el.getBoundingClientRect().width * devicePixelRatio,
-          candidates: el.getAttribute("srcset").split(",").map((c) => {
-            const [u, w] = c.trim().split(/\s+/);
-            return { url: new URL(u, location.href).href, w: Number(w.replace(/w$/, "")) };
-          }),
-        }));
-        const picked = candidates.find((c) => c.url === src);
-        const largest = Math.max(...candidates.map((c) => c.w));
-        expect(picked, `${src} is one of the srcset candidates`).toBeTruthy();
-        // 5% slack: browsers round, and sub-pixel upscaling is invisible.
-        if (picked.w !== largest) expect(picked.w, `${src} drawn at ${Math.round(drawn)}px`).toBeGreaterThanOrEqual(drawn * 0.95);
-        const smaller = candidates.filter((c) => c.w < picked.w).map((c) => c.w);
-        if (smaller.length) expect(Math.max(...smaller), `${src}: a smaller candidate would do for ${Math.round(drawn)}px`).toBeLessThan(drawn * 1.05);
-      }
-      await ctx.close();
-    });
-  }
+// 412×1.75 and 1350×1 are Lighthouse/PageSpeed's mobile and desktop
+// emulation (ut-docs#3516): "Properly size images" must stay clean there.
+const VIEWPORTS = [[390, 1], [390, 2], [412, 1.75], [768, 1], [768, 2], [1280, 1], [1280, 2], [1350, 1], [1920, 1], [1920, 2]];
+for (const [width, dpr] of VIEWPORTS) {
+  test(`screenshots are sharp and not oversized at ${width}px, DPR ${dpr}`, async ({ browser }) => {
+    const ctx = await browser.newContext({ viewport: { width, height: 900 }, deviceScaleFactor: dpr });
+    const page = await ctx.newPage();
+    await page.goto("/en-gb");
+    const imgs = page.locator("img[srcset]");
+    const n = await imgs.count();
+    for (let i = 0; i < n; i++) {
+      const img = imgs.nth(i);
+      await img.scrollIntoViewIfNeeded();
+      await expect.poll(() => img.evaluate((el) => el.complete && !!el.currentSrc)).toBe(true);
+      const { src, drawn, candidates } = await img.evaluate((el) => ({
+        src: el.currentSrc,
+        drawn: el.getBoundingClientRect().width * devicePixelRatio,
+        candidates: el.getAttribute("srcset").split(",").map((c) => {
+          const [u, w] = c.trim().split(/\s+/);
+          return { url: new URL(u, location.href).href, w: Number(w.replace(/w$/, "")) };
+        }),
+      }));
+      const picked = candidates.find((c) => c.url === src);
+      const largest = Math.max(...candidates.map((c) => c.w));
+      expect(picked, `${src} is one of the srcset candidates`).toBeTruthy();
+      // 5% slack: browsers round, and sub-pixel upscaling is invisible.
+      if (picked.w !== largest) expect(picked.w, `${src} drawn at ${Math.round(drawn)}px`).toBeGreaterThanOrEqual(drawn * 0.95);
+      const smaller = candidates.filter((c) => c.w < picked.w).map((c) => c.w);
+      if (smaller.length) expect(Math.max(...smaller), `${src}: a smaller candidate would do for ${Math.round(drawn)}px`).toBeLessThan(drawn * 1.05);
+      // The ladder is fine enough that no pick is grossly oversized
+      // (PageSpeed "Properly size images", ut-docs#3516). The smallest
+      // candidate is exempt: nothing smaller exists to pick.
+      if (smaller.length) expect(picked.w, `${src} is ${(picked.w / drawn).toFixed(2)}× its ${Math.round(drawn)}px drawn width`).toBeLessThanOrEqual(drawn * 1.4);
+    }
+    await ctx.close();
+  });
 }
 
 test("the language pill is already right in the raw HTML (no JS), marketing and Astro pages", async ({ request }) => {

@@ -53,14 +53,15 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   in `scripts/generate-csp.js` (`GA_HOSTS`/`GA_SCRIPT`); the privacy policy
   describes it. `tests/consent.spec.js` checks no Google request before consent,
   the tag + Consent Mode signals after Accept, Reject, withdrawal, translations.
-- **Responsive screenshots (ut-docs#3493).** Each full-size screenshot
-  `site/images/<name>.webp` has `<name>-640.webp` and `<name>-1024.webp`
+- **Responsive screenshots (ut-docs#3493, #3516).** Each full-size screenshot
+  `site/images/<name>.webp` has `<name>-{480,640,768,1024,1280}.webp`
   beside it, listed in the `<img srcset>` with a `sizes` that matches the real
   CSS layout. After replacing a screenshot run `scripts/make-image-variants.sh`
   (needs `cwebp`) and commit the output; convert any PNG to WebP first
   (`cwebp -q 85 in.png -o out.webp`). `tests/responsive-images.spec.js` fails
   if a variant is missing, lies about its width, or the browser would pick a
-  blurry or oversized one at 390/1280/1920px × DPR 1/2.
+  blurry or more than 1.4× oversized one at phone, tablet and desktop widths,
+  including PageSpeed's own emulation (412px × 1.75, 1350px × 1).
 - **Legal pages currently ship English-only** in `tr-tr`/`zh-cn`/`fa-ir`/
   `de-de` (an honest "not yet translated" fallback banner, not a 404) —
   `scripts/translate-posts.js` only checks `src/content/blog/` today and
