@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "26"
       - run: node scripts/check-i18n-keys.js
 
   check-brand-assets:
@@ -60,7 +60,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "26"
       - run: node scripts/check-swa-config.js
 
   # translate-posts.js no longer generates translations (ut-docs#2293 retired
@@ -75,7 +75,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "26"
       - run: node --test scripts/translate-posts_test.mjs
       - run: node scripts/translate-posts.js
 
@@ -87,7 +87,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "22" # Astro 7 requires >=22.12.0; must match deploy.yml
+          node-version: "26" # Astro 7 requires >=22.12.0; must match deploy.yml
           cache: npm
       - run: npm ci
       # `npm run build` = `astro build && node scripts/postbuild.mjs`. Run
@@ -132,8 +132,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "26"
           cache: npm
       - run: npm ci
+      # Playwright < 1.61 hangs after the browser download on Node 26
+      # (ut-docs#3595); cap the install so a hang fails fast, not at 6h.
       - run: npx playwright install --with-deps chromium
+        timeout-minutes: 15
       - run: npx playwright test

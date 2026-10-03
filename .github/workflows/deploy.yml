@@ -84,7 +84,7 @@ jobs:
           # Astro 7 requires >=22.12.0 and hard-exits below it. Build toolchain
           # only; nothing on this site runs Node at request time now that the
           # api/ functions have gone (see api_location below).
-          node-version: 22
+          node-version: 26
       - name: Install dependencies
         run: npm ci
       - name: Build (Astro — site/ is publicDir, copied through unchanged)
