@@ -4,7 +4,7 @@
 //
 // The CMS admin does NOT live here any more — it runs on the homelab cluster at
 // https://cms.universaltill.com, behind oauth2-proxy/Zitadel, with its own
-// GitHub OAuth relay (homelab-k8s: kubernetes/apps/ut-admin/). Two things this
+// GitHub OAuth relay (homelab-k8s: kubernetes/apps/ut-cms/). Two things this
 // file used to declare are worse than useless now:
 //
 //   * `auth.identityProviders.customOpenIdConnectProviders.zitadel` plus
@@ -35,7 +35,7 @@ if (config.auth) {
   problems.push(
     'staticwebapp.config.json has an `auth` block. SWA Free cannot enforce a ' +
       'custom OIDC provider, so this is a gate that does nothing. The real gate ' +
-      'is oauth2-proxy in the ut-admin namespace.',
+      'is oauth2-proxy in the ut-cms namespace.',
   );
 }
 
@@ -74,7 +74,7 @@ if (fallback && fallback.rewrite) {
 }
 
 // One relay, not two that drift. The Decap<->GitHub OAuth functions moved into
-// the ut-admin pod (they had to: postMessage is origin-pinned, so a relay on
+// the ut-cms pod (they had to: postMessage is origin-pinned, so a relay on
 // this domain could never talk to a CMS on cms.universaltill.com).
 if (fs.existsSync(path.join(root, 'api'))) {
   problems.push('api/ is back. The OAuth relay lives in homelab-k8s (ut-docs#468) — one copy only.');
@@ -82,7 +82,7 @@ if (fs.existsSync(path.join(root, 'api'))) {
 
 if (fs.existsSync(path.join(root, 'site', 'admin'))) {
   problems.push(
-    'site/admin/ is back. The Decap config lives in the ut-admin ConfigMap ' +
+    'site/admin/ is back. The Decap config lives in the ut-cms ConfigMap ' +
       '(homelab-k8s) — a second copy here silently drifts from the deployed one.',
   );
 }
