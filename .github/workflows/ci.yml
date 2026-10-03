@@ -135,5 +135,8 @@ jobs:
           node-version: "26"
           cache: npm
       - run: npm ci
+      # Playwright < 1.61 hangs after the browser download on Node 26
+      # (ut-docs#3595); cap the install so a hang fails fast, not at 6h.
       - run: npx playwright install --with-deps chromium
+        timeout-minutes: 15
       - run: npx playwright test

@@ -21,7 +21,7 @@
     "parse5": "7.3.0"
   },
   "devDependencies": {
-    "@playwright/test": "1.56.1",
+    "@playwright/test": "1.63.0",
     "esbuild": "0.28.1"
   }
 }
