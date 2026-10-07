@@ -108,15 +108,10 @@ const I18N = {
     "foot.tagline": "The free, offline-first point of sale.",
     "foot.owner": "Universal Till is a product of Task Runner Technology LTD.",
     "foot.rights": "Open source under the MIT licence.",
-    // ut-docs#1552: foot.privacy/foot.terms are English placeholders in the
-    // other four locales below — the pipeline's own-model translation
-    // workflow (ut-docs/reference/translation.md) only targets
-    // src/content/blog/ so far, not this collection, so these two ship
-    // untranslated for now, same accepted degraded state ut-docs#1292 hit
-    // for the same reason. A future cycle should write the real translation
-    // and replace them (this needs the workflow extended to
-    // src/content/legal/ first — see src/content.config.ts's comment on the
-    // `legal` collection — it doesn't cover that today).
+    // ut-docs#1552 / #3811: foot.privacy/foot.terms are translated in every
+    // locale — the LABEL is. The legal pages they link to are still English
+    // in tr-tr/zh-cn/fa-ir/de-de (honest fallback banner, canonical pointing
+    // at the en-gb original, left out of the sitemap — src/lib/legalPages.ts).
     // foot.impressum is DIFFERENT: every non-English locale below uses the
     // bare word "Impressum" rather than a translated phrase. That isn't an
     // English placeholder — it's the actual term the DDG obligation this
@@ -129,6 +124,12 @@ const I18N = {
     "foot.impressum": "Legal notice (Impressum)",
     "foot.privacy": "Privacy policy",
     "foot.terms": "Terms of use",
+    // /plugins page (ut-docs#3811)
+    "pluginspage.title": "Plugins", "pluginspage.desc": "Every plugin listed here is free to download and install from GitHub, forever — Universal Till may also offer paid official plugins, which simply wouldn't be listed on this page.",
+    "pluginspage.intro": "Every plugin listed here is free, open source, and downloadable directly from GitHub — no account, no marketplace, no payment required, and that's not changing for any of these. The marketplace (in the app) is a one-click convenience layer on top of the same public releases linked below. Universal Till may also offer separate paid official plugins in future — those just wouldn't appear on this page.",
+    "pluginspage.type.payment": "Payment", "pluginspage.type.integration": "Integrations", "pluginspage.type.theme": "Themes", "pluginspage.type.language": "Language packs", "pluginspage.type.page": "Pages", "pluginspage.type.button": "Buttons",
+    "pluginspage.repo": "Repo", "pluginspage.download": "Download latest", "pluginspage.norelease": "No packaged release yet",
+    "pluginspage.footer": "Building your own? Any plugin here is a working reference — see <a href=\"https://github.com/universaltill/ut-docs\">ut-docs</a> for the plugin manifest reference and ADRs.",
     "foot.cookies": "Cookie settings",
     "consent.label": "Cookies", "consent.text": "We'd like to use Google Analytics cookies to see how visitors use this site. Nothing is set unless you accept.",
     "consent.accept": "Accept", "consent.reject": "Reject", "consent.privacy": "Privacy policy",
@@ -277,8 +278,14 @@ const I18N = {
     "foot.owner": "Universal Till, Task Runner Technology LTD ürünüdür.",
     "foot.rights": "MIT lisansı altında açık kaynak.",
     "foot.impressum": "Impressum",
-    "foot.privacy": "Privacy policy",
-    "foot.terms": "Terms of use",
+    "foot.privacy": "Gizlilik politikası",
+    "foot.terms": "Kullanım koşulları",
+    // /plugins page (ut-docs#3811)
+    "pluginspage.title": "Eklentiler", "pluginspage.desc": "Burada listelenen her eklenti GitHub'dan ücretsiz indirilip kurulabilir ve bu hep böyle kalacak — Universal Till ücretli resmi eklentiler de sunabilir; bunlar bu sayfada listelenmez.",
+    "pluginspage.intro": "Burada listelenen her eklenti ücretsiz ve açık kaynaklıdır ve doğrudan GitHub'dan indirilebilir — hesap, pazar yeri ya da ödeme gerekmez ve bu eklentilerin hiçbiri için bu değişmeyecek. Uygulamadaki pazar yeri, aşağıda bağlantısı verilen aynı herkese açık sürümlerin üzerinde tek tıkla kurulum sağlayan bir kolaylık katmanıdır. Universal Till ileride ayrı, ücretli resmi eklentiler de sunabilir — bunlar sadece bu sayfada yer almaz.",
+    "pluginspage.type.payment": "Ödeme", "pluginspage.type.integration": "Entegrasyonlar", "pluginspage.type.theme": "Temalar", "pluginspage.type.language": "Dil paketleri", "pluginspage.type.page": "Sayfalar", "pluginspage.type.button": "Düğmeler",
+    "pluginspage.repo": "Depo", "pluginspage.download": "En son sürümü indir", "pluginspage.norelease": "Henüz paketlenmiş sürüm yok",
+    "pluginspage.footer": "Kendi eklentinizi mi geliştiriyorsunuz? Buradaki her eklenti çalışan bir örnektir — eklenti manifest referansı ve ADR'ler için <a href=\"https://github.com/universaltill/ut-docs\">ut-docs</a> deposuna bakın.",
     "foot.cookies": "Çerez ayarları",
     "consent.label": "Çerezler", "consent.text": "Ziyaretçilerin bu siteyi nasıl kullandığını görmek için Google Analytics çerezlerini kullanmak istiyoruz. Kabul etmediğiniz sürece hiçbir çerez ayarlanmaz.",
     "consent.accept": "Kabul et", "consent.reject": "Reddet", "consent.privacy": "Gizlilik politikası",
@@ -427,8 +434,14 @@ const I18N = {
     "foot.owner": "Universal Till 是 Task Runner Technology LTD 的产品。",
     "foot.rights": "基于 MIT 许可的开源软件。",
     "foot.impressum": "Impressum",
-    "foot.privacy": "Privacy policy",
-    "foot.terms": "Terms of use",
+    "foot.privacy": "隐私政策",
+    "foot.terms": "使用条款",
+    // /plugins page (ut-docs#3811)
+    "pluginspage.title": "插件", "pluginspage.desc": "此处列出的每个插件都可以从 GitHub 免费下载和安装，并且永远免费——Universal Till 也可能提供付费的官方插件，但它们不会列在此页面上。",
+    "pluginspage.intro": "此处列出的每个插件都是免费、开源的，可直接从 GitHub 下载——无需账户、无需应用市场、无需付费，而且这些插件都不会改变这一点。应用内的插件市场只是在下方链接的同一批公开版本之上提供的一键安装便利。Universal Till 将来也可能另外提供付费的官方插件——只是它们不会出现在此页面上。",
+    "pluginspage.type.payment": "支付", "pluginspage.type.integration": "集成", "pluginspage.type.theme": "主题", "pluginspage.type.language": "语言包", "pluginspage.type.page": "页面", "pluginspage.type.button": "按钮",
+    "pluginspage.repo": "代码仓库", "pluginspage.download": "下载最新版本", "pluginspage.norelease": "暂无打包发布版本",
+    "pluginspage.footer": "想开发自己的插件？这里的每个插件都是可运行的参考实现——插件清单参考和 ADR 请参见 <a href=\"https://github.com/universaltill/ut-docs\">ut-docs</a>。",
     "foot.cookies": "Cookie 设置",
     "consent.label": "Cookie", "consent.text": "我们希望使用 Google Analytics Cookie 来了解访客如何使用本网站。除非您接受，否则不会设置任何 Cookie。",
     "consent.accept": "接受", "consent.reject": "拒绝", "consent.privacy": "隐私政策",
@@ -577,8 +590,14 @@ const I18N = {
     "foot.owner": "Universal Till محصولی از Task Runner Technology LTD است.",
     "foot.rights": "متن‌باز تحت مجوز MIT.",
     "foot.impressum": "Impressum",
-    "foot.privacy": "Privacy policy",
-    "foot.terms": "Terms of use",
+    "foot.privacy": "سیاست حریم خصوصی",
+    "foot.terms": "شرایط استفاده",
+    // /plugins page (ut-docs#3811)
+    "pluginspage.title": "افزونه‌ها", "pluginspage.desc": "هر افزونه‌ای که اینجا فهرست شده، برای همیشه به‌صورت رایگان از GitHub قابل دانلود و نصب است — Universal Till ممکن است افزونه‌های رسمی پولی هم ارائه دهد که در این صفحه فهرست نمی‌شوند.",
+    "pluginspage.intro": "هر افزونه‌ای که اینجا فهرست شده رایگان و متن‌باز است و مستقیماً از GitHub قابل دانلود است — بدون نیاز به حساب کاربری، فروشگاه یا پرداخت، و این برای هیچ‌کدام از آن‌ها تغییر نخواهد کرد. فروشگاه داخل برنامه فقط لایه‌ای برای نصب با یک کلیک روی همین نسخه‌های عمومی است که در پایین پیوندشان آمده است. Universal Till ممکن است در آینده افزونه‌های رسمی پولیِ جداگانه‌ای هم ارائه دهد — آن‌ها فقط در این صفحه نمایش داده نمی‌شوند.",
+    "pluginspage.type.payment": "پرداخت", "pluginspage.type.integration": "یکپارچه‌سازی‌ها", "pluginspage.type.theme": "پوسته‌ها", "pluginspage.type.language": "بسته‌های زبان", "pluginspage.type.page": "صفحه‌ها", "pluginspage.type.button": "دکمه‌ها",
+    "pluginspage.repo": "مخزن", "pluginspage.download": "دانلود آخرین نسخه", "pluginspage.norelease": "هنوز نسخهٔ بسته‌بندی‌شده‌ای ندارد",
+    "pluginspage.footer": "افزونهٔ خودتان را می‌سازید؟ هر افزونهٔ این صفحه یک نمونهٔ عملی است — مرجع مانیفست افزونه و ADRها را در <a href=\"https://github.com/universaltill/ut-docs\">ut-docs</a> ببینید.",
     "foot.cookies": "تنظیمات کوکی",
     "consent.label": "کوکی‌ها", "consent.text": "می‌خواهیم از کوکی‌های Google Analytics استفاده کنیم تا ببینیم بازدیدکنندگان چگونه از این سایت استفاده می‌کنند. تا وقتی نپذیرید، هیچ کوکی‌ای ذخیره نمی‌شود.",
     "consent.accept": "پذیرفتن", "consent.reject": "رد کردن", "consent.privacy": "سیاست حریم خصوصی",
@@ -727,8 +746,14 @@ const I18N = {
     "foot.owner": "Universal Till ist ein Produkt der Task Runner Technology LTD.",
     "foot.rights": "Open Source unter der MIT-Lizenz.",
     "foot.impressum": "Impressum",
-    "foot.privacy": "Privacy policy",
-    "foot.terms": "Terms of use",
+    "foot.privacy": "Datenschutzerklärung",
+    "foot.terms": "Nutzungsbedingungen",
+    // /plugins page (ut-docs#3811)
+    "pluginspage.title": "Plugins", "pluginspage.desc": "Jedes hier aufgeführte Plugin lässt sich dauerhaft kostenlos von GitHub herunterladen und installieren – Universal Till kann auch kostenpflichtige offizielle Plugins anbieten, die einfach nicht auf dieser Seite stehen.",
+    "pluginspage.intro": "Jedes hier aufgeführte Plugin ist kostenlos, quelloffen und direkt von GitHub herunterladbar – kein Konto, kein Marktplatz, keine Zahlung nötig, und daran ändert sich bei keinem dieser Plugins etwas. Der Marktplatz in der App ist nur eine Ein-Klick-Abkürzung zu denselben öffentlichen Releases, die unten verlinkt sind. Universal Till kann künftig auch separate, kostenpflichtige offizielle Plugins anbieten – diese erscheinen einfach nicht auf dieser Seite.",
+    "pluginspage.type.payment": "Zahlung", "pluginspage.type.integration": "Integrationen", "pluginspage.type.theme": "Designs", "pluginspage.type.language": "Sprachpakete", "pluginspage.type.page": "Seiten", "pluginspage.type.button": "Schaltflächen",
+    "pluginspage.repo": "Repository", "pluginspage.download": "Neueste Version herunterladen", "pluginspage.norelease": "Noch kein paketiertes Release",
+    "pluginspage.footer": "Sie entwickeln ein eigenes Plugin? Jedes Plugin hier ist eine funktionierende Vorlage – die Referenz zum Plugin-Manifest und die ADRs finden Sie in <a href=\"https://github.com/universaltill/ut-docs\">ut-docs</a>.",
     "foot.cookies": "Cookie-Einstellungen",
     "consent.label": "Cookies", "consent.text": "Wir möchten Cookies von Google Analytics verwenden, um zu sehen, wie Besucher diese Website nutzen. Ohne Ihre Zustimmung wird nichts gesetzt.",
     "consent.accept": "Akzeptieren", "consent.reject": "Ablehnen", "consent.privacy": "Datenschutzerklärung",

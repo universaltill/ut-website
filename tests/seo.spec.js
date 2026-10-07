@@ -72,6 +72,12 @@ const EXPECTED_LEGAL_SLUGS = fs
   .map((f) => f.replace(/\.mdx$/, ""))
   .sort();
 
+// ut-docs#3811: only a locale's REAL translations are in the sitemap — an
+// untranslated fallback canonicalises to its en-gb original instead. Same
+// rule as the implementation, read from the same content directories.
+const translated = (collection, locale, slugs) =>
+  slugs.filter((slug) => fs.existsSync(path.join(ROOT, `src/content/${collection}/${locale}/${slug}.mdx`)));
+
 async function fetchXml(page, path) {
   return page.evaluate(async (p) => {
     const res = await fetch(p);
@@ -120,19 +126,28 @@ test.describe("sitemap.xml", () => {
       expect(text).toContain(`/${locale}/blog/</loc>`);
       expect(text).toContain(`/${locale}/plugins/</loc>`);
       for (const slug of EXPECTED_SLUGS) {
-        expect(text, `missing /${locale}/blog/${slug}`).toContain(`/${locale}/blog/${slug}/</loc>`);
+        const want = translated("blog", locale, [slug]).length > 0;
+        expect(text.includes(`/${locale}/blog/${slug}/</loc>`), `/${locale}/blog/${slug} listed: ${!want ? "un" : ""}expected`).toBe(want);
       }
       for (const slug of EXPECTED_LEGAL_SLUGS) {
-        expect(text, `missing /${locale}/legal/${slug}`).toContain(`/${locale}/legal/${slug}/</loc>`);
+        const want = translated("legal", locale, [slug]).length > 0;
+        expect(text.includes(`/${locale}/legal/${slug}/</loc>`), `/${locale}/legal/${slug} listed: ${!want ? "un" : ""}expected`).toBe(want);
       }
     }
     // Nothing extra: total <loc> count is exactly what the derived lists
     // predict — catches a slug/route sitting in the sitemap that shouldn't
     // be there just as much as a missing one.
-    const perLocale =
-      EXPECTED_MARKETING_SUFFIXES.length + 2 /* blog index + plugins */ + EXPECTED_SLUGS.length + EXPECTED_LEGAL_SLUGS.length;
+    const expected = LOCALES.reduce(
+      (n, locale) =>
+        n +
+        EXPECTED_MARKETING_SUFFIXES.length +
+        2 /* blog index + plugins */ +
+        translated("blog", locale, EXPECTED_SLUGS).length +
+        translated("legal", locale, EXPECTED_LEGAL_SLUGS).length,
+      0,
+    );
     const locCount = (text.match(/<loc>/g) || []).length;
-    expect(locCount).toBe(perLocale * LOCALES.length);
+    expect(locCount).toBe(expected);
   });
 
   test("URLs are absolute, on the production host", async ({ page }) => {

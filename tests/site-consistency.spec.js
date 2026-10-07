@@ -10,6 +10,7 @@
 // against a hard-coded expectation — a snapshot of "correct" would just be a
 // third thing to keep in sync.
 import { expect, test } from "@playwright/test";
+import fs from "node:fs";
 
 const ASTRO_PAGES = ["/en-gb/blog", "/en-gb/plugins", "/en-gb/blog/whats-new-v0-2-70"];
 const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
@@ -114,9 +115,16 @@ test.describe("language lives in the URL", () => {
       })),
     );
 
-    // Region-tagged and correctly cased, one per locale plus x-default.
+    // Region-tagged and correctly cased, one per locale that has a real
+    // translation, plus x-default. A locale without one serves the English
+    // original, canonicalises to it, and is not declared (ut-docs#3811).
+    const BCP = { "en-gb": "en-GB", "tr-tr": "tr-TR", "zh-cn": "zh-CN", "fa-ir": "fa-IR", "de-de": "de-DE" };
+    const translatedIn = LOCALES.filter((l) =>
+      fs.existsSync(new URL(`../src/content/blog/${l}/whats-new-v0-2-70.mdx`, import.meta.url)),
+    );
+    expect(translatedIn).toContain("tr-tr");
     expect(alternates.map((a) => a.hreflang).sort()).toEqual(
-      ["en-GB", "fa-IR", "tr-TR", "de-DE", "x-default", "zh-CN"].sort(),
+      [...translatedIn.map((l) => BCP[l]), "x-default"].sort(),
     );
     // x-default points at a real page, never at a redirect.
     expect(alternates.find((a) => a.hreflang === "x-default").href).toBe(

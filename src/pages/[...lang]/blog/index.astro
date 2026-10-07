@@ -1,5 +1,5 @@
 ---
-import BaseLayout, { LANGS } from '../../../layouts/BaseLayout.astro';
+import BaseLayout, { LANGS, t } from '../../../layouts/BaseLayout.astro';
 import { getLocalizedPosts } from '../../../lib/blogPosts';
 
 // One built page per language: /blog, /tr/blog, /zh/blog, /fa/blog. The rest
@@ -24,15 +24,15 @@ const posts = await getLocalizedPosts(lang);
 ---
 
 <BaseLayout
-  title="News"
-  description="Release notes, roadmap updates and stories from shops running Universal Till."
+  title={t(lang, 'nav.news')}
+  description={t(lang, 'news.sub')}
   lang={lang}
   path="/blog/"
 >
   <section class="section">
     <div class="section-head">
-      <h1>News</h1>
-      <p class="section-sub" data-i18n="news.sub">Release notes, roadmap updates, and stories from shops running Universal Till.</p>
+      <h1 data-i18n="nav.news">{t(lang, 'nav.news')}</h1>
+      <p class="section-sub" data-i18n="news.sub">{t(lang, 'news.sub')}</p>
     </div>
 
     {posts.length === 0 && <p class="muted">No posts yet.</p>}

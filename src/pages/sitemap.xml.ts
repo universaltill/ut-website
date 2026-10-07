@@ -40,10 +40,12 @@ export const GET: APIRoute = async ({ site }) => {
   for (const lang of LANGS) {
     entries.push(urlEntry(`${base}/${lang}/blog/`));
     entries.push(urlEntry(`${base}/${lang}/plugins/`));
-    for (const { slug, post } of byLocale[lang] ?? []) {
+    // An untranslated fallback canonicalises to its en-gb original, so only
+    // real translations are listed (ut-docs#3811).
+    for (const { slug, post } of (byLocale[lang] ?? []).filter((p) => !p.isFallback)) {
       entries.push(urlEntry(`${base}/${lang}/blog/${slug}/`, post.data.date.toISOString()));
     }
-    for (const { slug, page } of legalByLocale[lang] ?? []) {
+    for (const { slug, page } of (legalByLocale[lang] ?? []).filter((p) => !p.isFallback)) {
       entries.push(urlEntry(`${base}/${lang}/legal/${slug}/`, page.data.updated.toISOString()));
     }
   }

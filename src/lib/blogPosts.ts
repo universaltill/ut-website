@@ -36,6 +36,16 @@ export async function getAllLocalizedPosts(): Promise<Record<string, LocalizedPo
   return byLocale;
 }
 
+/**
+ * The locales with a real translation of one post — its hreflang set. Same
+ * rule as src/lib/legalPages.ts's translatedLangsOf (ut-docs#3811): a
+ * fallback locale is left out of hreflang and the sitemap, and its canonical
+ * points at the English original.
+ */
+export function translatedLangsOf(byLocale: Record<string, LocalizedPost[]>, slug: string): string[] {
+  return LANGS.filter((lang) => (byLocale[lang] ?? []).some((p) => p.slug === slug && !p.isFallback));
+}
+
 /** Posts for a single locale, English-fallback applied, newest first. */
 export async function getLocalizedPosts(lang: string): Promise<LocalizedPost[]> {
   const all = await getAllLocalizedPosts();

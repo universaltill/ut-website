@@ -1,5 +1,5 @@
 ---
-import BaseLayout, { LANGS } from '../../layouts/BaseLayout.astro';
+import BaseLayout, { LANGS, t } from '../../layouts/BaseLayout.astro';
 
 export function getStaticPaths() {
   return LANGS.map((lang) => ({ params: { lang } }));
@@ -85,14 +85,6 @@ const byType = plugins.reduce((acc, p) => {
   return acc;
 }, {});
 const typeOrder = ['payment', 'integration', 'theme', 'language', 'page', 'button'];
-const typeLabel = {
-  payment: 'Payment',
-  integration: 'Integrations',
-  theme: 'Themes',
-  language: 'Language packs',
-  page: 'Pages',
-  button: 'Buttons',
-};
 
 // Render the preferred order first, then ANY remaining type. Iterating
 // typeOrder alone silently dropped every plugin whose ADR-0002 canonical
@@ -105,51 +97,54 @@ const renderOrder = [
 ];
 
 const { lang } = Astro.params;
+// The page's own copy comes from site/i18n.js's `pluginspage.*` keys, in this
+// locale, at build time — it used to be hard-coded English under all five
+// URLs, which Google folded together as duplicates (ut-docs#3811).
+const T = (key) => t(lang, key);
+// A type with no label key (a new ADR-0002 type) shows its raw name rather
+// than the key.
+const typeLabel = (type) => {
+  const label = T(`pluginspage.type.${type}`);
+  return label === `pluginspage.type.${type}` ? type : label;
+};
 ---
 
 <BaseLayout
-  title="Plugins"
-  description="Every plugin listed here is free to download and install from GitHub, forever — Universal Till may also offer paid official plugins, which simply wouldn't be listed on this page."
+  title={T('pluginspage.title')}
+  description={T('pluginspage.desc')}
   lang={lang}
   path="/plugins/"
 >
-  {/* This whole page is built-time-fetched from GitHub manifests (names,
-      descriptions) and hand-written English prose — there is no per-locale
-      translation for any of it yet. BaseLayout still sets `dir="rtl"` on
-      `<html>` for fa-ir (that's correct for the nav/footer chrome around
-      this section, which IS translated), so without this override a Farsi
-      visitor got 100% English text laid out right-to-left: word order,
-      punctuation and list markers all mirrored against content that was
-      never written to be read that way (ut-docs#353). Force ltr on the
-      content itself until it's actually translated, rather than silently
-      mis-rendering it. */}
-  <section class="section" dir="ltr" lang="en">
+  {/* The page's own copy follows the locale. The plugin names and
+      descriptions are each repo's manifest.json, fetched at build time and
+      English only — so those two elements (not the whole section, which
+      used to be forced ltr/en when nothing on it was translated) keep
+      dir="ltr" lang="en", or a Farsi visitor gets English prose laid out
+      right-to-left (ut-docs#353). */}
+  <section class="section">
     <div class="section-head">
-      <h1>Plugins</h1>
-      <p class="section-sub">
-        Every plugin listed here is free, open source, and downloadable directly from GitHub —
-        no account, no marketplace, no payment required, and that's not changing for any of
-        these. The marketplace (in the app) is a one-click convenience layer on top of the
-        same public releases linked below. Universal Till may also offer separate paid
-        official plugins in future — those just wouldn't appear on this page.
-      </p>
+      <h1 data-i18n="pluginspage.title">{T('pluginspage.title')}</h1>
+      <p class="section-sub" data-i18n="pluginspage.intro">{T('pluginspage.intro')}</p>
     </div>
 
     {renderOrder.map((type) => (
       <div style="margin-bottom:3rem">
-        <h2 style="font-size:1.1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:1rem">
-          {typeLabel[type] ?? type}
+        <h2
+          style="font-size:1.1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:1rem"
+          data-i18n={typeLabel(type) === type ? undefined : `pluginspage.type.${type}`}
+        >
+          {typeLabel(type)}
         </h2>
         <div class="grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
           {byType[type].map((p) => (
             <div class="card">
-              <h3>{p.name}</h3>
-              <p>{p.description}</p>
+              <h3 dir="ltr" lang="en">{p.name}</h3>
+              <p dir="ltr" lang="en">{p.description}</p>
               <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem">
-                <a class="btn" href={p.repoUrl}>Repo</a>
+                <a class="btn" href={p.repoUrl} data-i18n="pluginspage.repo">{T('pluginspage.repo')}</a>
                 {p.hasRelease
-                  ? <a class="btn primary" href={p.downloadUrl}>Download latest</a>
-                  : <span class="muted" style="font-size:.85rem;align-self:center">No packaged release yet</span>
+                  ? <a class="btn primary" href={p.downloadUrl} data-i18n="pluginspage.download">{T('pluginspage.download')}</a>
+                  : <span class="muted" style="font-size:.85rem;align-self:center" data-i18n="pluginspage.norelease">{T('pluginspage.norelease')}</span>
                 }
               </div>
             </div>
@@ -158,10 +153,6 @@ const { lang } = Astro.params;
       </div>
     ))}
 
-    <p class="muted" style="margin-top:2rem">
-      Building your own? Any plugin here is a working reference —
-      see <a href="https://github.com/universaltill/ut-docs">ut-docs</a> for the
-      plugin manifest reference and ADRs.
-    </p>
+    <p class="muted" style="margin-top:2rem" data-i18n-html="pluginspage.footer" set:html={T('pluginspage.footer')} />
   </section>
 </BaseLayout>
