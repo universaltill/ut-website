@@ -38,7 +38,8 @@ interface Props {
   description: string;
   /** URL language prefix: undefined for English at the root. */
   lang?: string;
-  /** Path of this page WITHOUT the language prefix, e.g. "/blog". */
+  /** Path of this page WITHOUT the language prefix, in its canonical
+   *  trailing-slash form, e.g. "/blog/" (ut-docs#3798). */
   path: string;
 }
 
@@ -108,8 +109,8 @@ const alternates = LANGS.map((code) => ({
     <a href={`${L('/')}#tour`} data-i18n="nav.tour">Tour</a>
     <a href={`${L('/')}#why`} data-i18n="nav.why">Why it's different</a>
     <a href={`${L('/')}#hardware`} data-i18n="nav.hardware">Hardware</a>
-    <a href={L('/plugins')} data-i18n="nav.plugins">Plugins</a>
-    <a href={L('/blog')} data-i18n="nav.news">News</a>
+    <a href={L('/plugins/')} data-i18n="nav.plugins">Plugins</a>
+    <a href={L('/blog/')} data-i18n="nav.news">News</a>
     <a href={`${L('/')}#about`} data-i18n="nav.about">About</a>
   </nav>
   <div class="nav-actions">
@@ -119,7 +120,7 @@ const alternates = LANGS.map((code) => ({
     <a class="btn" href={L('/start')} data-i18n="nav.get">Get started</a>
     <!-- i18n.js rewrites this href at runtime to carry the current page, so
          choosing a language returns you HERE rather than to the homepage. -->
-    <a class="lang-link" href={`/${current}/language?from=${encodeURIComponent(path)}`} aria-label={langPillLabel(current)} data-i18n-aria-label="nav.language">{langPillText(current)}</a>
+    <a class="lang-link" rel="nofollow" href={`/${current}/language?from=${encodeURIComponent(path)}`} aria-label={langPillLabel(current)} data-i18n-aria-label="nav.language">{langPillText(current)}</a>
   </div>
 </header>
 
@@ -151,9 +152,9 @@ const alternates = LANGS.map((code) => ({
        this footer link-for-link (only .foot-tagline's presence), but no
        reason to let it drift anyway. -->
   <p class="foot-legal">
-    <a href={L('/legal/impressum')} data-i18n="foot.impressum">Legal notice (Impressum)</a>{' · '}
-    <a href={L('/legal/privacy')} data-i18n="foot.privacy">Privacy policy</a>{' · '}
-    <a href={L('/legal/terms')} data-i18n="foot.terms">Terms of use</a>
+    <a href={L('/legal/impressum/')} data-i18n="foot.impressum">Legal notice (Impressum)</a>{' · '}
+    <a href={L('/legal/privacy/')} data-i18n="foot.privacy">Privacy policy</a>{' · '}
+    <a href={L('/legal/terms/')} data-i18n="foot.terms">Terms of use</a>
   </p>
 </footer>
 

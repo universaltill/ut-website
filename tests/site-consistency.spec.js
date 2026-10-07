@@ -120,36 +120,36 @@ test.describe("language lives in the URL", () => {
     );
     // x-default points at a real page, never at a redirect.
     expect(alternates.find((a) => a.hreflang === "x-default").href).toBe(
-      "https://www.universaltill.com/en-gb/blog/whats-new-v0-2-70",
+      "https://www.universaltill.com/en-gb/blog/whats-new-v0-2-70/",
     );
     expect(alternates.find((a) => a.hreflang === "tr-TR").href).toBe(
-      "https://www.universaltill.com/tr-tr/blog/whats-new-v0-2-70",
+      "https://www.universaltill.com/tr-tr/blog/whats-new-v0-2-70/",
     );
   });
 });
 
 test.describe("switching language returns you to the page you were on", () => {
   test("the globe carries the current page to /language", async ({ page }) => {
-    await page.goto("/en-gb/blog/whats-new-v0-2-70");
+    await page.goto("/en-gb/blog/whats-new-v0-2-70/");
     const href = await page.locator(".lang-link").getAttribute("href");
-    expect(href).toBe("/en-gb/language?from=%2Fblog%2Fwhats-new-v0-2-70");
+    expect(href).toBe("/en-gb/language?from=%2Fblog%2Fwhats-new-v0-2-70%2F");
   });
 
   test("the language page sends you back to that page, in the chosen language", async ({ page }) => {
-    await page.goto("/en-gb/language?from=%2Fblog%2Fwhats-new-v0-2-70");
+    await page.goto("/en-gb/language?from=%2Fblog%2Fwhats-new-v0-2-70%2F");
 
     const hrefs = await page.evaluate(() =>
       [...document.querySelectorAll(".locale-card")].map((a) => a.getAttribute("href")),
     );
-    expect(hrefs).toContain("/tr-tr/blog/whats-new-v0-2-70");
+    expect(hrefs).toContain("/tr-tr/blog/whats-new-v0-2-70/");
     // English is prefixed too — an unprefixed URL says nothing about language,
     // which is how "switch to English" used to keep rendering Turkish.
-    expect(hrefs).toContain("/en-gb/blog/whats-new-v0-2-70");
+    expect(hrefs).toContain("/en-gb/blog/whats-new-v0-2-70/");
 
     // And the Back link, which used to be a one-way trip to the homepage.
     await expect(page.locator(".back-link a")).toHaveAttribute(
       "href",
-      /\/blog\/whats-new-v0-2-70$/,
+      /\/blog\/whats-new-v0-2-70\/$/,
     );
   });
 
@@ -172,8 +172,8 @@ const LEGACY = [
   ["/fa", "/fa-ir"],
   ["/tr", "/tr-tr"],
   ["/", "/en-gb"],
-  ["/blog", "/en-gb/blog"],
-  ["/plugins", "/en-gb/plugins"],
+  ["/blog", "/en-gb/blog/"],
+  ["/plugins", "/en-gb/plugins/"],
   ["/download", "/en-gb/download"],
 ];
 
@@ -218,7 +218,7 @@ test.describe("posts are translated, not just the chrome", () => {
       expect(body).toContain("Universal Till");
       // And a machine translation says so, with a way back to the original.
       await expect(page.locator('[data-i18n="news.machine"]')).toBeVisible();
-      await expect(page.locator('a[href="/en-gb/blog/whats-new-v0-2-70"]')).toBeVisible();
+      await expect(page.locator('a[href="/en-gb/blog/whats-new-v0-2-70/"]')).toBeVisible();
     });
   }
 

@@ -18,7 +18,7 @@ test.describe("footer legal links", () => {
     test(`${path} footer links to Impressum, privacy and terms`, async ({ page }) => {
       await page.goto(path);
       for (const slug of SLUGS) {
-        await expect(page.locator(`.foot-legal a[href="/legal/${slug}"]`)).toHaveCount(1);
+        await expect(page.locator(`.foot-legal a[href="/en-gb/legal/${slug}/"]`)).toHaveCount(1);
       }
     });
   }
@@ -29,7 +29,7 @@ test.describe("footer legal links", () => {
     // because BaseLayout.astro routes every internal link through L() —
     // see the "stays in that locale" test below for why that matters.
     for (const slug of SLUGS) {
-      await expect(page.locator(`.foot-legal a[href="/en-gb/legal/${slug}"]`)).toHaveCount(1);
+      await expect(page.locator(`.foot-legal a[href="/en-gb/legal/${slug}/"]`)).toHaveCount(1);
     }
   });
 
@@ -41,12 +41,12 @@ test.describe("footer legal links", () => {
   // exactly this reason — these three must too.
   test("on a non-English Astro page, the footer legal links stay in that locale", async ({ page }) => {
     await page.goto("/de-de/blog");
-    await expect(page.locator('.foot-legal a[href="/de-de/legal/impressum"]')).toHaveCount(1);
-    await expect(page.locator('.foot-legal a[href="/de-de/legal/privacy"]')).toHaveCount(1);
-    await expect(page.locator('.foot-legal a[href="/de-de/legal/terms"]')).toHaveCount(1);
+    await expect(page.locator('.foot-legal a[href="/de-de/legal/impressum/"]')).toHaveCount(1);
+    await expect(page.locator('.foot-legal a[href="/de-de/legal/privacy/"]')).toHaveCount(1);
+    await expect(page.locator('.foot-legal a[href="/de-de/legal/terms/"]')).toHaveCount(1);
     // The German-language label needs no translation to be correct — see
     // the comment above.
-    await expect(page.locator('.foot-legal a[href="/de-de/legal/impressum"]')).toHaveText("Impressum");
+    await expect(page.locator('.foot-legal a[href="/de-de/legal/impressum/"]')).toHaveText("Impressum");
   });
 });
 

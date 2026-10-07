@@ -110,6 +110,33 @@ function setChildren(n: Node, children: Node[]) {
 }
 const textNode = (value: string) => ({ nodeName: '#text', value });
 
+// Sections built by Astro, whose canonical URLs end in "/" (build.format
+// "directory"); the slashless form answers 200 as a duplicate, so never link it.
+const ASTRO_SECTIONS = ['/blog', '/plugins', '/legal'];
+
+/**
+ * The final URL of a same-site page link from a `locale` page — ut-docs#3798.
+ * The templates link unprefixed ("/download", "/legal/privacy"); each of those
+ * is a 301 to /en-gb/…, so a crawler hit a redirect per link and a German
+ * visitor clicking Download landed in English. Assets, already-prefixed links
+ * and anything that isn't a root-relative page path come back unchanged.
+ */
+export function localizedHref(href: string, locale: string, suffixes: Set<string>): string {
+  if (!href.startsWith('/') || href.startsWith('//')) return href;
+  const cut = href.search(/[?#]/);
+  let p = cut === -1 ? href : href.slice(0, cut);
+  const rest = cut === -1 ? '' : href.slice(cut);
+  if (/\.[a-z0-9]+$/i.test(p) || p.startsWith('/downloads/')) return href; // an asset
+  // Already locale-prefixed: a deliberate link (e.g. to an English original).
+  if (/^\/[a-z]{2}-[a-z]{2}(?=\/|$)/.test(p)) return href;
+  if (p === '/') return `/${locale}${rest}`;
+  if (ASTRO_SECTIONS.some((s) => p === s || p.startsWith(s + '/'))) {
+    return `/${locale}${p.endsWith('/') ? p : p + '/'}${rest}`;
+  }
+  if (suffixes.has(p)) return `/${locale}${p}${rest}`;
+  return href;
+}
+
 export function renderMarketingPage(route: MarketingRoute, routes: MarketingRoute[]): string {
   const dict = I18N[route.locale];
   const template = templateFor(route.file);
@@ -124,9 +151,12 @@ export function renderMarketingPage(route: MarketingRoute, routes: MarketingRout
   setAttr(html!, 'lang', bcp47(route.locale));
   setAttr(html!, 'dir', dict._dir);
 
+  const suffixes = new Set(routes.filter((r) => r.locale === route.locale && r.suffix).map((r) => r.suffix));
   walk(doc, (n) => {
     if (!n.attrs) return;
     let k: string | undefined;
+    const href = n.nodeName === 'a' ? attr(n, 'href') : undefined;
+    if (href) setAttr(n, 'href', localizedHref(href, route.locale, suffixes));
     if ((k = attr(n, 'data-i18n')) && dict[k] != null) setChildren(n, [textNode(dict[k])]);
     if ((k = attr(n, 'data-i18n-html')) && dict[k] != null) setChildren(n, parseFragment(dict[k]).childNodes);
     if ((k = attr(n, 'data-i18n-aria-label')) && dict[k] != null) setAttr(n, 'aria-label', dict[k]);
@@ -137,6 +167,17 @@ export function renderMarketingPage(route: MarketingRoute, routes: MarketingRout
     if (n.nodeName === 'a' && (attr(n, 'class') ?? '').split(/\s+/).includes('lang-link')) {
       setChildren(n, [textNode(langPillText(route.locale))]);
       setAttr(n, 'aria-label', langPillLabel(route.locale));
+    }
+    // Every link to the noindex language picker: carry the page to return to
+    // (as i18n.js does) and keep crawlers from counting each ?from= variant
+    // as one more excluded page.
+    const target = attr(n, 'href');
+    if (n.nodeName === 'a' && target && /^\/[a-z]{2}-[a-z]{2}\/language(\?|$)/.test(target)) {
+      if (!target.includes('?')) {
+        const from = route.suffix === '/language' ? '/' : route.suffix || '/';
+        setAttr(n, 'href', `${target}?from=${encodeURIComponent(from)}`);
+      }
+      setAttr(n, 'rel', 'nofollow');
     }
   });
 

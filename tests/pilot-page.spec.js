@@ -35,12 +35,12 @@ test.describe("/pilot is linked from the home page and the download page", () =>
   for (const locale of LOCALES) {
     test(`${locale}: home hero links to /pilot`, async ({ page }) => {
       await page.goto(`/${locale}`);
-      await expect(page.locator('a[data-i18n="hero.pilotlink"]')).toHaveAttribute("href", "/pilot");
+      await expect(page.locator('a[data-i18n="hero.pilotlink"]')).toHaveAttribute("href", `/${locale}/pilot`);
     });
 
     test(`${locale}: download page links to /pilot`, async ({ page }) => {
       await page.goto(`/${locale}/download`);
-      await expect(page.locator('a[data-i18n="dl.pilotlink"]')).toHaveAttribute("href", "/pilot");
+      await expect(page.locator('a[data-i18n="dl.pilotlink"]')).toHaveAttribute("href", `/${locale}/pilot`);
     });
   }
 });

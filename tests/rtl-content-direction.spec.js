@@ -60,7 +60,7 @@ test.describe("homepage links to the real plugin catalogue (ut-docs#353 AC2)", (
       await page.goto(`/${locale}`);
       const cta = page.locator('#plugins a[data-i18n="plugins.cta"]');
       await expect(cta).toBeVisible();
-      await expect(cta).toHaveAttribute("href", "/plugins");
+      await expect(cta).toHaveAttribute("href", `/${locale}/plugins/`);
     });
   }
 

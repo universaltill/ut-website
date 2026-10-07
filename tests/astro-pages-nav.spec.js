@@ -22,7 +22,7 @@ for (const path of ASTRO_PAGES) {
 
       const news = page.locator('#site-nav a[data-i18n="nav.news"]');
       await expect(news).toBeVisible();
-      await expect(news).toHaveAttribute("href", "/en-gb/blog");
+      await expect(news).toHaveAttribute("href", "/en-gb/blog/");
       // data-i18n is what makes the label translate; a hard-coded "News"
       // string would look right in English and stay English in tr/zh/fa.
       await expect(news).toHaveText("News");

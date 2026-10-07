@@ -100,3 +100,18 @@ test("checkTranslation still catches an untranslated title read from real frontm
   const problems = checkTranslation(source, "de-de", translatedRaw);
   assert.ok(problems.some((p) => p.includes("identical to the English")));
 });
+
+// ut-docs#3798: a translation links to its OWN locale's page (/tr-tr/download
+// where English has /en-gb/download) — an unprefixed or English link would be
+// a redirect or a language switch. That is the same target, not a changed one.
+test("a link localised to the translation's own locale is not a changed link", () => {
+  const source = { title: "What's new", body: "## Universal Till\n[get it](/en-gb/download)" };
+  const translated = { title: "Yenilikler", body: "## Universal Till\n[indir](/tr-tr/download)" };
+  assert.ok(!verify(source, translated, "tr-tr").some((p) => p.includes("link targets changed")));
+});
+
+test("a link to another locale's page is still a changed link", () => {
+  const source = { title: "What's new", body: "## Universal Till\n[get it](/en-gb/download)" };
+  const translated = { title: "Yenilikler", body: "## Universal Till\n[indir](/de-de/download)" };
+  assert.ok(verify(source, translated, "tr-tr").some((p) => p.includes("link targets changed")));
+});
