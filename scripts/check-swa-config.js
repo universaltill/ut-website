@@ -26,7 +26,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const configPath = path.join(root, 'site', 'staticwebapp.config.json');
+// An explicit path is for scripts/check-swa-config_test.sh's fixtures.
+const configPath = process.argv[2] || path.join(root, 'site', 'staticwebapp.config.json');
 const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
 const problems = [];
@@ -53,6 +54,20 @@ for (const [code, rule] of Object.entries(overrides)) {
 }
 if (overrides['404'] && !fs.existsSync(path.join(root, 'site', '404.html'))) {
   problems.push('responseOverrides.404 points at /404.html but site/404.html does not exist.');
+}
+
+// Azure matches a route with or without its trailing slash, and refuses the
+// whole deploy when two rules differ only by one ("A rule was already
+// processed with a duplicate route /downloads/", ut-docs#3809).
+const seen = new Map();
+for (const route of config.routes || []) {
+  // Azure allows one route per method set, so `methods` is part of the key.
+  const key = String(route.route).replace(/(.)\/$/, '$1') + ' ' + [...(route.methods || [])].sort().join(',');
+  if (seen.has(key)) {
+    problems.push(`routes ${seen.get(key)} and ${route.route} are the same route to Azure (trailing slash ignored) — keep one.`);
+  } else {
+    seen.set(key, route.route);
+  }
 }
 
 for (const route of config.routes || []) {
