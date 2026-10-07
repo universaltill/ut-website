@@ -1,0 +1,82 @@
+---
+title: "Offline POS: keep selling when the internet drops"
+date: 2026-10-05
+excerpt: "What happens to your till when the Wi-Fi or the broadband goes down? With Universal Till, nothing that matters: sales, discounts, holds and receipts carry on."
+author: "Universal Till"
+draft: false
+---
+
+Every shop has had the moment: a queue at the counter and the router's lights
+go out. With a lot of point-of-sale systems that's the end of selling until the
+connection comes back. Universal Till was built the other way round. The till
+keeps everything it needs **on the device itself**, so an internet outage is
+something you notice on the status bar, not at the front of the queue.
+
+Here's what that means in practice, behind the counter.
+
+## What keeps working with no internet
+
+Ringing up items, choosing sizes and extras, applying discounts and holding a
+basket for later all run against the till's **own local data**. None of it
+needs the network. A held basket that you pick up again later finishes exactly
+the same way, online or not.
+
+**Taking payment.** Cash works as normal. So does any payment method that
+doesn't itself need the internet. A card reader that has to call its payment
+processor is a property of that reader, not of the till: the till never blocks
+a sale because the internet is down.
+
+**Printing receipts.** The receipt printer is connected straight to the till,
+by USB or over your shop's own network, so printing doesn't depend on the
+internet either. If the printer itself can't be reached, the till tells you
+that separately.
+
+**Knowing what's going on.** The status bar has an **Online** light. It turns to
+**Offline** the moment the device loses its network (Wi-Fi off, cable out) and
+back to **Online** when it returns. When the network is fine but the internet
+behind it isn't, it says **No internet**, and sales go through as usual. If the
+screen itself loses touch with the till, a banner reads "Connection problem —
+the till keeps working offline." It clears by itself the next time things work,
+so there's nothing to dismiss.
+
+## When the cloud side has a problem
+
+Universal Till has optional cloud features for owners who want them, like
+managing products from a browser. The till is designed so that none of them can
+stop a sale:
+
+- If the cloud refuses the till's sign-in three times in a row, a small chip
+  explains why and what to do. The till **keeps selling offline**, tries again
+  once an hour, and keeps everything it still has to send until it's connected
+  again.
+- If a paid plan can't be confirmed, or ends, the paid features pause and
+  Settings explains which ones. **Selling is never affected.**
+- Problem reports you capture with the bug-report button are saved on the till
+  and sent once you're back online.
+- The notes on what changed in each update are built into the till, so they
+  open without an internet connection too.
+
+## More than one till, no internet
+
+If you run a [second till](/en-gb/blog/multiple-tills-one-shop/), the tills
+talk to each other over your shop's own network. If an additional till can't
+reach the main till, it **keeps selling anyway**. Its sales wait on that till
+and sync as soon as the main till is back, and a light on the status bar says
+in words what's happening: **Main till linked**, or **Main till not reachable
+since … — selling offline**.
+
+If your Wi-Fi stops the tills from seeing each other (some networks do), an
+additional till can also ask your shop's cloud account where the main till last
+said it was, before it falls back to selling offline. That needs both tills to
+be connected to the cloud. Without it, only your shop network is searched.
+
+## Your data stays with you
+
+Because the till works from its own data, your sales, products and settings
+live on the till in your shop. Settings → Backups makes a full snapshot any
+time, and **Download** saves a copy you can keep somewhere safe, off the till.
+
+Offline-first isn't a mode you have to remember to switch on. It's simply how
+Universal Till works, and the core is free with no monthly fee.
+[Download Universal Till](/en-gb/download) and try it with the router
+unplugged, or [see how to get started](/en-gb/start).
