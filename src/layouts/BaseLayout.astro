@@ -1,5 +1,5 @@
 ---
-import { langPillLabel, langPillText } from '../lib/marketingPages';
+import { I18N, langPillLabel, langPillText } from '../lib/marketingPages';
 // No stylesheet import here on purpose. site/styles.css (linked below, served
 // straight from publicDir) is the ONLY stylesheet on this site — these pages
 // used to also load a Tailwind-based global.css that redeclared the same
@@ -41,11 +41,28 @@ interface Props {
   /** Path of this page WITHOUT the language prefix, in its canonical
    *  trailing-slash form, e.g. "/blog/" (ut-docs#3798). */
   path: string;
+  /** Locales that have a real version of this page (not the English
+   *  stand-in). Only these are declared as hreflang alternates; defaults to
+   *  every locale (ut-docs#3811). */
+  translatedLangs?: string[];
+  /** This locale has no translation and is showing the English original:
+   *  the canonical points at the en-gb URL, so a search engine indexes the
+   *  original once rather than five copies of it (ut-docs#3811). */
+  isFallback?: boolean;
 }
 
-const { title, description, lang, path } = Astro.props;
+const { title, description, lang, path, translatedLangs = LANGS, isFallback = false } = Astro.props;
 const current = lang ?? DEFAULT_LANG;
 const dir = DIR[current] ?? 'ltr';
+const canonical = new URL(isFallback ? `/${SOURCE_LOCALE}${path}` : Astro.url.pathname, Astro.site);
+
+// The chrome's data-i18n strings, rendered in this page's locale at build
+// time — the same dict site/i18n.js applies at runtime, so a crawler that
+// doesn't run JS reads /de-de/plugins/ in German, not English (ut-docs#3811).
+// Exported so a page's own data-i18n strings use the same lookup.
+export const t = (locale: string, key: string): string =>
+  I18N[locale]?.[key] ?? I18N[SOURCE_LOCALE][key] ?? key;
+const T = (key: string) => t(current, key);
 
 // Prefix a site path with the current language, so navigating out of a
 // Turkish page lands on a Turkish page rather than silently switching to
@@ -57,11 +74,15 @@ const L = (p: string) => `/${current}${p === '/' ? '' : p}` || '/';
 
 // hreflang alternates for THIS page in every language — the pairing that
 // tells a search engine these are translations of one page rather than
-// duplicates competing with each other.
-const alternates = LANGS.map((code) => ({
-  code,
-  href: new URL(`/${code}${path}`, Astro.site).href,
-}));
+// duplicates competing with each other. Only real translations are listed;
+// an English fallback declares none (it isn't its own canonical, so it isn't
+// a member of the set — ut-docs#3811).
+const alternates = isFallback
+  ? []
+  : LANGS.filter((code) => translatedLangs.includes(code)).map((code) => ({
+      code,
+      href: new URL(`/${code}${path}`, Astro.site).href,
+    }));
 ---
 
 <!DOCTYPE html>
@@ -69,9 +90,9 @@ const alternates = LANGS.map((code) => ({
 <head>
   <meta charset="utf-8" />
   <script is:inline>if(location.hostname==="universaltill.com"){location.replace("https://www.universaltill.com"+location.pathname+location.search+location.hash);}</script>
-  <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+  <link rel="canonical" href={canonical} />
   {alternates.map((a) => <link rel="alternate" hreflang={bcp47(a.code)} href={a.href} />)}
-  <link rel="alternate" hreflang="x-default" href={new URL(`/${DEFAULT_LANG}${path}`, Astro.site).href} />
+  {!isFallback && <link rel="alternate" hreflang="x-default" href={new URL(`/${DEFAULT_LANG}${path}`, Astro.site).href} />}
   <link rel="alternate" type="application/rss+xml" title="Universal Till News" href={new URL(`/${current}/blog/rss.xml`, Astro.site).href} />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title} — Universal Till</title>
@@ -105,19 +126,19 @@ const alternates = LANGS.map((code) => ({
     <span>Universal <strong>Till</strong></span>
   </a>
   <nav id="site-nav">
-    <a href={`${L('/')}#solutions`} data-i18n="nav.solutions">Solutions</a>
-    <a href={`${L('/')}#tour`} data-i18n="nav.tour">Tour</a>
-    <a href={`${L('/')}#why`} data-i18n="nav.why">Why it's different</a>
-    <a href={`${L('/')}#hardware`} data-i18n="nav.hardware">Hardware</a>
-    <a href={L('/plugins/')} data-i18n="nav.plugins">Plugins</a>
-    <a href={L('/blog/')} data-i18n="nav.news">News</a>
-    <a href={`${L('/')}#about`} data-i18n="nav.about">About</a>
+    <a href={`${L('/')}#solutions`} data-i18n="nav.solutions">{T('nav.solutions')}</a>
+    <a href={`${L('/')}#tour`} data-i18n="nav.tour">{T('nav.tour')}</a>
+    <a href={`${L('/')}#why`} data-i18n="nav.why">{T('nav.why')}</a>
+    <a href={`${L('/')}#hardware`} data-i18n="nav.hardware">{T('nav.hardware')}</a>
+    <a href={L('/plugins/')} data-i18n="nav.plugins">{T('nav.plugins')}</a>
+    <a href={L('/blog/')} data-i18n="nav.news">{T('nav.news')}</a>
+    <a href={`${L('/')}#about`} data-i18n="nav.about">{T('nav.about')}</a>
   </nav>
   <div class="nav-actions">
-    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu" data-i18n-aria-label="nav.menu">
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label={T('nav.menu')} data-i18n-aria-label="nav.menu">
       <span class="nav-toggle-bars" aria-hidden="true"></span>
     </button>
-    <a class="btn" href={L('/start')} data-i18n="nav.get">Get started</a>
+    <a class="btn" href={L('/start')} data-i18n="nav.get">{T('nav.get')}</a>
     <!-- i18n.js rewrites this href at runtime to carry the current page, so
          choosing a language returns you HERE rather than to the homepage. -->
     <a class="lang-link" rel="nofollow" href={`/${current}/language?from=${encodeURIComponent(path)}`} aria-label={langPillLabel(current)} data-i18n-aria-label="nav.language">{langPillText(current)}</a>
@@ -134,9 +155,9 @@ const alternates = LANGS.map((code) => ({
     <img src="/logo.svg" alt="" width="19" height="26" />
     <span>Universal <strong>Till</strong></span>
   </div>
-  <p class="foot-tagline" data-i18n="foot.tagline">The free, offline-first point of sale.</p>
-  <p class="foot-owner" data-i18n="foot.owner">Universal Till is a product of Task Runner Technology LTD.</p>
-  <p class="foot-rights" data-i18n="foot.rights">Open source under the MIT licence.</p>
+  <p class="foot-tagline" data-i18n="foot.tagline">{T('foot.tagline')}</p>
+  <p class="foot-owner" data-i18n="foot.owner">{T('foot.owner')}</p>
+  <p class="foot-rights" data-i18n="foot.rights">{T('foot.rights')}</p>
   <!-- Same three links as site/*.html's footer (ut-docs#1552) — but here,
        unlike site/*.html, THROUGH L() like every other link in this file
        (review caught an earlier draft hardcoding these unprefixed, which
@@ -152,9 +173,9 @@ const alternates = LANGS.map((code) => ({
        this footer link-for-link (only .foot-tagline's presence), but no
        reason to let it drift anyway. -->
   <p class="foot-legal">
-    <a href={L('/legal/impressum/')} data-i18n="foot.impressum">Legal notice (Impressum)</a>{' · '}
-    <a href={L('/legal/privacy/')} data-i18n="foot.privacy">Privacy policy</a>{' · '}
-    <a href={L('/legal/terms/')} data-i18n="foot.terms">Terms of use</a>
+    <a href={L('/legal/impressum/')} data-i18n="foot.impressum">{T('foot.impressum')}</a>{' · '}
+    <a href={L('/legal/privacy/')} data-i18n="foot.privacy">{T('foot.privacy')}</a>{' · '}
+    <a href={L('/legal/terms/')} data-i18n="foot.terms">{T('foot.terms')}</a>
   </p>
 </footer>
 

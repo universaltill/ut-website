@@ -1,7 +1,7 @@
 ---
 import { render } from 'astro:content';
-import BaseLayout, { LANGS, bcp47 } from '../../../layouts/BaseLayout.astro';
-import { getAllLocalizedPosts } from '../../../lib/blogPosts';
+import BaseLayout, { LANGS, SOURCE_LOCALE, bcp47, t } from '../../../layouts/BaseLayout.astro';
+import { getAllLocalizedPosts, translatedLangsOf } from '../../../lib/blogPosts';
 
 // One page per post PER LOCALE, serving that locale's own translation where it
 // exists and the English original where it does not. Posts live in
@@ -24,20 +24,21 @@ export async function getStaticPaths() {
   return LANGS.flatMap((lang) =>
     (byLocale[lang] ?? []).map(({ post, slug, isFallback }) => ({
       params: { lang, slug },
-      props: { post, isFallback },
+      props: { post, isFallback, translatedLangs: translatedLangsOf(byLocale, slug) },
     })),
   );
 }
 
-const { post, isFallback } = Astro.props;
+const { post, isFallback, translatedLangs } = Astro.props;
 const { lang, slug } = Astro.params;
 const { Content } = await render(post);
 
 // schema.org BlogPosting, one per locale — matches this same page's own
 // canonical URL (BaseLayout builds it identically: Astro.url.pathname
 // against Astro.site) and its <html lang> (bcp47(lang)), so a crawler never
-// sees this block disagree with the page it's sitting on.
-const pageUrl = new URL(Astro.url.pathname, Astro.site).href;
+// sees this block disagree with the page it's sitting on. An untranslated
+// fallback's canonical is the en-gb original (ut-docs#3811), so is this.
+const pageUrl = new URL(isFallback ? `/${SOURCE_LOCALE}/blog/${slug}/` : Astro.url.pathname, Astro.site).href;
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
@@ -45,7 +46,7 @@ const jsonLd = {
   headline: post.data.title,
   description: post.data.excerpt,
   datePublished: post.data.date.toISOString(),
-  inLanguage: bcp47(lang),
+  inLanguage: bcp47(isFallback ? SOURCE_LOCALE : lang),
   author: { '@type': 'Organization', name: post.data.author },
   // No `logo` here: the brand mark is only an SVG (site/logo.svg), and
   // Google's structured-data ImageObject requirements for a publisher
@@ -58,7 +59,14 @@ const jsonLd = {
 };
 ---
 
-<BaseLayout title={post.data.title} description={post.data.excerpt} lang={lang} path={`/blog/${slug}/`}>
+<BaseLayout
+  title={post.data.title}
+  description={post.data.excerpt}
+  lang={lang}
+  path={`/blog/${slug}/`}
+  isFallback={isFallback}
+  translatedLangs={translatedLangs}
+>
   {/* set:html because Astro would otherwise HTML-escape the JSON (turning
       "quotes into &quot;, breaking it as JSON); < guards the one
       character that actually matters inside a <script> body — a title or
@@ -92,13 +100,13 @@ const jsonLd = {
         the English original, which is always the source of truth. */}
     {post.data.machineTranslated && (
       <p class="muted" style="font-size:.85rem;margin:.2rem 0 1rem">
-        <span data-i18n="news.machine">Translated automatically.</span>{' '}
-        <a href={`/en-gb/blog/${slug}/`} data-i18n="news.original">Read the English original</a>
+        <span data-i18n="news.machine">{t(lang, 'news.machine')}</span>{' '}
+        <a href={`/en-gb/blog/${slug}/`} data-i18n="news.original">{t(lang, 'news.original')}</a>
       </p>
     )}
     {isFallback && (
       <p class="muted" style="font-size:.85rem;margin:.2rem 0 1rem" data-i18n="news.untranslated">
-        This post isn't translated yet, so it's shown in English.
+        {t(lang, 'news.untranslated')}
       </p>
     )}
 
@@ -124,6 +132,6 @@ const jsonLd = {
     >
       <Content />
     </div>
-    <p style="margin-top:2rem"><a href={`/${lang}/blog/`} data-i18n="news.back">← Back to News</a></p>
+    <p style="margin-top:2rem"><a href={`/${lang}/blog/`} data-i18n="news.back">{t(lang, 'news.back')}</a></p>
   </article>
 </BaseLayout>

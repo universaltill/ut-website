@@ -35,3 +35,13 @@ export async function getAllLocalizedLegalPages(): Promise<Record<string, Locali
   }
   return byLocale;
 }
+
+/**
+ * The locales with a real translation of one legal page — its hreflang set.
+ * A fallback locale is left out of it and out of the sitemap, and its
+ * canonical points at the English original (ut-docs#3811): five URLs of the
+ * same English text otherwise read to Google as duplicates.
+ */
+export function translatedLangsOf(byLocale: Record<string, LocalizedLegalPage[]>, slug: string): string[] {
+  return LANGS.filter((lang) => (byLocale[lang] ?? []).some((p) => p.slug === slug && !p.isFallback));
+}

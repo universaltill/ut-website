@@ -76,6 +76,16 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `scripts/translate-posts.js` only checks `src/content/blog/` today and
   would need extending to cover `src/content/legal/` before that can
   change; see `src/content.config.ts`'s comment on the `legal` collection.
+- **An untranslated page points search engines at its English original
+  (ut-docs#3811).** A legal page or post that a locale serves as the English
+  fallback carries a canonical to the `/en-gb/…` URL, is left out of
+  `sitemap.xml`, and isn't declared as an hreflang alternate (only real
+  translations are, via `translatedLangsOf` in `src/lib/legalPages.ts` /
+  `blogPosts.ts`) — otherwise Google sees the same English text under five
+  URLs and drops them as duplicates. The Astro pages' chrome (nav, footer)
+  and `/plugins`' own copy (`pluginspage.*` keys) are rendered from
+  `site/i18n.js` at build time (BaseLayout's `t()`), so the raw HTML is in
+  the page's language before any JS runs. `tests/untranslated-duplicates.spec.js`.
 - **The Decap CMS admin does NOT live here.** It's served from the homelab
   cluster at `cms.universaltill.com`, gated by Zitadel via oauth2-proxy
   (`taskrunnertech/homelab-k8s`'s `kubernetes/apps/ut-cms/`) — this SWA

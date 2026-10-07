@@ -1,7 +1,7 @@
 ---
 import { render } from 'astro:content';
-import BaseLayout, { LANGS } from '../../../layouts/BaseLayout.astro';
-import { getAllLocalizedLegalPages } from '../../../lib/legalPages';
+import BaseLayout, { LANGS, t } from '../../../layouts/BaseLayout.astro';
+import { getAllLocalizedLegalPages, translatedLangsOf } from '../../../lib/legalPages';
 
 // One page per legal doc PER LOCALE, same fallback shape as blog/[slug].astro
 // — serving that locale's own translation where it exists and the English
@@ -16,17 +16,24 @@ export async function getStaticPaths() {
   return LANGS.flatMap((lang) =>
     (byLocale[lang] ?? []).map(({ page, slug, isFallback }) => ({
       params: { lang, slug },
-      props: { page, isFallback },
+      props: { page, isFallback, translatedLangs: translatedLangsOf(byLocale, slug) },
     })),
   );
 }
 
-const { page, isFallback } = Astro.props;
+const { page, isFallback, translatedLangs } = Astro.props;
 const { lang, slug } = Astro.params;
 const { Content } = await render(page);
 ---
 
-<BaseLayout title={page.data.title} description={page.data.summary} lang={lang} path={`/legal/${slug}/`}>
+<BaseLayout
+  title={page.data.title}
+  description={page.data.summary}
+  lang={lang}
+  path={`/legal/${slug}/`}
+  isFallback={isFallback}
+  translatedLangs={translatedLangs}
+>
   <article class="section" style="max-width:44rem">
     <h1 dir={isFallback ? 'ltr' : undefined} lang={isFallback ? 'en' : undefined}>{page.data.title}</h1>
 
@@ -54,7 +61,7 @@ const { Content } = await render(page);
         hardcoded English banner sitting on a de-de/tr-tr/zh-cn/fa-ir URL. */}
     {isFallback && (
       <p class="muted" style="font-size:.85rem;margin:.2rem 0 1rem" data-i18n="news.untranslated">
-        This post isn't translated yet, so it's shown in English.
+        {t(lang, 'news.untranslated')}
       </p>
     )}
 

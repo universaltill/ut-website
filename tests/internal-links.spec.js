@@ -65,7 +65,14 @@ test("every sitemap page links only to URLs that answer 200 directly", async ({ 
       continue;
     }
     if (!(res.headers()["content-type"] ?? "").includes("text/html")) continue;
-    const canonical = (await res.text()).match(/<link\b[^>]*rel="canonical"[^>]*>/i)?.[0].match(/href="([^"]*)"/)?.[1];
+    const html = await res.text();
+    const canonical = html.match(/<link\b[^>]*rel="canonical"[^>]*>/i)?.[0].match(/href="([^"]*)"/)?.[1];
+    // The one allowed exception (ut-docs#3811): an untranslated page that
+    // says so, canonicalising to its own en-gb original. The footer has to
+    // link /de-de/legal/privacy/ to keep a German reader in German, and the
+    // page is out of the sitemap — but nothing else may canonicalise away.
+    const enOriginal = target.replace(/^\/[a-z]{2}-[a-z]{2}\//, "/en-gb/");
+    if (canonical && local(canonical) === enOriginal && html.includes('data-i18n="news.untranslated"')) continue;
     if (canonical && local(canonical) !== target.split("?")[0]) {
       bad.push(`${from} → ${target} is a duplicate of ${local(canonical)}`);
     }

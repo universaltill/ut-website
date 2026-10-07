@@ -6,30 +6,34 @@
 // English prose right-to-left.
 import { expect, test } from "@playwright/test";
 
-test.describe("/plugins is entirely untranslated content and must force ltr", () => {
+// ut-docs#3811: the page's own copy is translated now, so the section follows
+// the locale; only the manifest-fetched plugin name/description (English,
+// from each repo's manifest.json) still force ltr/en.
+test.describe("/plugins: translated copy follows the locale, manifest text forces ltr", () => {
   for (const locale of ["fa-ir", "en-gb", "tr-tr", "zh-cn", "de-de"]) {
-    test(`${locale}/plugins: the content section renders dir="ltr"`, async ({ page }) => {
+    test(`${locale}/plugins: plugin name and description render dir="ltr" lang="en"`, async ({ page }) => {
       await page.goto(`/${locale}/plugins`);
 
-      // The page chrome still follows the locale (this is the thing that
-      // would break if the fix were "just force ltr on <html>" instead of
-      // scoping it to the content region).
       const htmlDir = await page.evaluate(() => document.documentElement.dir);
       expect(htmlDir).toBe(locale === "fa-ir" ? "rtl" : "ltr");
 
-      // The content itself — real GitHub-manifest data, never translated —
-      // must always read ltr, regardless of the surrounding page's locale.
+      // The section itself no longer overrides the locale's direction.
       const section = page.locator("main section.section").first();
-      await expect(section).toHaveAttribute("dir", "ltr");
-      await expect(section).toHaveAttribute("lang", "en");
+      await expect(section).not.toHaveAttribute("dir", "ltr");
+
+      const card = page.locator(".card").first();
+      await expect(card.locator("h3")).toHaveAttribute("dir", "ltr");
+      await expect(card.locator("h3")).toHaveAttribute("lang", "en");
+      await expect(card.locator("p").first()).toHaveAttribute("dir", "ltr");
+      await expect(card.locator("p").first()).toHaveAttribute("lang", "en");
     });
   }
 
-  test("fa-ir/plugins: plugin cards are actually visible and readable left-to-right", async ({ page }) => {
+  test("fa-ir/plugins: plugin cards are visible, manifest text reads left-to-right", async ({ page }) => {
     await page.goto("/fa-ir/plugins");
     const firstCard = page.locator(".card").first();
     await expect(firstCard).toBeVisible();
-    const dir = await firstCard.evaluate((el) => getComputedStyle(el).direction);
+    const dir = await firstCard.locator("h3").evaluate((el) => getComputedStyle(el).direction);
     expect(dir).toBe("ltr");
   });
 });
