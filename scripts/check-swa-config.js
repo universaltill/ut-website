@@ -39,11 +39,20 @@ if (config.auth) {
   );
 }
 
-if (config.responseOverrides) {
-  problems.push(
-    'staticwebapp.config.json has `responseOverrides`. The only one this site ' +
-      'ever had redirected 401s into a Zitadel login path that no longer exists.',
-  );
+// One override is allowed: the branded 404 page (ut-docs#3809). A `rewrite`
+// keeps the 404 status; a `redirect` would answer 30x and let a crawler index
+// the missing URL as a duplicate of wherever it lands. Anything else (the old
+// 401 redirected into a Zitadel login path that no longer exists) stays out.
+const overrides = config.responseOverrides || {};
+for (const [code, rule] of Object.entries(overrides)) {
+  if (code !== '404') {
+    problems.push(`responseOverrides.${code} — only the 404 page override belongs on this site.`);
+  } else if (rule.redirect || rule.statusCode || rule.rewrite !== '/404.html') {
+    problems.push('responseOverrides.404 must be exactly { "rewrite": "/404.html" } so the status stays 404.');
+  }
+}
+if (overrides['404'] && !fs.existsSync(path.join(root, 'site', '404.html'))) {
+  problems.push('responseOverrides.404 points at /404.html but site/404.html does not exist.');
 }
 
 for (const route of config.routes || []) {

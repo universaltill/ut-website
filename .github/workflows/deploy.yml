@@ -143,4 +143,12 @@ jobs:
           expect https://www.universaltill.com/en-gb "200" "200 "
           expect https://www.universaltill.com/ "a 301 to /en-gb" "301 https://www.universaltill.com/en-gb"
           expect https://www.universaltill.com/index.html "a 301 to /en-gb" "301 https://www.universaltill.com/en-gb"
+          # ut-docs#3809: /downloads/ is a folder of redirects, not a page.
+          expect https://www.universaltill.com/downloads/ "a 301 to /en-gb/download" "301 https://www.universaltill.com/en-gb/download"
+          # An unknown URL is a real 404 with the site's own page, not Azure's.
+          nf=$(curl -sS --max-time 20 --retry 3 --retry-all-errors -w '\n%{http_code}' https://www.universaltill.com/de-de/no-such-page-3809)
+          code=${nf##*$'\n'}; echo "unknown URL → $code"
+          if [ "$code" != 404 ] || ! grep -q 'data-i18n="nf.title"' <<<"$nf"; then
+            echo "::error::an unknown URL answered $code without the branded 404 page (responseOverrides.404 → /404.html)"; fail=1
+          fi
           exit $fail

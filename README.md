@@ -127,6 +127,11 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   homepage at HTTP 200 — which is why `/blog` looked live for weeks before it
   existed, and why `/admin` looked like it was still served. Unknown paths 404.
   `scripts/check-swa-config.js` fails if it returns without excluding `/admin`.
+- **Unknown paths get the branded `site/404.html`** via
+  `responseOverrides["404"]` (a rewrite, so the status stays 404; ut-docs#3809).
+  It is one file for every locale: `i18n.js` localises it from the URL. It is
+  `noindex` with no canonical. `/downloads` and `/downloads/` 301 to
+  `/en-gb/download`, because that folder only holds per-installer redirects.
 - `scripts/check-i18n-keys.js` (run on every push/PR via `.github/workflows/ci.yml`)
   guards `site/i18n.js`: every `data-i18n`/`data-i18n-html`/`data-i18n-aria-label`
   key used across `site/*.html` and `src/**/*.astro` must exist in all five
