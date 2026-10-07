@@ -61,9 +61,11 @@ const MIME = {
 
 // Azure's matcher is richer than this; "exact path, or a trailing /* prefix"
 // covers every pattern this site actually uses.
+// A plain route matches with or without a trailing slash, as on Azure
+// (ut-docs#3809: "/downloads" also answers "/downloads/").
 function matches(pattern, urlPath) {
   if (pattern.endsWith("/*")) return urlPath.startsWith(pattern.slice(0, -1));
-  return pattern === urlPath;
+  return pattern === urlPath || (urlPath.length > 1 && pattern === urlPath.replace(/\/$/, ""));
 }
 
 function send(res, status, body, type) {

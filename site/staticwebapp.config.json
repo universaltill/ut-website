@@ -142,11 +142,6 @@
       "statusCode": 301
     },
     {
-      "route": "/downloads/",
-      "redirect": "/en-gb/download",
-      "statusCode": 301
-    },
-    {
       "route": "/download",
       "redirect": "/en-gb/download",
       "statusCode": 301
