@@ -36,7 +36,7 @@ test.describe("before any choice", () => {
       await expect(banner).toBeVisible();
       await expect(banner.getByRole("button", { name: "Accept" })).toBeVisible();
       await expect(banner.getByRole("button", { name: "Reject" })).toBeVisible();
-      await expect(banner.locator('a[href$="/legal/privacy"]')).toHaveCount(1);
+      await expect(banner.locator('a[href$="/legal/privacy/"]')).toHaveCount(1);
       await page.waitForLoadState("networkidle");
       expect(hits).toEqual([]);
       expect((await context.cookies()).filter((c) => c.name.startsWith("_ga"))).toEqual([]);
@@ -112,7 +112,7 @@ for (const [locale, accept] of [["de-de", "Akzeptieren"], ["tr-tr", "Kabul et"],
   test(`/${locale} banner is translated`, async ({ page }) => {
     await page.goto(`/${locale}`);
     await expect(page.locator("#consent-banner [data-consent=granted]")).toHaveText(accept);
-    await expect(page.locator('#consent-banner a[href$="/legal/privacy"]')).toHaveAttribute("href", `/${locale}/legal/privacy`);
+    await expect(page.locator('#consent-banner a[href$="/legal/privacy/"]')).toHaveAttribute("href", `/${locale}/legal/privacy/`);
   });
 }
 

@@ -27,7 +27,7 @@ const posts = await getLocalizedPosts(lang);
   title="News"
   description="Release notes, roadmap updates and stories from shops running Universal Till."
   lang={lang}
-  path="/blog"
+  path="/blog/"
 >
   <section class="section">
     <div class="section-head">
@@ -39,7 +39,7 @@ const posts = await getLocalizedPosts(lang);
 
     <div class="grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
       {posts.map(({ post, slug }) => (
-        <a class="card" style="display:block" href={`/${lang}/blog/${slug}`}>
+        <a class="card" style="display:block" href={`/${lang}/blog/${slug}/`}>
           {post.data.coverImage && (
             <img
               src={post.data.coverImage}

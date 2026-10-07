@@ -35,7 +35,7 @@ jobs:
             exit 0
           fi
           LATEST=$(gh release view --repo universaltill/universal-till --json tagName --jq '.tagName' | sed 's/^v//')
-          LIVE=$(curl -fsS --max-time 20 https://universaltill.com/downloads/latest.json | jq -r '.version // "none"')
+          LIVE=$(curl -fsS --max-time 20 https://www.universaltill.com/downloads/latest.json | jq -r '.version // "none"')
           echo "newest release: ${LATEST:-unknown} · site links point at: ${LIVE}" >> "$GITHUB_STEP_SUMMARY"
           # Fail closed on an unreadable release: a missing answer must not
           # look like "up to date" and silently stop refreshing the site.
@@ -119,3 +119,28 @@ jobs:
           # homelab cluster (ut-docs#468) — it has to be same-origin with the
           # CMS, and the CMS is no longer here.
           skip_app_build: true # built explicitly above, not via Oryx auto-detect
+      - name: Live check — apex → www, and / /index.html /en-gb resolve as configured (ut-docs#3798)
+        # Without this the apex serves a full 200 copy of every page, which
+        # Search Console lists as "Alternative page with proper canonical
+        # tag". The redirect is Static Web Apps' "default domain"
+        # (www.universaltill.com marked default in the portal) — `isDefault`
+        # isn't in the public ARM spec, so Terraform can't set it and this
+        # check is what keeps it from silently going away.
+        # The same step proves the /index.html → /en-gb route didn't change how
+        # Azure resolves / and the /en-gb rewrite (serve-site.js can't).
+        run: |
+          probe() { curl -sS -o /dev/null --max-time 20 --retry 3 --retry-all-errors -w '%{http_code} %{redirect_url}' "$1"; }
+          fail=0
+          # expect URL HINT ACCEPTED... — the first response must equal one of ACCEPTED.
+          expect() {
+            url=$1 hint=$2; shift 2
+            got=$(probe "$url"); echo "$url → $got"
+            for ok in "$@"; do [ "$got" = "$ok" ] && return 0; done
+            echo "::error::$url answered '$got', expected $hint"; fail=1
+          }
+          expect https://universaltill.com/en-gb/download "a 301 to www — set www.universaltill.com as the default domain (Azure portal → unitill-website → Custom domains → Set default)" \
+            "301 https://www.universaltill.com/en-gb/download" "308 https://www.universaltill.com/en-gb/download"
+          expect https://www.universaltill.com/en-gb "200" "200 "
+          expect https://www.universaltill.com/ "a 301 to /en-gb" "301 https://www.universaltill.com/en-gb"
+          expect https://www.universaltill.com/index.html "a 301 to /en-gb" "301 https://www.universaltill.com/en-gb"
+          exit $fail

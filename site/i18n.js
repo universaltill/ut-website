@@ -794,7 +794,10 @@ const I18N = {
   function stripLang(pathname) {
     const parts = pathname.split("/").filter(Boolean);
     if (parts.length && supported.includes(parts[0].toLowerCase())) parts.shift();
-    return "/" + parts.join("/");
+    // Keep a trailing slash: the Astro pages' canonical form is /blog/ and the
+    // slashless URL is a duplicate (ut-docs#3798).
+    const slash = parts.length && pathname.endsWith("/") ? "/" : "";
+    return "/" + parts.join("/") + slash;
   }
   // The language prefix IS the URL, for every page — not just the homepage.
   // Anything else means the Turkish version of a page has no address a search
@@ -828,6 +831,9 @@ const I18N = {
   }
   function apply(lang) {
     const dict = I18N[lang];
+    // The language the page showed until now — the build's locale on first
+    // load, so nothing is rewritten then (see the link loop below).
+    const shown = (document.documentElement.lang || "").toLowerCase();
     document.documentElement.lang = bcp47(lang);
     document.documentElement.dir = dict._dir;
     document.querySelectorAll("[data-i18n]").forEach(function (el) {
@@ -881,6 +887,18 @@ const I18N = {
         : here;
       a.setAttribute("href", pathFor(lang, "/language") + "?from=" + encodeURIComponent(from));
     });
+    // Same-site links carry a locale prefix from the build (ut-docs#3798);
+    // after a language switch without a reload (go() below) the ones in the
+    // previous language must follow the visible one, or the next click lands
+    // back in it. Links deliberately in another language (a post's "Read the
+    // English original") are left alone.
+    if (shown !== lang && supported.includes(shown)) {
+      document.querySelectorAll('a[href^="/' + shown + '"]').forEach(function (a) {
+        if (a.classList.contains("lang-link")) return;
+        const href = a.getAttribute("href");
+        if (/^\/[a-z]{2}-[a-z]{2}(?=[\/?#]|$)/.test(href)) a.setAttribute("href", "/" + lang + href.slice(shown.length + 1));
+      });
+    }
     // Canonical points at THIS language's URL.
     const c = document.getElementById("canonical");
     if (c) c.setAttribute("href", ORIGIN + pathFor(lang, stripLang(location.pathname)));

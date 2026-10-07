@@ -44,6 +44,15 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `/<locale>/<page>.html`; i18n.js still runs on top for language switching.
   `site/robots.txt` allows everything and names the sitemap.
   `tests/seo-prerender.spec.js` checks all of it on the raw, JS-free response.
+- **Links point at final URLs only (ut-docs#3798).** The prerender rewrites
+  the templates' unprefixed links (`/download`, `/legal/privacy`) to
+  `/<locale>/download` and `/<locale>/legal/privacy/`. Astro pages' canonical
+  form ends in `/` and every link uses it. Links to the noindex language
+  picker are `rel="nofollow"`, and the raw templates (`/index.html` …) 301 to
+  `/en-gb/…`. `tests/internal-links.spec.js` fails on any link, canonical or
+  hreflang from a sitemap page that doesn't answer 200 as its own canonical.
+  The apex → www 301 is Static Web Apps' *default domain*, set in the portal
+  (not settable via Terraform); `deploy.yml` checks it live after each deploy.
 - **Analytics only after consent (ut-docs#3507).** `site/consent.js` (loaded
   `defer` after `i18n.js` on every page, `site/*.html` and `BaseLayout.astro`)
   builds the cookie banner and the footer "Cookie settings" button, keeps the

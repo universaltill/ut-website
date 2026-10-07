@@ -58,7 +58,7 @@ const jsonLd = {
 };
 ---
 
-<BaseLayout title={post.data.title} description={post.data.excerpt} lang={lang} path={`/blog/${slug}`}>
+<BaseLayout title={post.data.title} description={post.data.excerpt} lang={lang} path={`/blog/${slug}/`}>
   {/* set:html because Astro would otherwise HTML-escape the JSON (turning
       "quotes into &quot;, breaking it as JSON); < guards the one
       character that actually matters inside a <script> body — a title or
@@ -93,7 +93,7 @@ const jsonLd = {
     {post.data.machineTranslated && (
       <p class="muted" style="font-size:.85rem;margin:.2rem 0 1rem">
         <span data-i18n="news.machine">Translated automatically.</span>{' '}
-        <a href={`/en-gb/blog/${slug}`} data-i18n="news.original">Read the English original</a>
+        <a href={`/en-gb/blog/${slug}/`} data-i18n="news.original">Read the English original</a>
       </p>
     )}
     {isFallback && (
@@ -124,6 +124,6 @@ const jsonLd = {
     >
       <Content />
     </div>
-    <p style="margin-top:2rem"><a href={`/${lang}/blog`} data-i18n="news.back">← Back to News</a></p>
+    <p style="margin-top:2rem"><a href={`/${lang}/blog/`} data-i18n="news.back">← Back to News</a></p>
   </article>
 </BaseLayout>

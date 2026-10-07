@@ -29,7 +29,7 @@ export async function GET(context) {
       description: post.data.excerpt,
       pubDate: post.data.date,
       author: post.data.author,
-      link: `/${lang}/blog/${slug}`,
+      link: `/${lang}/blog/${slug}/`,
     })),
   });
 }

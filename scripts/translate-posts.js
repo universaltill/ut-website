@@ -71,7 +71,10 @@ function verify(source, translated, locale) {
     );
   }
   const links = (s) => (s.match(/\]\(([^)]+)\)/g) || []).sort();
-  if (JSON.stringify(links(translated.body)) !== JSON.stringify(links(source.body))) {
+  // A translation links to its own locale's page where English links to
+  // /en-gb/… (ut-docs#3798) — the same target, so compare them as one.
+  const ownLocale = (s) => s.replace(/\]\(\/en-gb(?=[/)#?])/g, "](/" + locale);
+  if (JSON.stringify(links(translated.body)) !== JSON.stringify(links(ownLocale(source.body)))) {
     problems.push("link targets changed");
   }
   if (!translated.body.includes("Universal Till")) {

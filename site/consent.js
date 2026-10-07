@@ -99,7 +99,7 @@
     '<button type="button" class="btn" data-consent="granted" data-i18n="consent.accept">Accept</button>' +
     '<button type="button" class="btn" data-consent="denied" data-i18n="consent.reject">Reject</button>' +
     "</div>";
-  banner.querySelector(".consent-privacy").setAttribute("href", "/" + locale() + "/legal/privacy");
+  banner.querySelector(".consent-privacy").setAttribute("href", "/" + locale() + "/legal/privacy/");
   banner.addEventListener("click", function (e) {
     var b = e.target.closest("[data-consent]");
     if (!b) return;
