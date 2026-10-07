@@ -1,0 +1,95 @@
+---
+title: "Raspberry Pi, PC veya tablet için ücretsiz POS"
+date: 2026-10-06
+excerpt: "Özel bir kasa terminali gerekmez: Universal Till; Raspberry Pi, Windows veya Linux PC, Mac ya da Android tablette, elinizdeki okuyucu ve yazıcıyla çalışır."
+author: "Universal Till"
+draft: false
+# Translated from ../en-gb/pos-on-hardware-you-already-own.mdx by the
+# pipeline's own model (ut-docs/reference/translation.md). Change the
+# English original first, then bring this file in line with it.
+machineTranslated: true
+---
+
+Yeni bir kasa çoğu zaman bir donanım teklifiyle başlar: bir terminal, bir stand,
+bir sözleşme. Universal Till'in bunların hiçbirine ihtiyacı yoktur. Seçtiğiniz
+bir cihaza kurduğunuz bir yazılımdır ve çekirdeği **ücretsizdir, aylık ücreti
+yoktur**. Çekirdeği MIT lisansıyla açık kaynaktır; yani kimse onu elinizden de
+alamaz.
+
+Bugün nelerde çalıştığı ve her seçenek için bilmeniz gerekenler:
+
+## Windows, Mac ve Linux bilgisayarlar
+
+**Windows 10 veya 11 (64 bit).** Kurulum sihirbazını çalıştırın; Universal Till,
+Başlat menüsünden ya da masaüstü kısayolundan kendi uygulama penceresinde açılır:
+terminal yok, tarayıcı sekmesi yok. Yeni bir kurulum, görev çubuğu gizli olarak
+**tam ekran** açılır ve Windows'ta oturum açtığınızda başlar; böylece tezgâhın
+arkasındaki boştaki bir bilgisayar, kendine ait bir kasa gibi davranır. Bir
+Yönetici PIN'i (ya da Alt+F4) sizi her zaman Windows masaüstüne geri götürür ve
+iki seçimi de Ayarlar → Ekran altında değiştirebilirsiniz.
+
+**Apple Silicon'lu Mac (M1 ve üstü).** İndirin, açın; kasa kendi penceresinde
+çalışır. İlk seferde macOS, App Store dışından indirilen bir uygulamayı
+engelleyebilir: Sistem Ayarları → Gizlilik ve Güvenlik'i açın ve **Yine de
+Aç**'ı seçin.
+
+**Linux.** `.deb` paketini kurun; "Universal Till" uygulamalar menünüzde, kendi
+penceresinde görünür. Raspberry Pi dışındaki ARM kartları için de bir indirme
+vardır. Arka odadaki o boştaki dizüstü bilgisayar da bir kasaya dönüşebilir.
+
+## Raspberry Pi: küçük ve sessiz bir kasa
+
+64 bit Raspberry Pi OS çalıştıran bir **Raspberry Pi 4 veya 5**, fan sesi
+olmayan kompakt bir kasa olur. `.deb` paketini kurun ve:
+
+- **Raspberry Pi OS Lite**'ta (masaüstü olmadan), yeni bir kurulum ilk açılışta
+  **tam ekran kiosk**'u otomatik olarak kurar. Pi doğrudan kasayla açılır.
+- **Masaüstülü Raspberry Pi OS**'ta kasa, oturum açılışında masaüstünün üzerinde
+  tam ekran açılır; Ayarlar → Ekran → **İşletim sistemi penceresine çık**
+  (Yönetici PIN'iyle) sizi masaüstüne geri götürür.
+
+Doğru yapılması gereken bir şey var: güç kaynağı. Bir Raspberry Pi 5, resmi
+27 W USB-C güç kaynağına ihtiyaç duyar. Daha eski, daha zayıf bir şarj aleti
+sokete uyar ama dokunmatik ekranın dokunuşları kaçırmasına ya da donmasına yol
+açabilir. Kasa bunu kontrol eder ve durum çubuğunda **"Güç kaynağı yetersiz"**
+gösterir; tahmin yürütmek zorunda kalmazsınız.
+
+## Android tabletler ve telefonlar
+
+Android uygulaması **Android 7.0 ve üzerinde** çalışır. Play Store yerine bizim
+indirme sayfamızdan kurarsınız; bu yüzden Android ilk seferde "bilinmeyen
+kaynaklar"a izin vermenizi ister. Bu, mağaza dışından kurulan bir uygulama için
+normaldir.
+
+Bir tablet; tezgâh kasası, müşterilerinizin kullanabileceği bir self-servis
+kiosk ya da her kasadan gelen siparişleri geldikçe gösteren bir **Sipariş
+durumu** panosu olarak iyi iş görür. Telefonda satış ekranı
+ürünlerinizi büyük simgeler olarak, altta bir **Öde** çubuğuyla gösterir;
+böylece pazar tezgâhında ya da kalabalık bir masada cebinizden satış
+yapabilirsiniz. Bir güncelleme hazır olduğunda kasa onu Android'in kendi
+yükleyicisine verir ve siz orada onaylarsınız.
+
+iPhone ve iPad uygulamaları test aşamasındadır ve henüz genel kullanıma açık
+değildir.
+
+## Okuyucular, yazıcılar ve zaten sahip olduğunuz kamera
+
+- **Barkod okuyucular:** Bir USB okuyucu takıldığı anda çalışır. Bir
+  **Bluetooth** okuyucuyu ya da teraziyi kasanın içinden eşleştirirsiniz: tarayın,
+  **Eşleştir**'e dokunun, bitti.
+- **Hiç okuyucunuz yok mu?** Kamerası olan her cihazda, tarama kutusunun
+  yanındaki kamerayla tarama simgesine dokunun ve barkoda tutun. Görüntü
+  cihazdan asla çıkmaz.
+- **Fiş yazıcıları:** Wi-Fi ya da Ethernet termal yazıcı için **Ağ (IP)**
+  seçin (kasa onu ağınızda arayabilir), takılı bir yazıcı için **USB cihazı**,
+  fişleri bilgisayarın kendi varsayılan yazıcısında düz metin olarak yazdırmak
+  için de **Normal yazıcı** seçin.
+
+Neyde çalıştırırsanız çalıştırın, kasa [internet bağlantısı
+olmadan](/tr-tr/blog/offline-pos-keeps-selling-without-internet/) çalışır.
+Çoğu platformda, siz kapatmadıkça geceleri kendini de günceller ve bir satışın
+ortasında asla yeniden başlamaz.
+
+Cihazınız için [Universal Till'i indirin](/tr-tr/download). İndirme sayfası
+doğru dosyayı sizin için tahmin eder. Ya da dükkânınızın ihtiyacını ekleyen
+[eklentilere](/tr-tr/plugins/) göz atın.

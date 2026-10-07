@@ -1,0 +1,98 @@
+---
+title: "Kostenlose Kasse für Raspberry Pi, PC oder Tablet"
+date: 2026-10-06
+excerpt: "Kein spezielles Kassenterminal nötig: Universal Till läuft auf Raspberry Pi, Windows- oder Linux-PC, Mac oder Android-Tablet – mit Ihrem Scanner und Drucker."
+author: "Universal Till"
+draft: false
+# Translated from ../en-gb/pos-on-hardware-you-already-own.mdx by the
+# pipeline's own model (ut-docs/reference/translation.md). Change the
+# English original first, then bring this file in line with it.
+machineTranslated: true
+---
+
+Eine neue Kasse beginnt oft mit einem Hardware-Angebot: ein Terminal, ein
+Ständer, ein Vertrag. Universal Till braucht nichts davon. Es ist Software, die
+Sie auf einem Gerät Ihrer Wahl installieren, und der Kern ist **kostenlos, ohne
+monatliche Gebühr**. Der Kern ist quelloffen unter der MIT-Lizenz, also kann
+ihn Ihnen auch niemand wegnehmen.
+
+Worauf es heute läuft und was Sie zu jeder Möglichkeit wissen sollten:
+
+## Windows-, Mac- und Linux-Computer
+
+**Windows 10 oder 11 (64 Bit).** Führen Sie das Installationsprogramm aus, und
+Universal Till öffnet sich in einem eigenen App-Fenster über das Startmenü oder
+eine Desktop-Verknüpfung: kein Terminal, kein Browser-Tab. Eine neue
+Installation startet **im Vollbild** mit ausgeblendeter Taskleiste und öffnet
+sich, wenn Sie sich bei Windows anmelden – so verhält sich ein übriger PC hinter
+der Theke wie eine echte Kasse. Mit einer Manager-PIN (oder Alt+F4) kommen Sie
+immer zurück zum Windows-Desktop, und beides können Sie unter Einstellungen →
+Anzeige ändern.
+
+**Mac mit Apple Silicon (M1 und neuer).** Herunterladen, öffnen, und die Kasse
+läuft in einem eigenen Fenster. Beim ersten Mal blockiert macOS eventuell eine App, die nicht aus dem App Store
+stammt: Öffnen Sie Systemeinstellungen → Datenschutz & Sicherheit und wählen Sie
+**Trotzdem öffnen**.
+
+**Linux.** Installieren Sie das `.deb`-Paket, und „Universal Till“ erscheint im
+Anwendungsmenü, in einem eigenen Fenster. Außerdem gibt es einen Download für
+ARM-Boards außer dem Raspberry Pi. Der übrige Laptop im Büro kann zur Kasse
+werden.
+
+## Raspberry Pi: eine kleine, leise Kasse
+
+Ein **Raspberry Pi 4 oder 5** mit 64-Bit-Raspberry-Pi-OS wird zu einer kompakten
+Kasse ohne Lüftergeräusch. Installieren Sie das `.deb`-Paket, und:
+
+- Unter **Raspberry Pi OS Lite** (ohne Desktop) richtet eine Neuinstallation
+  beim ersten Start automatisch einen **Vollbild-Kiosk** ein. Der Pi startet
+  direkt in die Kasse.
+- Unter **Raspberry Pi OS mit Desktop** öffnet sich die Kasse bei der Anmeldung
+  im Vollbild über dem Desktop, und Einstellungen → Anzeige → **Zum
+  Betriebssystem wechseln** (mit Manager-PIN) bringt Sie zurück zum Desktop.
+
+Eine Sache sollte stimmen: das Netzteil. Ein Raspberry Pi 5 braucht das
+offizielle 27-W-USB-C-Netzteil. Ein älteres, schwächeres Ladegerät passt zwar in
+die Buchse, kann aber dazu führen, dass ein Touchscreen Berührungen verpasst oder
+einfriert. Die Kasse prüft das und zeigt in der Statusleiste **„Netzteil zu
+schwach“** an – Sie müssen also nicht raten.
+
+## Android-Tablets und -Smartphones
+
+Die Android-App läuft ab **Android 7.0**. Sie installieren sie von unserer
+Download-Seite statt aus dem Play Store, daher fragt Android beim ersten Mal, ob
+Sie „unbekannte Quellen“ zulassen. Das ist bei einer App außerhalb des Stores
+normal.
+
+Ein Tablet eignet sich gut als Kasse an der Theke, als Selbstbestell-Kiosk für
+Ihre Kundschaft oder als **Bestellstatus**-Anzeige, die Bestellungen von jeder
+Kasse zeigt, sobald sie eingehen. Auf einem Smartphone zeigt der
+Verkaufsbildschirm Ihre Artikel als große Symbole mit einer Leiste **Zahlen**
+unten – so kassieren Sie aus der Hosentasche, am Marktstand oder an einem vollen
+Tisch. Ist ein Update bereit, übergibt die Kasse es an das Installationsprogramm
+von Android, und Sie bestätigen es dort.
+
+Apps für iPhone und iPad sind in der Testphase und noch nicht allgemein
+verfügbar.
+
+## Scanner, Drucker und die Kamera, die Sie schon haben
+
+- **Barcodescanner:** Ein USB-Scanner funktioniert, sobald er eingesteckt ist.
+  Einen **Bluetooth**-Scanner oder eine Bluetooth-Waage koppeln Sie direkt in der
+  Kasse: suchen, auf **Koppeln** tippen, fertig.
+- **Gar kein Scanner?** Auf jedem Gerät mit Kamera tippen Sie auf das
+  Kamera-Scan-Symbol neben dem Scanfeld und halten es auf den Barcode. Das Bild
+  verlässt das Gerät nie.
+- **Bondrucker:** Wählen Sie **Netzwerk (IP)** für einen WLAN- oder
+  Ethernet-Thermodrucker (die Kasse kann Ihr Netzwerk danach durchsuchen),
+  **USB-Gerät** für einen eingesteckten Drucker oder **Normaler Drucker**, um
+  Bons als reinen Text auf dem Standarddrucker des Computers zu drucken.
+
+Worauf Sie es auch betreiben, die Kasse funktioniert [ohne
+Internetverbindung](/de-de/blog/offline-pos-keeps-selling-without-internet/).
+Auf den meisten Plattformen aktualisiert sie sich außerdem nachts selbst, sofern
+Sie das nicht abschalten, und sie startet nie mitten in einem Verkauf neu.
+
+[Laden Sie Universal Till](/de-de/download) für Ihr Gerät herunter. Die
+Download-Seite schlägt Ihnen die passende Datei vor. Oder stöbern Sie in den
+[Plugins](/de-de/plugins/), die Ihrem Geschäft das Nötige hinzufügen.

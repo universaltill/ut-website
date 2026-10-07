@@ -1,0 +1,93 @@
+---
+title: "Kassensystem ohne Internet: weiter verkaufen bei Ausfall"
+date: 2026-10-05
+excerpt: "Was passiert mit Ihrer Kasse, wenn WLAN oder Internet ausfallen? Mit Universal Till nichts Wichtiges: Verkäufe, Rabatte, geparkte Belege und Bons laufen weiter."
+author: "Universal Till"
+draft: false
+# Translated from ../en-gb/offline-pos-keeps-selling-without-internet.mdx by
+# the pipeline's own model (ut-docs/reference/translation.md). Change the
+# English original first, then bring this file in line with it.
+machineTranslated: true
+---
+
+Jedes Geschäft kennt den Moment: Vor der Theke steht eine Schlange, und am
+Router gehen die Lichter aus. Bei vielen Kassensystemen ist dann Schluss mit
+dem Verkaufen, bis die Verbindung zurück ist. Universal Till wurde andersherum
+gebaut. Die Kasse hält alles, was sie braucht, **auf dem Gerät selbst** – ein
+Internetausfall ist etwas, das Sie in der Statusleiste bemerken, nicht vorne in
+der Schlange.
+
+Was das hinter der Theke konkret bedeutet:
+
+## Was ohne Internet weiter funktioniert
+
+Artikel erfassen, Größen und Extras wählen, Rabatte geben und einen Warenkorb
+für später parken – all das läuft mit den **eigenen lokalen Daten** der Kasse.
+Nichts davon braucht das Netzwerk. Ein geparkter Warenkorb, den Sie später
+wieder aufrufen, wird genauso abgeschlossen, ob online oder nicht.
+
+**Bezahlen.** Barzahlung funktioniert wie immer. Ebenso jede Zahlungsart, die
+selbst kein Internet braucht. Ein Kartenterminal, das seinen Zahlungsdienstleister
+anrufen muss, ist eine Eigenschaft dieses Terminals, nicht der Kasse: Die Kasse
+blockiert nie einen Verkauf, weil das Internet weg ist.
+
+**Bons drucken.** Der Bondrucker ist direkt mit der Kasse verbunden, per USB
+oder über das eigene Netzwerk Ihres Geschäfts – Drucken hängt also auch nicht
+am Internet. Ist der Drucker selbst nicht erreichbar, meldet die Kasse das
+gesondert.
+
+**Wissen, was los ist.** Die Statusleiste hat eine Anzeige **Online**. Sie
+wechselt auf **Offline**, sobald das Gerät sein Netzwerk verliert (WLAN aus,
+Kabel gezogen), und zurück auf **Online**, wenn es wieder da ist. Ist das
+Netzwerk in Ordnung, aber das Internet dahinter nicht, steht dort **Kein
+Internet**, und Verkäufe laufen ganz normal. Verliert der Bildschirm selbst den
+Kontakt zur Kasse, erscheint ein Hinweis: „Verbindungsproblem — die Kasse
+arbeitet offline weiter.“ Er verschwindet von selbst, sobald es wieder klappt –
+Sie müssen nichts wegklicken.
+
+## Wenn es auf der Cloud-Seite hakt
+
+Universal Till hat optionale Cloud-Funktionen für Inhaber, die sie möchten, zum
+Beispiel Produkte im Browser verwalten. Die Kasse ist so gebaut, dass keine
+davon einen Verkauf stoppen kann:
+
+- Weist die Cloud die Anmeldung der Kasse dreimal hintereinander ab, erklärt ein
+  kleiner Hinweis, warum und was zu tun ist. Die Kasse **verkauft offline
+  weiter**, versucht es einmal pro Stunde erneut und behält alles, was sie noch
+  senden muss, bis sie wieder verbunden ist.
+- Lässt sich ein kostenpflichtiger Tarif nicht bestätigen oder endet er, pausieren
+  die kostenpflichtigen Funktionen, und die Einstellungen erklären, welche.
+  **Das Verkaufen ist nie betroffen.**
+- Problemberichte, die Sie mit der Fehlermelde-Schaltfläche erfassen, werden auf
+  der Kasse gespeichert und gesendet, sobald Sie wieder online sind.
+- Die Hinweise, was sich mit jedem Update geändert hat, sind in die Kasse
+  eingebaut und öffnen sich daher auch ohne Internetverbindung.
+
+## Mehrere Kassen, kein Internet
+
+Wenn Sie eine [zweite Kasse](/de-de/blog/multiple-tills-one-shop/) betreiben,
+sprechen die Kassen über das eigene Netzwerk Ihres Geschäfts miteinander. Kann
+eine zusätzliche Kasse die Hauptkasse nicht erreichen, **verkauft sie trotzdem
+weiter**. Ihre Verkäufe warten auf dieser Kasse und werden synchronisiert,
+sobald die Hauptkasse zurück ist, und eine Anzeige in der Statusleiste sagt in
+Worten, was los ist: **Mit Hauptkasse verbunden** oder **Hauptkasse nicht
+erreichbar seit … — Verkauf läuft offline weiter**.
+
+Verhindert Ihr WLAN, dass die Kassen einander sehen (manche Netzwerke tun das),
+kann eine zusätzliche Kasse außerdem beim Cloud-Konto Ihres Geschäfts nachfragen,
+wo die Hauptkasse zuletzt war, bevor sie offline weiterverkauft. Dafür müssen
+beide Kassen mit der Cloud verbunden sein. Ohne das wird nur Ihr
+Geschäftsnetzwerk durchsucht.
+
+## Ihre Daten bleiben bei Ihnen
+
+Weil die Kasse mit ihren eigenen Daten arbeitet, liegen Ihre Verkäufe, Produkte
+und Einstellungen auf der Kasse in Ihrem Geschäft. Unter Einstellungen →
+Backups erstellen Sie jederzeit eine vollständige Sicherung, und mit
+**Herunterladen** speichern Sie eine Kopie, die Sie sicher aufbewahren können,
+abseits der Kasse.
+
+Offline-first ist kein Modus, an den Sie denken müssen. So funktioniert
+Universal Till einfach, und der Kern ist kostenlos, ohne monatliche Gebühr.
+[Laden Sie Universal Till herunter](/de-de/download) und probieren Sie es mit
+ausgestecktem Router aus, oder [sehen Sie, wie Sie loslegen](/de-de/start).

@@ -1,0 +1,86 @@
+---
+title: "A free POS for your Raspberry Pi, PC or tablet"
+date: 2026-10-06
+excerpt: "No proprietary terminal needed: Universal Till runs on a Raspberry Pi, a Windows or Linux PC, a Mac or an Android tablet, with your own scanner and printer."
+author: "Universal Till"
+draft: false
+---
+
+A new till often starts with a hardware quote: a terminal, a stand, a contract.
+Universal Till doesn't need any of that. It's software you install on a device
+you choose, and the core is **free, with no monthly fee**. Its core is open
+source under the MIT licence, so nobody can take it away from you either.
+
+Here's what it runs on today, and what to know about each option.
+
+## Windows, Mac and Linux computers
+
+**Windows 10 or 11 (64-bit).** Run the guided installer and Universal Till opens
+in its own app window from the Start menu or a desktop shortcut: no terminal, no
+browser tab. A new installation opens **full screen** with the taskbar hidden,
+and starts when you sign in to Windows, so a spare PC behind the counter behaves
+like a dedicated till. A manager PIN (or Alt+F4) always gets you back to the
+Windows desktop, and you can change both choices under Settings → Display.
+
+**Mac with Apple Silicon (M1 and newer).** Download, open, and the till runs in
+its own window. The first time, macOS may block an app downloaded outside the App
+Store: open System Settings → Privacy & Security and choose **Open Anyway**.
+
+**Linux.** Install the `.deb` and "Universal Till" appears in your applications
+menu, in its own window. There's also a download for ARM boards other than the
+Raspberry Pi. That spare laptop in the back office can become a till.
+
+## Raspberry Pi: a small, quiet till
+
+A **Raspberry Pi 4 or 5** running 64-bit Raspberry Pi OS makes a compact till
+with no fan noise. Install the `.deb` and:
+
+- On **Raspberry Pi OS Lite** (no desktop), a fresh install sets up a
+  **fullscreen kiosk** automatically on first boot. The Pi starts straight into
+  the till.
+- On **Raspberry Pi OS with Desktop**, the till opens fullscreen on top of the
+  desktop at login, and Settings → Display → **Exit to OS window** (with a
+  manager PIN) takes you back to the desktop.
+
+One thing to get right: the power supply. A Raspberry Pi 5 needs the official
+27 W USB-C supply. An older, weaker charger fits the socket but can make a
+touchscreen miss taps or freeze. The till checks for this and shows **"Power
+supply too weak"** on the status bar, so you're not left guessing.
+
+## Android tablets and phones
+
+The Android app runs on **Android 7.0 and newer**. You install it from our
+download page rather than the Play Store, so Android will ask you to allow
+"unknown sources" the first time. That's normal for an app installed outside
+the store.
+
+A tablet makes a good counter till, a self-order kiosk your customers can use,
+or an **Order status** board showing orders from every till as they come in.
+On a phone, the sale screen shows your items as large
+icons with a **Pay** bar at the bottom, so you can take a sale from your pocket
+at a market stall or a busy table. When an update is ready, the till hands it
+to Android's own installer and you confirm it there.
+
+iPhone and iPad apps are in testing and aren't generally available yet.
+
+## Scanners, printers and the camera you already have
+
+- **Barcode scanners:** a USB scanner works as soon as it's plugged in. A
+  **Bluetooth** scanner or scale pairs from inside the till: scan, tap
+  **Pair**, done.
+- **No scanner at all?** On any device with a camera, tap the camera-scan icon
+  next to the scan box and point it at the barcode. The picture never leaves
+  the device.
+- **Receipt printers:** pick **Network (IP)** for a Wi-Fi or Ethernet thermal
+  printer (the till can search your network for it), **USB device** for one
+  plugged in, or **Regular printer** to print plain-text receipts on the
+  computer's own default printer.
+
+Whatever you run it on, the till works [without an internet
+connection](/en-gb/blog/offline-pos-keeps-selling-without-internet/). On
+most platforms it also updates itself overnight unless you switch that off, and
+it never restarts in the middle of a sale.
+
+[Download Universal Till](/en-gb/download) for your device. The download page
+guesses the right file for you. Or browse the [plugins](/en-gb/plugins/) that
+add what your shop needs.

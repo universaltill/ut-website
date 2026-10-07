@@ -1,0 +1,84 @@
+---
+title: "Adding a second till: multi-till POS for one shop"
+date: 2026-10-07
+excerpt: "Busy counter, second room or a kitchen screen? Join extra tills to your main till over your shop's own network and they share products, prices and stock."
+author: "Universal Till"
+draft: false
+---
+
+One till is enough until it isn't: a queue at lunchtime, a second counter, a
+terrace, a tablet for the kitchen. Universal Till lets you add more tills to
+the same shop without a network engineer and without a cloud account. One till
+is the **main till**; the others **join** it and share the catalogue, prices,
+settings and stock automatically, over your shop's own network.
+
+## Pairing a new till in a minute
+
+1. On the main till, go to Settings → Tills and press **Show pairing code**. It
+   shows a short code (like **K7P-4XQ**), the main till's address underneath,
+   and a QR code. The code works once and expires after 10 minutes.
+2. Install Universal Till on the new device, choose **Join an existing shop**
+   and give it a name, such as "Bar" or "Terrace".
+3. Either type the code and the address, or press **Find a primary on this
+   network** and pick your main till from the list. If you search, both
+   screens show the same 6-digit number: check they match, and a manager
+   approves the request on the main till. Pairing is never automatic, so a
+   device on your Wi-Fi can't quietly join your shop.
+
+The new till then copies the whole shop across (products, prices, settings,
+stock and staff), which can take up to a minute on a busy network. It is given
+its own register automatically, so staff can open a shift on it straight away.
+
+## What the tills share
+
+- **Sales** from every till flow back to the main till, so the whole shop's
+  sales end up in one place.
+- **Catalogue changes** can be made by admins and managers on any till, not just
+  the main one. They're saved on the main till and reach the others within
+  seconds (half a minute at most). If two people edit the same item, the second one is asked to reload
+  instead of overwriting the first person's change.
+- **Shop-wide settings** (payment options, the receipt design, the lock timeout
+  and so on) are kept on the main till too. Settings that belong to one till,
+  like its printer or its screen, stay on that till.
+- **Stock** is counted by the main till. An additional till never refuses a sale
+  because its own copy of the stock number is a few seconds behind. If two tills
+  sell the last one at the same moment, it shows up on the main till's dashboard
+  instead of blocking a customer.
+- **Gift vouchers** work shop-wide: sell one on any till and spend it on any
+  other till that can reach the main till, and two tills can't spend the same balance at once.
+- **Plugins** follow the main till: install one there and every joined till
+  downloads and checks it within about half a minute.
+- **Updates** follow the main till as well. An additional till moves to the
+  main till's version at the next moment it has no open sale, or shows a note
+  where it can't install updates by itself yet (on Android, for example).
+
+## When a till loses touch
+
+On an additional till, the status bar has a light that always says in words
+what it means: **Main till linked**, or **Main till not reachable since … —
+selling offline**. Either way, that till **keeps selling**. Its sales wait on
+the till and sync as soon as the main till is back. While it's out of touch,
+the shop-wide settings show read-only, with a note saying why, so nobody makes a
+change that would be lost.
+
+If the main till comes back on a different network address after a restart,
+the additional till finds it again on its own. It only reconnects to the main
+till it was paired with, so another device can't take its place. If your Wi-Fi
+stops devices from seeing each other, an additional till can also ask your
+shop's cloud account where the main till last said it was, as long as both
+tills are connected to the cloud.
+
+## Order boards, kitchen displays and self-order
+
+Extra devices don't have to be tills in the usual sense. A tablet can be a
+**self-order** screen where customers build their own order, or an **Order
+status** board showing orders from every till as they come in. A station's
+**kitchen display** runs on the till that takes its orders, on a second screen
+plugged into it. An order board or kitchen display keeps showing and updating orders through service, and asks for a PIN
+only if someone tries to open anything else.
+
+Every till in the shop runs the same software, on whatever mix of devices
+you have: a [Raspberry Pi, a PC or a
+tablet](/en-gb/blog/pos-on-hardware-you-already-own/).
+[Download Universal Till](/en-gb/download) to set up your main till, or
+[read the getting-started guide](/en-gb/start).
