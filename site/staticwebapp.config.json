@@ -137,6 +137,16 @@
       "statusCode": 301
     },
     {
+      "route": "/downloads",
+      "redirect": "/en-gb/download",
+      "statusCode": 301
+    },
+    {
+      "route": "/downloads/",
+      "redirect": "/en-gb/download",
+      "statusCode": 301
+    },
+    {
       "route": "/download",
       "redirect": "/en-gb/download",
       "statusCode": 301
@@ -231,5 +241,10 @@
       "redirect": "/fa-ir",
       "statusCode": 301
     }
-  ]
+  ],
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/404.html"
+    }
+  }
 }

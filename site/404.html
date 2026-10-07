@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<!-- Served for every unknown URL (staticwebapp.config.json responseOverrides,
+     ut-docs#3809), so it is one file for all locales: i18n.js picks the
+     locale from the URL (else the visitor's remembered or browser language,
+     as on every page) and moves the /en-gb links below to it. No canonical,
+     no hreflang, no language pill (its ?from= would lead back to the missing
+     URL). Not in the route table, so no per-locale prerender or sitemap entry.
+     /404.html itself answers 200 (noindex): unlike the other raw templates it
+     gets no 301, since a route on it could break the override's rewrite. -->
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <script>if(location.hostname==="universaltill.com"){location.replace("https://www.universaltill.com"+location.pathname+location.search+location.hash);}</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title data-i18n="meta.nf.title">Page not found — Universal Till</title>
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <script defer src="/i18n.js"></script>
+  <script defer src="/nav.js"></script>
+  <script defer src="/consent.js"></script>
+</head>
+<body>
+
+<header class="nav">
+  <a class="brand" href="/en-gb">
+    <img src="/logo.svg" alt="" width="22" height="30">
+    <span>Universal <strong>Till</strong></span>
+  </a>
+  <nav id="site-nav">
+    <a href="/en-gb#solutions" data-i18n="nav.solutions">Solutions</a>
+    <a href="/en-gb/blog/" data-i18n="nav.news">News</a>
+    <a href="/en-gb/start" data-i18n="nav.start">Get started</a>
+  </nav>
+  <div class="nav-actions">
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu" data-i18n-aria-label="nav.menu">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+    </button>
+    <a class="btn" href="/en-gb/download" data-i18n="nav.download">Download</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero" style="grid-template-columns:1fr; text-align:center">
+    <div class="hero-text" style="max-width:44rem; margin:0 auto">
+      <p class="hero-note" style="margin:0 0 .6rem; color:var(--brand); font-weight:700; letter-spacing:.06em">404</p>
+      <h1 data-i18n="nf.title">Page not found</h1>
+      <p class="lede" style="margin-inline:auto" data-i18n="nf.lede">We couldn't find that page. It may have moved, or the link may be wrong.</p>
+      <div class="cta" style="justify-content:center">
+        <a class="btn primary" href="/en-gb" data-i18n="nf.home">Go to the homepage</a>
+        <a class="btn ghost" href="/en-gb/download" data-i18n="nf.download">Download Universal Till</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="foot-brand"><img src="/logo.svg" alt="" width="19" height="26"> <span>Universal <strong>Till</strong></span></div>
+  <p class="foot-owner" data-i18n="foot.owner">Universal Till is a product of Task Runner Technology LTD.</p>
+  <p class="foot-rights" data-i18n="foot.rights">Open source under the MIT licence.</p>
+  <p class="foot-legal">
+    <a href="/en-gb/legal/impressum/" data-i18n="foot.impressum">Legal notice (Impressum)</a>
+    · <a href="/en-gb/legal/privacy/" data-i18n="foot.privacy">Privacy policy</a>
+    · <a href="/en-gb/legal/terms/" data-i18n="foot.terms">Terms of use</a>
+  </p>
+</footer>
+
+</body>
+</html>

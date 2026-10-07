@@ -42,6 +42,9 @@ const config = JSON.parse(
 const ROUTES = config.routes ?? [];
 const FALLBACK = config.navigationFallback ?? {};
 const GLOBAL_HEADERS = config.globalHeaders ?? {};
+// responseOverrides["404"].rewrite: Azure serves that file, status kept at
+// 404, for any path with no route and no file (ut-docs#3809).
+const NOT_FOUND = config.responseOverrides?.["404"]?.rewrite;
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -66,6 +69,12 @@ function matches(pattern, urlPath) {
 function send(res, status, body, type) {
   res.writeHead(status, { ...GLOBAL_HEADERS, "Content-Type": type || "text/plain; charset=utf-8" });
   res.end(body);
+}
+
+function notFound(res) {
+  const file = NOT_FOUND && path.join(ROOT, NOT_FOUND);
+  if (file && fs.existsSync(file)) return send(res, 404, fs.readFileSync(file), MIME[".html"]);
+  send(res, 404, "Not found");
 }
 
 const server = http.createServer((req, res) => {
@@ -93,12 +102,12 @@ const server = http.createServer((req, res) => {
     if (FALLBACK.rewrite && !excluded) {
       filePath = path.join(ROOT, FALLBACK.rewrite);
     } else {
-      return send(res, 404, "Not found");
+      return notFound(res);
     }
   }
 
   fs.readFile(filePath, (err, data) => {
-    if (err) return send(res, 404, "Not found");
+    if (err) return notFound(res);
     send(res, 200, data, MIME[path.extname(filePath)] || "application/octet-stream");
   });
 });
