@@ -1,6 +1,7 @@
 ---
 import BaseLayout, { LANGS, t } from '../../../layouts/BaseLayout.astro';
 import { getLocalizedPosts } from '../../../lib/blogPosts';
+import { formatDate } from '../../../lib/dates';
 
 // One built page per language: /blog, /tr/blog, /zh/blog, /fa/blog. The rest
 // param is undefined for English, which is what keeps the English URL at the
@@ -35,7 +36,7 @@ const posts = await getLocalizedPosts(lang);
       <p class="section-sub" data-i18n="news.sub">{t(lang, 'news.sub')}</p>
     </div>
 
-    {posts.length === 0 && <p class="muted">No posts yet.</p>}
+    {posts.length === 0 && <p class="muted" data-i18n="news.empty">{t(lang, 'news.empty')}</p>}
 
     <div class="grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
       {posts.map(({ post, slug }) => (
@@ -50,7 +51,7 @@ const posts = await getLocalizedPosts(lang);
           )}
           <h3>{post.data.title}</h3>
           <p style="color:var(--muted);font-size:.85rem;margin:.3rem 0">
-            {post.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
+            <bdi><time datetime={post.data.date.toISOString().slice(0, 10)}>{formatDate(post.data.date, lang)}</time></bdi>
             {' · '}{post.data.author}
           </p>
           <p>{post.data.excerpt}</p>

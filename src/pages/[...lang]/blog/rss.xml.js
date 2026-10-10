@@ -14,7 +14,7 @@ export function getStaticPaths() {
 // <title> already sets (its "News" <title> isn't translated either) —
 // this card is plumbing, not the translation generator (ut-docs#475).
 const TITLE = 'Universal Till News';
-const DESCRIPTION = 'Release notes, roadmap updates and stories from shops running Universal Till.';
+const DESCRIPTION = 'Product news, release notes and guides for Universal Till.';
 
 export async function GET(context) {
   const { lang } = context.params;
