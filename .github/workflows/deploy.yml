@@ -56,7 +56,7 @@ jobs:
     if: needs.check.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Installers are served straight from GitHub releases (ut-docs#2489):
       # every /downloads/<stable-name> path becomes a 302 to the versioned
       # release asset (GitHub sends it as an attachment, so a click starts the
@@ -79,7 +79,7 @@ jobs:
       # redirect routes (ut-docs#2489) — CI only checks the committed copy.
       - name: Validate the deployed SWA config
         run: node scripts/check-swa-config.js
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           # Astro 7 requires >=22.12.0 and hard-exits below it. Build toolchain
           # only; nothing on this site runs Node at request time now that the
