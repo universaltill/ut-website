@@ -1,7 +1,8 @@
 ---
 import { render } from 'astro:content';
-import BaseLayout, { LANGS, t } from '../../../layouts/BaseLayout.astro';
+import BaseLayout, { LANGS, SOURCE_LOCALE, t } from '../../../layouts/BaseLayout.astro';
 import { getAllLocalizedLegalPages, translatedLangsOf } from '../../../lib/legalPages';
+import { formatDate } from '../../../lib/dates';
 
 // One page per legal doc PER LOCALE, same fallback shape as blog/[slug].astro
 // — serving that locale's own translation where it exists and the English
@@ -48,7 +49,7 @@ const { Content } = await render(page);
       dir={isFallback ? 'ltr' : undefined}
       lang={isFallback ? 'en' : undefined}
     >
-      {page.data.updated.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
+      <bdi><time datetime={page.data.updated.toISOString().slice(0, 10)}>{formatDate(page.data.updated, isFallback ? SOURCE_LOCALE : lang)}</time></bdi>
     </p>
 
     {/* Reuses blog's existing "news.untranslated" key rather than minting a

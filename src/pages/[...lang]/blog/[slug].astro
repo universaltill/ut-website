@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import BaseLayout, { LANGS, SOURCE_LOCALE, bcp47, t } from '../../../layouts/BaseLayout.astro';
 import { getAllLocalizedPosts, translatedLangsOf } from '../../../lib/blogPosts';
+import { formatDate } from '../../../lib/dates';
 
 // One page per post PER LOCALE, serving that locale's own translation where it
 // exists and the English original where it does not. Posts live in
@@ -89,7 +90,7 @@ const jsonLd = {
       dir={isFallback ? 'ltr' : undefined}
       lang={isFallback ? 'en' : undefined}
     >
-      {post.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
+      <bdi><time datetime={post.data.date.toISOString().slice(0, 10)}>{formatDate(post.data.date, isFallback ? SOURCE_LOCALE : lang)}</time></bdi>
       {' · '}{post.data.author}
     </p>
     <h1 dir={isFallback ? 'ltr' : undefined} lang={isFallback ? 'en' : undefined}>{post.data.title}</h1>
