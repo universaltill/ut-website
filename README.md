@@ -33,6 +33,15 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   collections that happen to look alike today but don't have to stay that
   way (blog gained `draft`/date-sorting/`excerpt` over time; legal
   hasn't needed any of that yet).
+- **`/llms.txt` and `/llms-full.txt` (ut-docs#4319)** — the llmstxt.org
+  summary of the site for AI assistants, plus the full English home copy and
+  every en-gb blog post as Markdown. Generated at build by
+  `src/lib/llmsText.ts` from `site/i18n.js` (in the home template's own
+  section order), `src/lib/blogPosts.ts` and `src/lib/legalPages.ts` — never
+  edited by hand. `staticwebapp.config.json` serves `.txt` as UTF-8.
+  `tests/llms-txt.spec.js` checks every link answers 200 and the FAQ is
+  carried verbatim. The home FAQ itself (ut-docs#4320) emits `FAQPage`
+  JSON-LD from the same keys it renders.
 - **Marketing pages are prerendered per locale (ut-docs#3480).** `site/*.html`
   is the template; `src/pages/[lang]/[file].ts` (logic in
   `src/lib/marketingPages.ts`) emits `dist/<locale>/<page>.html` with the

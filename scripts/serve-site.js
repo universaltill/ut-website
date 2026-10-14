@@ -56,7 +56,10 @@ const MIME = {
   ".jpg": "image/jpeg",
   ".webp": "image/webp",
   ".xml": "application/xml; charset=utf-8",
-  ".txt": "text/plain; charset=utf-8",
+  // .txt is NOT here: its type comes from the config's mimeTypes below, the
+  // same as on Azure (ut-docs#4319 review) — so the test can't pass while
+  // production serves a different type.
+  ...config.mimeTypes,
 };
 
 // Azure's matcher is richer than this; "exact path, or a trailing /* prefix"

@@ -151,4 +151,7 @@ jobs:
           if [ "$code" != 404 ] || ! grep -q 'data-i18n="nf.title"' <<<"$nf"; then
             echo "::error::an unknown URL answered $code without the branded 404 page (responseOverrides.404 → /404.html)"; fail=1
           fi
+          # ut-docs#4319: llms.txt is served as UTF-8 (mimeTypes in staticwebapp.config.json).
+          ct=$(curl -sS -o /dev/null --max-time 20 --retry 3 --retry-all-errors -w '%{http_code} %{content_type}' https://www.universaltill.com/llms.txt); echo "/llms.txt → $ct"
+          [ "$ct" = "200 text/plain; charset=utf-8" ] || { echo "::error::/llms.txt answered '$ct', expected '200 text/plain; charset=utf-8'"; fail=1; }
           exit $fail

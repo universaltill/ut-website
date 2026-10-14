@@ -142,8 +142,11 @@ export function localizedHref(href: string, locale: string, suffixes: Set<string
  * (each answered by `faq.aN`), or null when it has none. `<` is escaped so
  * no answer text can close the script element.
  */
+/** The FAQ numbers a template renders, in page order ("1", "2", …). */
+export const faqNumbers = (template: string) => [...template.matchAll(/data-i18n="faq\.q(\d+)"/g)].map((m) => m[1]);
+
 export function faqJsonLd(template: string, dict: Record<string, string>, inLanguage: string): string | null {
-  const nums = [...template.matchAll(/data-i18n="faq\.q(\d+)"/g)].map((m) => m[1]);
+  const nums = faqNumbers(template);
   if (!nums.length) return null;
   const mainEntity = nums.map((n) => {
     const q = dict[`faq.q${n}`];
