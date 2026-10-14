@@ -13,6 +13,10 @@ cfg="$site/staticwebapp.config.json"
 mkdir -p "$site/downloads"
 
 # manifest key | stable path under /downloads/ | versioned release asset name
+# [| fallback asset if the release lacks it]
+# Android per-ABI APKs (ut-docs#1541) fall back to the universal APK, which
+# runs on both ABIs: releases cut before the split have only the universal
+# asset, and a stable link must never 404 during that transition.
 entries="windows_setup|unitill-pos-setup.exe|unitill-pos-setup-${ver}.exe
 windows_amd64|unitill-pos_windows_amd64.zip|unitill-pos_${ver}_windows_amd64.zip
 darwin_dmg|unitill-pos-macOS-arm64.dmg|unitill-pos-${ver}-macOS-arm64.dmg
@@ -21,10 +25,15 @@ linux_arm64_deb|unitill-pos_linux_arm64.deb|unitill-pos_${ver}_linux_arm64.deb
 linux_arm64_tar|unitill-pos_linux_arm64.tar.gz|unitill-pos_${ver}_linux_arm64.tar.gz
 linux_amd64_deb|unitill-pos_linux_amd64.deb|unitill-pos_${ver}_linux_amd64.deb
 linux_amd64_tar|unitill-pos_linux_amd64.tar.gz|unitill-pos_${ver}_linux_amd64.tar.gz
-android|unitill-pos_android.apk|unitill-pos_${ver}_android.apk"
+android|unitill-pos_android.apk|unitill-pos_${ver}_android.apk
+android_arm64|unitill-pos_android-arm64.apk|unitill-pos_${ver}_android-arm64.apk|unitill-pos_${ver}_android.apk
+android_armv7|unitill-pos_android-armv7.apk|unitill-pos_${ver}_android-armv7.apk|unitill-pos_${ver}_android.apk"
 
 downloads='{}' routes='[]'
-while IFS='|' read -r key stable asset; do
+while IFS='|' read -r key stable asset fallback; do
+  if ! grep -qxF "$asset" "$assets" && [ -n "$fallback" ] && grep -qxF "$fallback" "$assets"; then
+    echo "fallback  $asset not in release, using $fallback"; asset=$fallback
+  fi
   if ! grep -qxF "$asset" "$assets"; then
     downloads=$(jq --arg k "$key" '.[$k]=null' <<<"$downloads"); echo "missing   $asset"; continue
   fi

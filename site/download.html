@@ -77,7 +77,9 @@
       <div class="card dl-card">
         <h3>🤖 Android</h3>
         <p class="muted" data-i18n="dl.android.d">Android 7.0+. Sideloaded — not on the Play Store.</p>
-        <a class="btn" data-dl="android" href="/downloads/unitill-pos_android.apk" data-i18n="dl.android.apk">Android app (.apk)</a>
+        <a class="btn" data-dl="android-arm64" href="/downloads/unitill-pos_android-arm64.apk" data-i18n="dl.android.arm64">Android app (64-bit, most devices)</a>
+        <a class="btn ghost" data-dl="android-armv7" href="/downloads/unitill-pos_android-armv7.apk" style="margin-top:.4rem" data-i18n="dl.android.armv7">Older 32-bit devices</a>
+        <a class="btn ghost" data-dl="android" href="/downloads/unitill-pos_android.apk" style="margin-top:.4rem" data-i18n="dl.android.universal">Not sure? Universal (larger)</a>
       </div>
     </div>
     <p class="muted" data-i18n="dl.android.note" style="max-width:40rem;margin:1rem auto 0">
@@ -119,16 +121,27 @@
     "lx64deb":"linux_amd64.deb",
     "lx64tar":"linux_amd64.tar.gz",
     "lxarm":  "linux_arm64.tar.gz",
-    "android":"android.apk"
+    // Android ships per-ABI APKs (ut-docs#1541); "android" is the universal
+    // one (both ABIs, about twice the size). "_android.apk" keeps the
+    // universal match from ever hitting a per-ABI name.
+    "android-arm64":"android-arm64.apk",
+    "android-armv7":"android-armv7.apk",
+    "android":"_android.apk"
   };
+  // A release cut before the per-ABI split has only the universal APK,
+  // which runs on both ABIs — use it rather than leave a link dead.
+  var FALLBACK = { "android-arm64": "android", "android-armv7": "android" };
   // Guess the visitor's OS for the primary card. osKey/noteKey are i18n
   // keys (resolved once translations are available); os/note are the
   // English fallback text used if the i18n dict is somehow unavailable —
   // never fall back to the raw key itself, that's not fit for display.
   // Shared with the Client Hints re-detect below so both paths describe
   // "Android" identically (ut-docs#1238).
-  function androidResult() {
-    return { key: "android", osKey: "dl.os.android", os: "Android", noteKey: "dl.note.android", note: "Android 7.0+ — sideloaded, allow “unknown sources” when prompted" };
+  // 64-bit ARM by default (nearly every device in use); 32-bit only when
+  // Client Hints say so (bitness "32") — see the bitness check below.
+  function androidResult(bitness) {
+    if (bitness === "32") return { key: "android-armv7", osKey: "dl.os.android", os: "Android", noteKey: "dl.note.android.armv7", note: "Android 7.0+, older 32-bit device — sideloaded, allow “unknown sources” when prompted" };
+    return { key: "android-arm64", osKey: "dl.os.android", os: "Android", noteKey: "dl.note.android", note: "Android 7.0+ — sideloaded, allow “unknown sources” when prompted" };
   }
   function detect() {
     var ua = navigator.userAgent, p = (navigator.platform || "");
@@ -175,12 +188,26 @@
     var STABLE = {
       "wininstaller": "unitill-pos-setup.exe",
       "macapp": "unitill-pos-macOS-arm64.dmg",
+      "android-arm64": "unitill-pos_android-arm64.apk",
+      "android-armv7": "unitill-pos_android-armv7.apk",
       "android": "unitill-pos_android.apk"
     };
     function mirror(k) {
       return "/downloads/" + (STABLE[k] || ("unitill-pos_" + SUFFIX[k]));
     }
     setPrimary(mirror);
+
+    // Android bitness (ut-docs#1541): the UA string never says whether the
+    // device is 32- or 64-bit, but the "bitness" Client Hint does. Only a
+    // definite "32" switches to the armv7 APK; anything else keeps arm64.
+    // The hint is the BROWSER's bitness: a 64-bit device running 32-bit
+    // Chrome gets armv7, which still installs and runs (review, #1541).
+    function isAndroid() { return best && /^android/.test(best.key); }
+    if (isAndroid() && navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
+      navigator.userAgentData.getHighEntropyValues(["bitness", "architecture"]).then(function (hints) {
+        if (isAndroid() && hints.bitness === "32") { best = androidResult("32"); setPrimary(currentHrefFor); }
+      }).catch(function () { /* keep arm64 */ });
+    }
 
     // Client Hints re-detect: Chrome/Edge/Chromium (and now Firefox on some
     // platforms) FREEZE navigator.userAgent/navigator.platform to always say
@@ -206,11 +233,11 @@
     // it does.
     if (best && (best.key === "lx64deb" || best.key === "lx64tar") &&
         navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) {
-      navigator.userAgentData.getHighEntropyValues(["architecture", "platform"]).then(function (hints) {
+      navigator.userAgentData.getHighEntropyValues(["architecture", "platform", "bitness"]).then(function (hints) {
         // The platform hint, when honest, is authoritative — stronger than
         // the arm-architecture guess below.
         if (/android/i.test(hints.platform || "")) {
-          best = androidResult();
+          best = androidResult(hints.bitness);
           setPrimary(currentHrefFor);
           return;
         }
@@ -221,7 +248,7 @@
           // screen, multiple simultaneous touch points). Prefer Android
           // when that secondary signal is present rather than silently
           // picking Pi.
-          best = (navigator.maxTouchPoints > 1) ? androidResult() :
+          best = (navigator.maxTouchPoints > 1) ? androidResult(hints.bitness) :
             { key: "pi", osKey: "dl.os.pi", os: "Raspberry Pi / ARM64", noteKey: "dl.note.pi.hints", note: "64-bit Raspberry Pi OS or ARM Linux (detected via Client Hints)" };
           setPrimary(currentHrefFor);
         }
@@ -239,6 +266,9 @@
         Object.keys(SUFFIX).forEach(function (k) {
           var a = rel.assets.find(function (x) { return x.name.indexOf(SUFFIX[k]) !== -1; });
           if (a) byKey[k] = a.browser_download_url;
+        });
+        Object.keys(FALLBACK).forEach(function (k) {
+          if (!byKey[k] && byKey[FALLBACK[k]]) byKey[k] = byKey[FALLBACK[k]];
         });
         document.querySelectorAll("a[data-dl]").forEach(function (a) {
           var url = byKey[a.getAttribute("data-dl")];
