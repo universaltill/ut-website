@@ -108,3 +108,58 @@ test.describe("prerendered pages still switch language client-side", () => {
     expect(inner).toBe(I18N["de-de"][key]);
   });
 });
+
+// ut-docs#4320 — shoppers search "EPOS", "till system", "Kassensystem", not
+// only "point of sale"; the raw home page must use their words, and its FAQ
+// must be machine-readable (FAQPage JSON-LD) with exactly the visible text.
+test.describe("home page keywords + FAQ (ut-docs#4320)", () => {
+  test("en-gb title and H1 use EPOS / till; de-de title uses Kassensystem", async ({ request }) => {
+    const en = await (await request.get("/en-gb")).text();
+    const title = decode(en.match(/<title[^>]*>([^<]*)<\/title>/)[1]);
+    expect(title).toMatch(/EPOS/);
+    expect(title).toMatch(/till/i);
+    expect(decode(en.match(/<h1[^>]*>([^<]*)<\/h1>/)[1])).toMatch(/EPOS/);
+    const de = await (await request.get("/de-de")).text();
+    expect(decode(de.match(/<title[^>]*>([^<]*)<\/title>/)[1])).toMatch(/Kassensystem/);
+  });
+
+  for (const locale of LOCALES) {
+    test(`/${locale} FAQ JSON-LD matches the visible FAQ`, async ({ request }) => {
+      const html = await (await request.get(`/${locale}`)).text();
+      const dict = I18N[locale];
+      const visible = [...html.matchAll(/<summary[^>]*data-i18n="(faq\.q\d+)"[^>]*>([^<]*)<\/summary>\s*<p[^>]*data-i18n="(faq\.a\d+)"[^>]*>([^<]*)<\/p>/g)]
+        .map((m) => ({ q: decode(m[2]), a: decode(m[4]) }));
+      expect(visible.length).toBeGreaterThanOrEqual(6);
+      for (const [i, v] of visible.entries()) {
+        expect(v.q).toBe(dict[`faq.q${i + 1}`]);
+        expect(v.a).toBe(dict[`faq.a${i + 1}`]);
+      }
+      const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+      const faq = blocks.filter((b) => b["@type"] === "FAQPage");
+      expect(faq).toHaveLength(1);
+      expect(faq[0]["@context"]).toBe("https://schema.org");
+      expect(faq[0].inLanguage).toBe(bcp47(locale));
+      expect(faq[0].mainEntity.map((e) => ({ q: e.name, a: e.acceptedAnswer.text }))).toEqual(visible);
+      for (const e of faq[0].mainEntity) {
+        expect(e["@type"]).toBe("Question");
+        expect(e.acceptedAnswer["@type"]).toBe("Answer");
+      }
+    });
+  }
+
+  test("the download page has no FAQPage block", async ({ request }) => {
+    const html = await (await request.get("/en-gb/download")).text();
+    expect(html).not.toContain('"FAQPage"');
+  });
+});
+
+// ut-docs#4320 review: Google cuts titles at ~60 and descriptions at ~160
+// characters — the cut-off tail was exactly the "no monthly fee" hook.
+test("home and download titles ≤ 60 and descriptions ≤ 160 characters in every locale", () => {
+  for (const locale of LOCALES) {
+    for (const page of ["home", "download"]) {
+      expect([...I18N[locale][`meta.${page}.title`]].length, `${locale} meta.${page}.title`).toBeLessThanOrEqual(60);
+      expect([...I18N[locale][`meta.${page}.desc`]].length, `${locale} meta.${page}.desc`).toBeLessThanOrEqual(160);
+    }
+  }
+});

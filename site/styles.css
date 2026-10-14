@@ -312,3 +312,17 @@ img { max-width: 100%; }
   .consent-actions { flex: 1 1 100%; }
   .consent-actions .btn { flex: 1 1 0; min-width: 0; }
 }
+
+/* FAQ (ut-docs#4320) — native <details>, so keyboard, screen readers and
+   touch work without script. Logical properties for RTL (fa). */
+.faq { max-width: 46rem; margin-inline: auto; display: grid; gap: .7rem; }
+.faq-item { border: 1px solid var(--border); border-radius: var(--radius); background: #fff; }
+.faq-item summary {
+  cursor: pointer; font-weight: 600; min-height: 44px; padding: .85rem 1.2rem;
+  display: flex; align-items: center; gap: .8rem; list-style: none;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after { content: "+" / ""; margin-inline-start: auto; color: var(--brand); font-size: 1.3rem; line-height: 1; }
+.faq-item[open] summary::after { content: "−" / ""; }
+.faq-item summary:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; border-radius: var(--radius); }
+.faq-item p { margin: 0; padding: 0 1.2rem 1.1rem; color: var(--muted); }

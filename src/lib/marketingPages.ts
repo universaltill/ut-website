@@ -137,6 +137,24 @@ export function localizedHref(href: string, locale: string, suffixes: Set<string
   return href;
 }
 
+/**
+ * The FAQPage JSON-LD for a template carrying `data-i18n="faq.qN"` questions
+ * (each answered by `faq.aN`), or null when it has none. `<` is escaped so
+ * no answer text can close the script element.
+ */
+export function faqJsonLd(template: string, dict: Record<string, string>, inLanguage: string): string | null {
+  const nums = [...template.matchAll(/data-i18n="faq\.q(\d+)"/g)].map((m) => m[1]);
+  if (!nums.length) return null;
+  const mainEntity = nums.map((n) => {
+    const q = dict[`faq.q${n}`];
+    const a = dict[`faq.a${n}`];
+    if (q == null || a == null) throw new Error(`marketingPages: faq.q${n}/faq.a${n} missing for ${inLanguage}`);
+    return { '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } };
+  });
+  const data = { '@context': 'https://schema.org', '@type': 'FAQPage', inLanguage, mainEntity };
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
+
 export function renderMarketingPage(route: MarketingRoute, routes: MarketingRoute[]): string {
   const dict = I18N[route.locale];
   const template = templateFor(route.file);
@@ -205,6 +223,12 @@ export function renderMarketingPage(route: MarketingRoute, routes: MarketingRout
   // After <meta charset> and the www-redirect script, i.e. where the
   // template's own canonical sat.
   const at = Math.max(0, kept.findIndex((c: Node) => c.nodeName === 'meta' && attr(c, 'name') === 'viewport'));
+  // FAQPage structured data (ut-docs#4320), built from the same dict keys the
+  // visible FAQ renders, in template order, so the two can never disagree.
+  const faq = faqJsonLd(template, dict, bcp47(route.locale));
+  if (faq) {
+    links.push({ nodeName: 'script', tagName: 'script', attrs: [{ name: 'type', value: 'application/ld+json' }], childNodes: [textNode(faq)], namespaceURI: 'http://www.w3.org/1999/xhtml' });
+  }
   const withNl = links.flatMap((l) => [textNode('\n  '), l]);
   setChildren(head!, [...kept.slice(0, at), ...withNl, textNode('\n  '), ...kept.slice(at)]);
 
