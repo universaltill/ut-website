@@ -137,24 +137,51 @@ export function localizedHref(href: string, locale: string, suffixes: Set<string
   return href;
 }
 
-/**
- * The FAQPage JSON-LD for a template carrying `data-i18n="faq.qN"` questions
- * (each answered by `faq.aN`), or null when it has none. `<` is escaped so
- * no answer text can close the script element.
- */
 /** The FAQ numbers a template renders, in page order ("1", "2", …). */
 export const faqNumbers = (template: string) => [...template.matchAll(/data-i18n="faq\.q(\d+)"/g)].map((m) => m[1]);
 
+/**
+ * The FAQPage JSON-LD for a template carrying `data-i18n="faq.qN"` questions
+ * (each answered by `faq.aN`) — or a page's own namespaced FAQ,
+ * `data-i18n="android.faq.qN"` (ut-docs#4643) — or null when it has none.
+ * `<` is escaped so no answer text can close the script element.
+ */
 export function faqJsonLd(template: string, dict: Record<string, string>, inLanguage: string): string | null {
-  const nums = faqNumbers(template);
-  if (!nums.length) return null;
-  const mainEntity = nums.map((n) => {
-    const q = dict[`faq.q${n}`];
-    const a = dict[`faq.a${n}`];
-    if (q == null || a == null) throw new Error(`marketingPages: faq.q${n}/faq.a${n} missing for ${inLanguage}`);
+  const keys = [...template.matchAll(/data-i18n="((?:[a-z0-9-]+\.)*faq)\.q(\d+)"/g)].map((m) => [`${m[1]}.q${m[2]}`, `${m[1]}.a${m[2]}`]);
+  if (!keys.length) return null;
+  const mainEntity = keys.map(([qk, ak]) => {
+    const q = dict[qk];
+    const a = dict[ak];
+    if (q == null || a == null) throw new Error(`marketingPages: ${qk}/${ak} missing for ${inLanguage}`);
     return { '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } };
   });
   const data = { '@context': 'https://schema.org', '@type': 'FAQPage', inLanguage, mainEntity };
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
+
+/**
+ * SoftwareApplication JSON-LD for a platform page (ut-docs#4643): a template
+ * declares `<meta name="ut:software-os" content="Android">` and gets the app
+ * described for that OS, named and described by its own meta title and
+ * description keys in the page's language. Null when the template has none.
+ */
+export function softwareJsonLd(template: string, dict: Record<string, string>, inLanguage: string, url: string): string | null {
+  const os = template.match(/<meta\s+name="ut:software-os"\s+content="([^"]+)"/)?.[1];
+  if (!os) return null;
+  const descKey = template.match(/<meta\s+name="description"\s+data-i18n-content="([^"]+)"/)?.[1];
+  const description = descKey ? dict[descKey] : undefined;
+  if (description == null) throw new Error(`marketingPages: a ut:software-os page needs a translated meta description (${inLanguage})`);
+  const data = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Universal Till',
+    operatingSystem: os,
+    applicationCategory: 'BusinessApplication',
+    inLanguage,
+    description,
+    url,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'GBP' },
+  };
   return JSON.stringify(data).replace(/</g, '\\u003c');
 }
 
@@ -228,10 +255,11 @@ export function renderMarketingPage(route: MarketingRoute, routes: MarketingRout
   const at = Math.max(0, kept.findIndex((c: Node) => c.nodeName === 'meta' && attr(c, 'name') === 'viewport'));
   // FAQPage structured data (ut-docs#4320), built from the same dict keys the
   // visible FAQ renders, in template order, so the two can never disagree.
+  const ldJson = (json: string) => ({ nodeName: 'script', tagName: 'script', attrs: [{ name: 'type', value: 'application/ld+json' }], childNodes: [textNode(json)], namespaceURI: 'http://www.w3.org/1999/xhtml' });
   const faq = faqJsonLd(template, dict, bcp47(route.locale));
-  if (faq) {
-    links.push({ nodeName: 'script', tagName: 'script', attrs: [{ name: 'type', value: 'application/ld+json' }], childNodes: [textNode(faq)], namespaceURI: 'http://www.w3.org/1999/xhtml' });
-  }
+  if (faq) links.push(ldJson(faq));
+  const software = softwareJsonLd(template, dict, bcp47(route.locale), self);
+  if (software) links.push(ldJson(software));
   const withNl = links.flatMap((l) => [textNode('\n  '), l]);
   setChildren(head!, [...kept.slice(0, at), ...withNl, textNode('\n  '), ...kept.slice(at)]);
 

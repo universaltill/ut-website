@@ -28,6 +28,10 @@
       "rewrite": "/en-gb/pilot.html"
     },
     {
+      "route": "/en-gb/android-till",
+      "rewrite": "/en-gb/android-till.html"
+    },
+    {
       "route": "/en-gb/language",
       "rewrite": "/en-gb/language.html"
     },
@@ -51,6 +55,10 @@
     {
       "route": "/tr-tr/pilot",
       "rewrite": "/tr-tr/pilot.html"
+    },
+    {
+      "route": "/tr-tr/android-till",
+      "rewrite": "/tr-tr/android-till.html"
     },
     {
       "route": "/tr-tr/language",
@@ -78,6 +86,10 @@
       "rewrite": "/zh-cn/pilot.html"
     },
     {
+      "route": "/zh-cn/android-till",
+      "rewrite": "/zh-cn/android-till.html"
+    },
+    {
       "route": "/zh-cn/language",
       "rewrite": "/zh-cn/language.html"
     },
@@ -103,6 +115,10 @@
       "rewrite": "/fa-ir/pilot.html"
     },
     {
+      "route": "/fa-ir/android-till",
+      "rewrite": "/fa-ir/android-till.html"
+    },
+    {
       "route": "/fa-ir/language",
       "rewrite": "/fa-ir/language.html"
     },
@@ -126,6 +142,10 @@
     {
       "route": "/de-de/pilot",
       "rewrite": "/de-de/pilot.html"
+    },
+    {
+      "route": "/de-de/android-till",
+      "rewrite": "/de-de/android-till.html"
     },
     {
       "route": "/de-de/language",
@@ -162,6 +182,11 @@
       "statusCode": 301
     },
     {
+      "route": "/android-till",
+      "redirect": "/en-gb/android-till",
+      "statusCode": 301
+    },
+    {
       "route": "/language",
       "redirect": "/en-gb/language",
       "statusCode": 301
@@ -184,6 +209,11 @@
     {
       "route": "/pilot.html",
       "redirect": "/en-gb/pilot",
+      "statusCode": 301
+    },
+    {
+      "route": "/android-till.html",
+      "redirect": "/en-gb/android-till",
       "statusCode": 301
     },
     {
