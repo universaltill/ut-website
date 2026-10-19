@@ -26,8 +26,10 @@ test.describe("/plugins is in its own language before any JS runs", () => {
       const html = await raw(request, `/${locale}/plugins/`);
       expect(html).toContain(`<title>${want.title}</title>`);
       expect(html).toMatch(new RegExp(`data-i18n="pluginspage.type.payment"[^>]*>\\s*${want.type}\\s*<`));
-      expect(html).toContain(`data-i18n="pluginspage.download">${want.download}<`);
       expect(canonicalOf(html)).toBe(`${ORIGIN}/${locale}/plugins/`);
+      // The download action moved to each plugin's own page (ut-docs#4645).
+      const detail = await raw(request, `/${locale}/plugins/payment-sumup/`);
+      expect(detail).toContain(`data-i18n="pluginspage.download">${want.download}<`);
       if (locale !== "en-gb") expect(html).not.toContain("Every plugin listed here is free, open source");
     });
   }

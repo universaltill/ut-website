@@ -1,0 +1,15 @@
+---
+// A plugin's logo: its own icon (copied into the build, src/lib/plugins.ts)
+// or, when it ships none, a coloured letter mark. Decorative — the plugin's
+// name is always next to it — so the image carries alt="".
+import type { Plugin } from './plugins';
+
+interface Props {
+  plugin: Plugin;
+  size?: 'card' | 'large';
+}
+const { plugin, size = 'card' } = Astro.props;
+---
+<span class:list={['plugin-logo', size === 'large' && 'large', !plugin.icon && `mark c${plugin.hue}`]} aria-hidden="true">
+  {plugin.icon ? <img src={plugin.icon.path} alt="" width="96" height="96" loading="lazy" decoding="async" /> : plugin.letter}
+</span>

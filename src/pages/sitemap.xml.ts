@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { LANGS } from '../layouts/BaseLayout.astro';
 import { getAllLocalizedPosts } from '../lib/blogPosts';
 import { getAllLocalizedLegalPages } from '../lib/legalPages';
+import { loadPlugins } from '../lib/plugins';
 import { isNoindex, marketingRoutes, templateFor } from '../lib/marketingPages';
 // Marketing pages (site/*.html) are plain HTML served via publicDir and
 // prerendered per locale by src/pages/[lang]/[file].ts — they never pass
@@ -37,9 +38,15 @@ export const GET: APIRoute = async ({ site }) => {
   // canonical just tells a crawler which one to distrust.
   const byLocale = await getAllLocalizedPosts();
   const legalByLocale = await getAllLocalizedLegalPages();
+  // One page per plugin per locale (ut-docs#4645), from the same list the
+  // grid and the pages themselves are built from.
+  const plugins = await loadPlugins();
   for (const lang of LANGS) {
     entries.push(urlEntry(`${base}/${lang}/blog/`));
     entries.push(urlEntry(`${base}/${lang}/plugins/`));
+    for (const { slug } of plugins) {
+      entries.push(urlEntry(`${base}/${lang}/plugins/${slug}/`));
+    }
     // An untranslated fallback canonicalises to its en-gb original, so only
     // real translations are listed (ut-docs#3811).
     for (const { slug, post } of (byLocale[lang] ?? []).filter((p) => !p.isFallback)) {

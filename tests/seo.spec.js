@@ -72,6 +72,12 @@ const EXPECTED_LEGAL_SLUGS = fs
   .map((f) => f.replace(/\.mdx$/, ""))
   .sort();
 
+// One page per plugin (ut-docs#4645), from the same list src/lib/plugins.ts
+// builds from.
+const PLUGIN_SLUGS = JSON.parse(fs.readFileSync(path.join(ROOT, "src/lib/plugin-list.json"), "utf8")).map((p) =>
+  p.repo.replace(/^ut-plugin-/, ""),
+);
+
 // ut-docs#3811: only a locale's REAL translations are in the sitemap — an
 // untranslated fallback canonicalises to its en-gb original instead. Same
 // rule as the implementation, read from the same content directories.
@@ -142,6 +148,7 @@ test.describe("sitemap.xml", () => {
         n +
         EXPECTED_MARKETING_SUFFIXES.length +
         2 /* blog index + plugins */ +
+        PLUGIN_SLUGS.length /* one page per plugin, ut-docs#4645 */ +
         translated("blog", locale, EXPECTED_SLUGS).length +
         translated("legal", locale, EXPECTED_LEGAL_SLUGS).length,
       0,
