@@ -47,6 +47,16 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   drops that plugin or picture with a warning, never the build.
   `src/lib/plugins_test.mjs` (`node --test`, fetch stubbed) and
   `tests/plugin-pages.spec.js`.
+- **Platform landing pages (ut-docs#4643)** — `site/android-till.html` →
+  `/<locale>/android-till`, a marketing template like the others (routes in
+  `staticwebapp.config.json`, keys in `site/i18n.js`). Each platform page is
+  distinct (its own devices, setup, limits and FAQ — never another page with
+  the device name swapped) and says only what is true today. Its FAQ uses a
+  page-local namespace (`android.faq.qN`/`aN`) and still gets `FAQPage`
+  JSON-LD; `<meta name="ut:software-os" content="Android">` adds a
+  `SoftwareApplication` block built from the page's own meta description.
+  Linked from the home hardware section and the download page's Android card.
+  `tests/android-till-page.spec.js`.
 - **`/llms.txt` and `/llms-full.txt` (ut-docs#4319)** — the llmstxt.org
   summary of the site for AI assistants, plus the full English home copy and
   every en-gb blog post as Markdown. Generated at build by

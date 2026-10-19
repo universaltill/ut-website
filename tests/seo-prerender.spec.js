@@ -155,9 +155,9 @@ test.describe("home page keywords + FAQ (ut-docs#4320)", () => {
 
 // ut-docs#4320 review: Google cuts titles at ~60 and descriptions at ~160
 // characters — the cut-off tail was exactly the "no monthly fee" hook.
-test("home and download titles ≤ 60 and descriptions ≤ 160 characters in every locale", () => {
+test("home, download and android-till titles ≤ 60 and descriptions ≤ 160 characters in every locale", () => {
   for (const locale of LOCALES) {
-    for (const page of ["home", "download"]) {
+    for (const page of ["home", "download", "android-till"]) {
       expect([...I18N[locale][`meta.${page}.title`]].length, `${locale} meta.${page}.title`).toBeLessThanOrEqual(60);
       expect([...I18N[locale][`meta.${page}.desc`]].length, `${locale} meta.${page}.desc`).toBeLessThanOrEqual(160);
     }
