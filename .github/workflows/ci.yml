@@ -91,6 +91,10 @@ jobs:
           node-version: "26" # Astro 7 requires >=22.12.0; must match deploy.yml
           cache: npm
       - run: npm ci
+      # src/lib/plugins.ts's logo/screenshot pipeline (ut-docs#4645), with
+      # fetch stubbed: no plugin repo ships a real picture today, so the
+      # build alone would never exercise it.
+      - run: node --test src/lib/plugins_test.mjs
       # `npm run build` = `astro build && node scripts/postbuild.mjs`. Run
       # the two halves separately so this guard still checks Astro's
       # publicDir pass-through byte-for-byte BEFORE postbuild deliberately

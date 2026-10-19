@@ -1,0 +1,98 @@
+---
+import BaseLayout, { LANGS, t } from '../../../layouts/BaseLayout.astro';
+import PluginLogo from '../../../lib/PluginLogo.astro';
+import { loadPlugins, permissionKey, type Plugin } from '../../../lib/plugins';
+
+// One page per plugin per locale, with its own shareable, indexable URL
+// (ut-docs#4645): the full description, screenshots, version, what it needs,
+// what it may access, and the download. The grid (../plugins.astro) links here.
+export async function getStaticPaths() {
+  const plugins = await loadPlugins();
+  return LANGS.flatMap((lang) => plugins.map((plugin) => ({ params: { lang, slug: plugin.slug }, props: { plugin } })));
+}
+
+const { lang } = Astro.params;
+const { plugin: p } = Astro.props as { plugin: Plugin };
+const T = (key) => t(lang, key);
+const hasKey = (key) => T(key) !== key;
+const kindKey = `pluginspage.kind.${p.type}`;
+// No placeholder strings here: site/i18n.js re-applies every data-i18n key at
+// runtime and would overwrite interpolated text with the raw template. Values
+// sit next to static labels instead.
+const facts = [
+  hasKey(kindKey)
+    ? { key: 'pluginspage.type', value: T(kindKey), valueKey: kindKey }
+    : { key: 'pluginspage.type', value: p.type, ltr: true },
+  { key: 'pluginspage.price', value: T('pluginspage.free'), valueKey: 'pluginspage.free' },
+  { key: 'pluginspage.version', value: p.version, ltr: true },
+  { key: 'pluginspage.minversion', value: p.minPosVersion, ltr: true },
+  p.deviceArch === 'any' || p.deviceArch === ''
+    ? { key: 'pluginspage.devices', value: T('pluginspage.devices.any'), valueKey: 'pluginspage.devices.any' }
+    : { key: 'pluginspage.devices', value: p.deviceArch, ltr: true },
+  { key: 'pluginspage.publisher', value: p.author, ltr: true },
+].filter((f) => f.value);
+---
+
+<BaseLayout title={p.name} description={p.tagline} lang={lang} path={`/plugins/${p.slug}/`}>
+  <section class="section plugin-page">
+    <p class="plugin-back"><a href={`/${lang}/plugins/`} data-i18n="pluginspage.back">{T('pluginspage.back')}</a></p>
+
+    <header class="plugin-head">
+      <PluginLogo plugin={p} size="large" />
+      <div class="plugin-head-text">
+        <h1 dir="ltr" lang="en">{p.name}</h1>
+        <div class="plugin-actions">
+          {p.hasRelease
+            ? <a class="btn primary" href={p.downloadUrl} data-i18n="pluginspage.download">{T('pluginspage.download')}</a>
+            : <span class="muted" data-i18n="pluginspage.norelease">{T('pluginspage.norelease')}</span>}
+          <a class="btn" href={p.repoUrl} data-i18n="pluginspage.source">{T('pluginspage.source')}</a>
+        </div>
+        {p.hasRelease && <p class="muted plugin-instore" data-i18n="pluginspage.instore">{T('pluginspage.instore')}</p>}
+      </div>
+    </header>
+
+    <div class="plugin-body">
+      <div class="plugin-main">
+        <p class="plugin-description" dir="ltr" lang="en">{p.description}</p>
+
+        {p.screenshots.length > 0 && (
+          <>
+            <h2 data-i18n="pluginspage.screenshots">{T('pluginspage.screenshots')}</h2>
+            <div class="plugin-screenshots">
+              {p.screenshots.map((s) => <img src={s.path} alt={T('pluginspage.screenshot')} data-i18n-alt="pluginspage.screenshot" loading="lazy" decoding="async" />)}
+            </div>
+          </>
+        )}
+
+        <h2 data-i18n="pluginspage.permissions">{T('pluginspage.permissions')}</h2>
+        {p.permissions.length === 0
+          ? <p class="muted" data-i18n="pluginspage.noperms">{T('pluginspage.noperms')}</p>
+          : (
+            <ul class="plugin-permissions">
+              {p.permissions.map((perm) => {
+                const key = permissionKey(perm);
+                return (
+                  <li>
+                    {key && <span data-i18n={key}>{T(key)}</span>}
+                    <code dir="ltr">{perm}</code>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+      </div>
+
+      <aside class="plugin-side card">
+        <h2 data-i18n="pluginspage.details">{T('pluginspage.details')}</h2>
+        <dl class="plugin-facts">
+          {facts.map((f) => (
+            <>
+              <dt data-i18n={f.key}>{T(f.key)}</dt>
+              <dd data-i18n={f.valueKey}>{f.ltr ? <bdi dir="ltr">{f.value}</bdi> : f.value}</dd>
+            </>
+          ))}
+        </dl>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

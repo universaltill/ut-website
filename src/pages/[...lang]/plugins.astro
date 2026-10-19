@@ -1,100 +1,17 @@
 ---
 import BaseLayout, { LANGS, t } from '../../layouts/BaseLayout.astro';
+import PluginLogo from '../../lib/PluginLogo.astro';
+import { groupByType, loadPlugins } from '../../lib/plugins';
 
 export function getStaticPaths() {
   return LANGS.map((lang) => ({ params: { lang } }));
 }
 
-// Every plugin listed on THIS page is free, public, and stays that way
-// -- ADR-0027 (ut-docs) rules out quietly relicensing something already
-// free. It does NOT promise every future official plugin is free --
-// Universal Till can ship paid official plugins too, same as vendors
-// can. This page only lists the ones that are (and always have been)
-// free; a future paid plugin simply wouldn't appear here.
-//
-// hasRelease: false means the repo exists and is browsable but hasn't
-// been wired into the release pipeline yet (no packaged download) --
-// shown honestly, not hidden and not given a broken download link.
-const PLUGINS = [
-  { repo: 'ut-plugin-payment-sumup', branch: 'main', hasRelease: true },
-  { repo: 'ut-plugin-payment-stripe', branch: 'main', hasRelease: true },
-  { repo: 'ut-plugin-payment-qrpay', branch: 'main', hasRelease: true },
-  { repo: 'ut-plugin-payment-demo', branch: 'main', hasRelease: true },
-  { repo: 'ut-plugin-faq', branch: 'main', hasRelease: true },
-  { repo: 'ut-plugin-integration-ai', branch: 'main', hasRelease: true },
-  { repo: 'ut-plugin-integration-webhook', branch: 'main', hasRelease: false },
-  { repo: 'ut-plugin-button-nosale', branch: 'main', hasRelease: true },
-  { repo: 'ut-plugin-language-es', branch: 'main', hasRelease: true },
-  { repo: 'ut-plugin-language-de', branch: 'main', hasRelease: true },
-  { repo: 'ut-plugin-theme-screen-top', branch: 'main', hasRelease: true },
-  { repo: 'ut-plugin-theme-buttons-left', branch: 'main', hasRelease: true },
-  { repo: 'ut-plugin-theme-midnight', branch: 'main', hasRelease: true },
-];
-
-const ORG = 'universaltill';
-
-// Build-time fetch of each plugin's real manifest.json straight from
-// GitHub -- no marketplace API dependency, no manual data-entry to keep
-// in sync. Re-running the site build always picks up current name/
-// description/type.
-// A failed fetch must NOT be fatal. This runs inside `astro build`, so a
-// throw here fails the build, which fails the deploy workflow -- meaning a
-// transient raw.githubusercontent 5xx, anonymous rate-limiting across these
-// requests, or one renamed repo would block EVERY website deploy, including
-// urgent download-page or marketing fixes. Degrade instead: warn, omit that
-// one card, ship the rest of the site.
-const fetched = await Promise.all(
-  PLUGINS.map(async (p) => {
-    const url = `https://raw.githubusercontent.com/${ORG}/${p.repo}/${p.branch}/manifest.json`;
-    let manifest;
-    try {
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-      manifest = await res.json();
-    } catch (err) {
-      console.warn(
-        `[plugins] skipping ${p.repo}: manifest fetch failed (${err.message}) -- ${url}`
-      );
-      return null;
-    }
-    return {
-      ...p,
-      id: manifest.id,
-      name: manifest.name,
-      description: manifest.description,
-      type: manifest.canonical_type,
-      repoUrl: `https://github.com/${ORG}/${p.repo}`,
-      // GitHub-native "always current" links -- no automation to maintain.
-      // /releases/latest redirects to whatever tag is newest; the fixed
-      // latest.tar.gz asset name (same on every release) means the direct
-      // download link never needs updating either.
-      releaseUrl: `https://github.com/${ORG}/${p.repo}/releases/latest`,
-      downloadUrl: `https://github.com/${ORG}/${p.repo}/releases/latest/download/latest.tar.gz`,
-    };
-  })
-);
-
-const plugins = fetched.filter(Boolean);
-
-// Object.groupBy needs Node 21+; deploy.yml pins Node 20, so a manual
-// reduce here instead of relying on that.
-const byType = plugins.reduce((acc, p) => {
-  (acc[p.type] ??= []).push(p);
-  return acc;
-}, {});
-const typeOrder = ['payment', 'integration', 'theme', 'language', 'page', 'button'];
-
-// Render the preferred order first, then ANY remaining type. Iterating
-// typeOrder alone silently dropped every plugin whose ADR-0002 canonical
-// type wasn't hard-coded above (ut-plugin-button-nosale declares
-// "button"), on a page whose own copy claims to list every plugin — with
-// no build error to catch it.
-const renderOrder = [
-  ...typeOrder.filter((t) => byType[t]),
-  ...Object.keys(byType).filter((t) => !typeOrder.includes(t)),
-];
+// Which plugins exist and their data (each repo's manifest.json, fetched at
+// build time) is decided in src/lib/plugins.ts. This page is the grid of small
+// cards only; the description, details, permissions and the download live on
+// each plugin's own page (ut-docs#4645, same pattern as the till store #4180).
+const groups = groupByType(await loadPlugins());
 
 const { lang } = Astro.params;
 // The page's own copy comes from site/i18n.js's `pluginspage.*` keys, in this
@@ -103,10 +20,8 @@ const { lang } = Astro.params;
 const T = (key) => t(lang, key);
 // A type with no label key (a new ADR-0002 type) shows its raw name rather
 // than the key.
-const typeLabel = (type) => {
-  const label = T(`pluginspage.type.${type}`);
-  return label === `pluginspage.type.${type}` ? type : label;
-};
+const label = (key, fallback) => (T(key) === key ? fallback : T(key));
+const hasKey = (key) => T(key) !== key;
 ---
 
 <BaseLayout
@@ -115,41 +30,40 @@ const typeLabel = (type) => {
   lang={lang}
   path="/plugins/"
 >
-  {/* The page's own copy follows the locale. The plugin names and
-      descriptions are each repo's manifest.json, fetched at build time and
-      English only — so those two elements (not the whole section, which
-      used to be forced ltr/en when nothing on it was translated) keep
-      dir="ltr" lang="en", or a Farsi visitor gets English prose laid out
-      right-to-left (ut-docs#353). */}
+  {/* The page's own copy follows the locale. The plugin names and taglines
+      come from each repo's manifest.json and are English only — so those
+      elements keep dir="ltr" lang="en", or a Farsi visitor gets English
+      prose laid out right-to-left (ut-docs#353). */}
   <section class="section">
     <div class="section-head">
       <h1 data-i18n="pluginspage.title">{T('pluginspage.title')}</h1>
       <p class="section-sub" data-i18n="pluginspage.intro">{T('pluginspage.intro')}</p>
     </div>
 
-    {renderOrder.map((type) => (
-      <div style="margin-bottom:3rem">
-        <h2
-          style="font-size:1.1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:1rem"
-          data-i18n={typeLabel(type) === type ? undefined : `pluginspage.type.${type}`}
-        >
-          {typeLabel(type)}
+    {groups.map(([type, plugins]) => (
+      <div class="plugin-group">
+        <h2 class="plugin-group-title" data-i18n={hasKey(`pluginspage.type.${type}`) ? `pluginspage.type.${type}` : undefined}>
+          {label(`pluginspage.type.${type}`, type)}
         </h2>
-        <div class="grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
-          {byType[type].map((p) => (
-            <div class="card">
-              <h3 dir="ltr" lang="en">{p.name}</h3>
-              <p dir="ltr" lang="en">{p.description}</p>
-              <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem">
-                <a class="btn" href={p.repoUrl} data-i18n="pluginspage.repo">{T('pluginspage.repo')}</a>
-                {p.hasRelease
-                  ? <a class="btn primary" href={p.downloadUrl} data-i18n="pluginspage.download">{T('pluginspage.download')}</a>
-                  : <span class="muted" style="font-size:.85rem;align-self:center" data-i18n="pluginspage.norelease">{T('pluginspage.norelease')}</span>
-                }
-              </div>
-            </div>
+        <ul class="plugin-grid">
+          {plugins.map((p) => (
+            <li>
+              <a class="plugin-card" href={`/${lang}/plugins/${p.slug}/`}>
+                <PluginLogo plugin={p} />
+                <div class="plugin-card-text">
+                  <h3 dir="ltr" lang="en">{p.name}</h3>
+                  <p class="plugin-tagline" dir="ltr" lang="en">{p.tagline}</p>
+                  <span class="plugin-badges">
+                    <span class="plugin-badge" data-i18n={hasKey(`pluginspage.kind.${type}`) ? `pluginspage.kind.${type}` : undefined}>
+                      {label(`pluginspage.kind.${type}`, type)}
+                    </span>
+                    <span class="plugin-badge free" data-i18n="pluginspage.free">{T('pluginspage.free')}</span>
+                  </span>
+                </div>
+              </a>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     ))}
 

@@ -33,6 +33,20 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   collections that happen to look alike today but don't have to stay that
   way (blog gained `draft`/date-sorting/`excerpt` over time; legal
   hasn't needed any of that yet).
+- **`/plugins` and one page per plugin (ut-docs#4645).** The grid is small
+  cards (logo, name, one-line tagline, type + Free badges) and each card links
+  to `/<locale>/plugins/<slug>/` (slug = repo name minus `ut-plugin-`), which
+  carries the full description, screenshots, version, minimum till version,
+  devices, publisher, permissions (plain-language line + raw name) and the
+  download. The plugin list is `src/lib/plugin-list.json`; `src/lib/plugins.ts`
+  fetches each `manifest.json` once per build and is what the grid, the pages,
+  `sitemap.xml` and `/plugin-assets/` all read. A manifest's
+  `resources.icon`/`resources.screenshots` are copied into the build (PNG/JPEG/
+  WebP only, checked by magic bytes, size-capped; never SVG) so the CSP's
+  `img-src` stays `'self'`; no icon → a coloured letter mark. A failed fetch
+  drops that plugin or picture with a warning, never the build.
+  `src/lib/plugins_test.mjs` (`node --test`, fetch stubbed) and
+  `tests/plugin-pages.spec.js`.
 - **`/llms.txt` and `/llms-full.txt` (ut-docs#4319)** — the llmstxt.org
   summary of the site for AI assistants, plus the full English home copy and
   every en-gb blog post as Markdown. Generated at build by
