@@ -32,8 +32,10 @@ for d in "$HTML_DIR" "$ASTRO_DIR" "$CONTENT_DIR"; do
 done
 
 ALLOW_MARKER="plan-name:allow"
-# "Chain" as a word, or "Enterprise" not followed by " and chains".
-PATTERN='\bChain\b|\bEnterprise\b(?! and chains)'
+# "Chain" as a word, or "Enterprise" not followed by " and chains" (any case,
+# so a title-case "Enterprise and Chains" heading passes). Line-based: a name
+# wrapped across lines or split by markup is a known gap, like the compliance guard.
+PATTERN='\bChain\b|\bEnterprise\b(?! and (?i:chains)\b)'
 failed=0
 
 scan_file() {
