@@ -22,6 +22,9 @@ import swaConfig from '../../site/staticwebapp.config.json';
 
 export const ORIGIN = 'https://www.universaltill.com';
 
+// Locales my.universaltill.com serves (ut-my-shop/src/i18n/i18n.ts).
+const MY_LOCALES = new Set(['en-gb', 'en-us', 'de-de', 'es-es', 'fr-fr', 'it-it', 'pt-pt', 'tr-tr', 'ar-sa', 'fa-ir']);
+
 const templates = import.meta.glob('../../site/*.html', {
   eager: true,
   query: '?raw',
@@ -205,6 +208,12 @@ export function renderMarketingPage(route: MarketingRoute, routes: MarketingRout
     let k: string | undefined;
     const href = n.nodeName === 'a' ? attr(n, 'href') : undefined;
     if (href) setAttr(n, 'href', localizedHref(href, route.locale, suffixes));
+    // The cloud manager lives on its own host, one locale tree per language
+    // (https://my.universaltill.com/<locale>/). A link marked data-my-link
+    // gets the page's locale, so the no-JS fallback matches what wizard.js
+    // sets in the browser (ut-docs#4193). my. has no zh-cn tree, so that locale
+    // links to en-gb (ut-my-shop/src/i18n/i18n.ts).
+    if (n.nodeName === 'a' && attr(n, 'data-my-link') != null) setAttr(n, 'href', `https://my.universaltill.com/${MY_LOCALES.has(route.locale) ? route.locale : 'en-gb'}/`);
     if ((k = attr(n, 'data-i18n')) && dict[k] != null) setChildren(n, [textNode(dict[k])]);
     if ((k = attr(n, 'data-i18n-html')) && dict[k] != null) setChildren(n, parseFragment(dict[k]).childNodes);
     if ((k = attr(n, 'data-i18n-aria-label')) && dict[k] != null) setAttr(n, 'aria-label', dict[k]);

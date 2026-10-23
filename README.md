@@ -57,6 +57,26 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `SoftwareApplication` block built from the page's own meta description.
   Linked from the home hardware section and the download page's Android card.
   `tests/android-till-page.spec.js`.
+- **"Find your setup" wizard (ut-docs#4193)** — `site/find-your-setup.html` →
+  `/<locale>/find-your-setup`, linked from the home hero and the main nav (home,
+  every `site/*.html` page and `BaseLayout.astro`) in every locale. Six optional
+  questions (business type, country, locations, needs, card provider, hardware)
+  → a recommended plan with its real price, hardware, plugins, "good to know"
+  notes, an honest **Not yet** list, and a next step: the free **Local** plan
+  goes to `/<locale>/download`, any cloud plan to
+  `https://my.universaltill.com/<locale>/`, Enterprise and chains to the
+  support mailbox. **All decisions are one data table in
+  `site/wizard-rules.js`** (`PLAN_RULES`, `GAPS`, `NOTES`, `PLUGINS`, `PRICES`);
+  `site/wizard.js` only draws questions and the answer, reading every string
+  from the `wiz.*` keys in `site/i18n.js` (all five locales; plan names stay
+  untranslated). Prices come from `ut-docs/reference/subscription-plans.md` for
+  the UK, Germany and the eurozone only; any other country shows "not published
+  yet", never a guess. The answers live in memory only: no storage, no request,
+  no analytics (lead capture with consent is ut-docs#2550). With JS off the page
+  still shows the two plain links; `a[data-my-link]` gets the page's locale at
+  build time (`marketingPages.ts`) and in the browser. To change a
+  recommendation, edit the table and `tests/wizard-rules.spec.js`;
+  `tests/wizard.spec.js` drives every locale in Chromium.
 - **`/llms.txt` and `/llms-full.txt` (ut-docs#4319)** — the llmstxt.org
   summary of the site for AI assistants, plus the full English home copy and
   every en-gb blog post as Markdown. Generated at build by

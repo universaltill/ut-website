@@ -24,7 +24,7 @@ test("built pages inline the stylesheet instead of blocking on /styles.css", asy
   }
 });
 
-for (const name of ["i18n.js", "nav.js", "consent.js"]) {
+for (const name of ["i18n.js", "nav.js", "consent.js", "wizard-rules.js", "wizard.js"]) {
   test(`/${name} ships minified`, async ({ request }) => {
     const src = fs.readFileSync(path.join(ROOT, "site", name), "utf8");
     const served = await (await request.get(`/${name}`)).text();

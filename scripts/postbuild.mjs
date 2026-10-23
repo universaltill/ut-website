@@ -5,7 +5,7 @@
 //    paint doesn't wait on a render-blocking /styles.css request. The CSP
 //    already allows inline styles (style-src 'unsafe-inline'); the CSS only
 //    uses data: URIs, so moving it into pages under /xx-xx/ breaks no url().
-//  - minifies the site scripts (i18n.js, nav.js, consent.js). They are
+//  - minifies the site scripts (i18n.js, nav.js, consent.js, wizard-rules.js, wizard.js). They are
 //    classic scripts sharing globals, and esbuild's transform without a
 //    `format` never renames top-level names, so cross-script globals and
 //    inline handlers keep working.
@@ -19,7 +19,7 @@ import path from "node:path";
 import { transform } from "esbuild";
 
 const DIST = path.resolve(import.meta.dirname, "../dist");
-const SCRIPTS = ["i18n.js", "nav.js", "consent.js"];
+const SCRIPTS = ["i18n.js", "nav.js", "consent.js", "wizard-rules.js", "wizard.js"];
 // es2017, not newer: the sources deliberately avoid `??`, `?.` and
 // `catch {}` (nav.js keeps a Safari < 14 fallback), and a newer target lets
 // esbuild rewrite `v != null ? v : x` into `v ?? x` — a SyntaxError that
