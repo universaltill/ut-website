@@ -24,10 +24,10 @@ for (const locale of LOCALES) {
   test.describe(locale, () => {
     test("the wizard is one click from the home page hero and the main nav", async ({ page }) => {
       await page.goto(`/${locale}`);
-      const hero = page.locator(".hero .cta a", { has: page.locator('[data-i18n="nav.setup"]') }).or(page.locator('.hero .cta a[data-i18n="nav.setup"]'));
+      const hero = page.locator('.hero .cta a[data-i18n="hero.cta1"]');
       await expect(hero).toBeVisible();
       await expect(hero).toHaveAttribute("href", `/${locale}/find-your-setup`);
-      await expect(page.locator('#site-nav a[data-i18n="nav.setup"]')).toHaveAttribute("href", `/${locale}/find-your-setup`);
+      await expect(page.locator('.nav a[data-i18n="nav.get"], .nav a[data-i18n="nav.start"]')).toHaveAttribute("href", `/${locale}/find-your-setup`);
       await hero.click();
       await expect(page).toHaveURL(new RegExp(`/${locale}/find-your-setup$`));
       await expect(page.locator("h1")).toBeVisible();
@@ -119,16 +119,18 @@ test("Germany + Local Plus: price excl. VAT and no managed-TSE line; the TSE-law
   await page.goto("/en-gb/find-your-setup");
   await answer(page, { country: "de", needs: ["remote"] });
   await expect(page.locator(".wiz-result")).toHaveAttribute("data-plan", "plus");
-  await expect(page.locator(".wiz-price p")).toHaveCount(1);
-  await expect(page.locator(".wiz-price-main")).toContainText("excl. VAT");
+  await expect(page.locator(".wiz-price p")).toHaveCount(2); // monthly + annual, no TSE line
+  await expect(page.locator(".wiz-price-main")).toHaveText("€10 per month, excl. VAT");
+  await expect(page.locator(".wiz-price-sub")).toHaveText("Or €8.33 per month when billed annually (two months free).");
   await expect(page.locator(".wiz-result")).toContainText("German law requires every business to have a TSE");
 });
 
 test("Germany + Shop with fiscal: managed-TSE line excl. VAT", async ({ page }) => {
   await page.goto("/en-gb/find-your-setup");
   await answer(page, { country: "de", needs: ["fiscal"] });
-  await expect(page.locator(".wiz-price-sub")).toContainText("excl. VAT");
-  await expect(page.locator(".wiz-price-sub")).toContainText("12");
+  await expect(page.locator(".wiz-price-main")).toHaveText("€29 per month, excl. VAT");
+  await expect(page.locator(".wiz-price-sub").nth(0)).toHaveText("Or €24.17 per month when billed annually (two months free).");
+  await expect(page.locator(".wiz-price-sub").nth(1)).toHaveText("Plus €12 per month, excl. VAT, for each main till (managed fiscal device). Not discounted, also on annual billing.");
 });
 
 test("another euro country + fiscal: honest gap, no claim about the law", async ({ page }) => {
@@ -197,4 +199,31 @@ test("the wizard is in the sitemap and the old unprefixed URLs redirect", async 
   const r = await request.get("/find-your-setup", { maxRedirects: 0 });
   expect(r.status()).toBe(301);
   expect(r.headers()["location"]).toContain("/en-gb/find-your-setup");
+});
+
+test("German view: the same ladder in EUR and the +EUR 12 TSE line, in German", async ({ page }) => {
+  await page.goto("/de-de/find-your-setup");
+  await answer(page, { country: "de", needs: ["fiscal"] });
+  const t = (await page.locator(".wiz-price").innerText()).replace(/\u00a0/g, " ");
+  expect(t).toContain("29 € pro Monat zzgl. MwSt.");
+  expect(t).toContain("24,17 €");
+  expect(t).toContain("12 € pro Monat zzgl. MwSt. für jede Haupt-Kasse");
+});
+
+test("Multi-location shows 120 / 100.00 annual / extra 33 / 3 included / up to 10", async ({ page }) => {
+  await page.goto("/en-gb/find-your-setup");
+  await answer(page, { country: "uk", sites: "few" });
+  const t = await page.locator(".wiz-price").innerText();
+  expect(t).toContain("£120 per month, excl. VAT");
+  expect(t).toContain("£100 per month when billed annually");
+  expect(t).toContain("Includes 3 locations. Each extra location (up to 10 in total) is £33 per month");
+});
+
+test("Persian view uses Persian digits and stays RTL", async ({ page }) => {
+  await page.goto("/fa-ir/find-your-setup");
+  await answer(page, { country: "uk", sites: "few" });
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  const t = await page.locator(".wiz-price").innerText();
+  expect(t).toMatch(/[۰-۹]{3}/);
+  expect(t).not.toMatch(/\d/);
 });

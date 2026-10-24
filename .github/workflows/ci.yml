@@ -34,6 +34,11 @@ jobs:
       - run: bash scripts/guard-compliance-claims_test.sh
       - run: bash scripts/guard-plan-names.sh
       - run: bash scripts/guard-plan-names_test.sh
+      # ut-docs#4193: one source for public prices; retired prices fail; the
+      # equality with ut-docs main is checked from the ut-docs side (private repo,
+      # no credential here).
+      - run: bash scripts/guard-plan-prices_test.sh
+      - run: bash scripts/guard-plan-prices.sh
       - run: bash scripts/download-redirects_test.sh
 
   # Any /opt or /usr path the site tells a shop owner to run must exist in the

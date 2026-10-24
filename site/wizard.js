@@ -50,11 +50,16 @@
   var step = 0;
   var moved = false; // only steal focus after the visitor acted, never on load
 
+  // Digits follow the surrounding text: Persian digits in fa, Latin elsewhere.
+  function numLocale() { return lang === "fa-ir" ? U.bcp47(lang) + "-u-nu-arabext" : U.bcp47(lang) + "-u-nu-latn"; }
+  function num(n) {
+    try { return new Intl.NumberFormat(numLocale()).format(n); } catch (e) { return String(n); }
+  }
+  // Whole amounts show no decimals; 24.17 keeps its cents.
   function money(currency, amount) {
     try {
-      // Digits follow the surrounding text: Persian digits in fa, Latin elsewhere.
-      var loc = lang === "fa-ir" ? U.bcp47(lang) + "-u-nu-arabext" : U.bcp47(lang) + "-u-nu-latn";
-      return new Intl.NumberFormat(loc, { style: "currency", currency: currency, maximumFractionDigits: 0 }).format(amount);
+      var frac = Math.round(amount) === amount ? 0 : 2;
+      return new Intl.NumberFormat(numLocale(), { style: "currency", currency: currency, minimumFractionDigits: frac, maximumFractionDigits: frac }).format(amount);
     } catch (e) {
       return amount + " " + currency;
     }
@@ -181,7 +186,8 @@
     else if (p.kind === "unpublished") lines.push(t("wiz.price.unpub"));
     else {
       lines.push(fill(t("wiz.price.month"), { price: money(p.currency, p.monthly) }));
-      if (p.extraLocation) lines.push(fill(t("wiz.price.multi"), { price: money(p.currency, p.extraLocation) }));
+      if (p.annual) lines.push(fill(t("wiz.price.annual"), { price: money(p.currency, p.annual) }));
+      if (p.extraLocation) lines.push(fill(t("wiz.price.multi"), { price: money(p.currency, p.extraLocation), included: num(p.includedLocations), max: num(R.MAX_LOCATIONS) }));
       if (p.tse) lines.push(fill(t("wiz.price.tse"), { price: money(p.currency, p.tse) }));
     }
     return lines;

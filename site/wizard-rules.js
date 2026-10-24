@@ -31,14 +31,25 @@
   // Cheapest to dearest. The winning plan is the highest one any rule asks for.
   var PLAN_ORDER = ["local", "plus", "shop", "pro", "multi", "enterprise"];
 
-  // Monthly list prices, whole currency units (subscription-plans.md,
-  // "Prices by country"). extraLocation: price of each location beyond the 3
-  // that Multi-location includes (up to 10). tsePerMainTill: Germany only.
-  var PRICES = {
-    uk: { currency: "GBP", plus: 10, shop: 42, pro: 59, multi: 127, extraLocation: 33, tsePerMainTill: 0 },
-    de: { currency: "EUR", plus: 10, shop: 42, pro: 59, multi: 127, extraLocation: 33, tsePerMainTill: 12 },
-    eu: { currency: "EUR", plus: 10, shop: 42, pro: 59, multi: 127, extraLocation: 33, tsePerMainTill: 0 },
-  };
+  // Monthly list prices come from ONE file: data/plan-prices.json (vendored
+  // from ut-docs reference/plan-prices.json, CI-checked), shipped to the page as
+  // site/plan-prices.js. No amount is typed in this file. extraLocation: price of
+  // each location beyond the included ones (up to maxLocations). tsePerMainTill:
+  // Germany only, from tseFromPlan up. annual = per month, billed yearly.
+  var SRC = root.UT_PLAN_PRICES;
+  if (!SRC) throw new Error("wizard-rules: plan-prices.js must load first");
+  var PRICES = {};
+  Object.keys(SRC.markets).forEach(function (m) {
+    var mk = SRC.markets[m];
+    var o = { currency: mk.currency, extraLocation: SRC.extraLocation.monthly, tsePerMainTill: mk.tsePerMainTill, annual: {} };
+    PLAN_ORDER.forEach(function (p) {
+      var pl = mk.plans[p];
+      if (pl && pl.monthly > 0) { o[p] = pl.monthly; o.annual[p] = pl.annualPerMonth; }
+    });
+    PRICES[m] = o;
+  });
+  var INCLUDED_LOCATIONS = SRC.includedLocations;
+  var TSE_FROM = SRC.markets.de.tseFromPlan;
 
   // Where each outcome sends the visitor. "download" = the free local app,
   // "cloud" = my.universaltill.com, "talk" = a person.
@@ -152,11 +163,11 @@
     else if (!a.country) price = { kind: "pick" };
     else if (!priceInfo) price = { kind: "unpublished" };
     else {
-      // Local and Local Plus bring their own TSE: the managed-TSE line starts at Shop.
-      price = { kind: "monthly", currency: priceInfo.currency, monthly: priceInfo[plan], tse: rank(plan) >= rank("shop") ? priceInfo.tsePerMainTill : 0 };
+      // Local and Local Plus bring their own TSE: the managed-TSE line starts at TSE_FROM (Shop).
+      price = { kind: "monthly", currency: priceInfo.currency, monthly: priceInfo[plan], annual: priceInfo.annual[plan], tse: rank(plan) >= rank(TSE_FROM) ? priceInfo.tsePerMainTill : 0 };
       if (plan === "multi") {
         price.extraLocation = priceInfo.extraLocation;
-        price.includedLocations = 3;
+        price.includedLocations = INCLUDED_LOCATIONS;
         price.extra = a.sites === "many";
       }
     }
@@ -190,7 +201,7 @@
   }
 
   root.UT_WIZARD_RULES = {
-    QUESTIONS: QUESTIONS, PLAN_ORDER: PLAN_ORDER, PRICES: PRICES, ROUTE_OF_PLAN: ROUTE_OF_PLAN,
+    QUESTIONS: QUESTIONS, PLAN_ORDER: PLAN_ORDER, PRICES: PRICES, MAX_LOCATIONS: SRC.extraLocation.maxLocations, ROUTE_OF_PLAN: ROUTE_OF_PLAN,
     PLAN_RULES: PLAN_RULES, GAPS: GAPS, PLUGINS: PLUGINS, NOTES: NOTES,
     recommend: recommend, allKeys: allKeys,
   };

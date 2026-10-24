@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const ctx = {};
-vm.runInNewContext(fs.readFileSync(path.join(ROOT, "site/wizard-rules.js"), "utf8"), ctx);
+for (const f of ["site/plan-prices.js", "site/wizard-rules.js"]) vm.runInNewContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx);
 const R = ctx.UT_WIZARD_RULES;
 
 const base = { biz: "cafe", country: "uk", sites: "one", needs: [], card: "none", hardware: "have" };
@@ -65,7 +65,7 @@ test("no reason text claims a feature that is only a gap", () => {
 test("several locations: Multi-location, 3 included, extra locations priced", () => {
   const few = rec({ sites: "few" });
   expect(few).toMatchObject({ plan: "multi", route: "cloud" });
-  expect(few.price).toMatchObject({ monthly: 127, includedLocations: 3, extraLocation: 33 });
+  expect(few.price).toMatchObject({ monthly: 120, annual: 100, includedLocations: 3, extraLocation: 33 });
   expect(rec({ sites: "many" }).price.extra).toBe(true);
   expect(few.price.extra).toBe(false);
 });
@@ -79,7 +79,7 @@ test("more than 10 locations is Enterprise and chains: talk to us, no invented p
 test("Germany: a fiscal need means Shop with the per-main-till fiscal line; euro prices", () => {
   const r = rec({ country: "de", needs: ["fiscal"] });
   expect(r).toMatchObject({ plan: "shop", route: "cloud" });
-  expect(r.price).toMatchObject({ currency: "EUR", monthly: 42, tse: 12 });
+  expect(r.price).toMatchObject({ currency: "EUR", monthly: 29, annual: 24.17, tse: 12 });
   expect(r.plugins).toContain("language-de");
   expect(r.notes).toContain("wiz.n.deowndevice");
   // other euro countries and the UK carry no fiscal line
@@ -161,8 +161,13 @@ test("tse is priced only from Shop up (Local and Local Plus bring their own)", (
 });
 
 test("prices match ut-docs/reference/subscription-plans.md (UK and euro ladders)", () => {
-  expect(R.PRICES.uk).toMatchObject({ currency: "GBP", plus: 10, shop: 42, pro: 59, multi: 127, extraLocation: 33 });
-  expect(R.PRICES.de).toMatchObject({ currency: "EUR", plus: 10, shop: 42, pro: 59, multi: 127, tsePerMainTill: 12 });
+  // Owner decision 2026-10-24 (ut-docs#4193): typed out here on purpose, independent of the data file.
+  const ladder = { plus: 10, shop: 29, pro: 49, multi: 120, extraLocation: 33 };
+  const annual = { plus: 8.33, shop: 24.17, pro: 40.83, multi: 100 };
+  expect(R.PRICES.uk).toMatchObject({ currency: "GBP", ...ladder, annual });
+  expect(R.PRICES.de).toMatchObject({ currency: "EUR", ...ladder, annual, tsePerMainTill: 12 });
+  expect(R.PRICES.eu).toMatchObject({ currency: "EUR", ...ladder, annual });
+  expect(R.MAX_LOCATIONS).toBe(10);
   expect(R.PRICES.eu.tsePerMainTill).toBe(0);
   expect(Object.keys(R.PRICES).sort()).toEqual(["de", "eu", "uk"]);
 });
@@ -177,7 +182,7 @@ test("every key the wizard can ask for exists in every locale, with placeholders
   const src = fs.readFileSync(path.join(ROOT, "site/i18n.js"), "utf8");
   const m = src.match(/const I18N = (\{[\s\S]*?\});\s*\n\s*\(function/);
   const dict = (0, eval)("(" + m[1] + ")");
-  const keys = [...R.allKeys(), "wiz.step", "wiz.price.month", "wiz.price.tse", "wiz.price.multi", "wiz.price.free", "wiz.price.talk", "wiz.price.unpub", "wiz.price.pick"];
+  const keys = [...R.allKeys(), "wiz.step", "wiz.price.month", "wiz.price.tse", "wiz.price.multi", "wiz.price.annual", "wiz.price.free", "wiz.price.talk", "wiz.price.unpub", "wiz.price.pick"];
   for (const loc of Object.keys(dict)) {
     for (const k of keys) {
       expect(dict[loc][k], `${loc} ${k}`).toBeTruthy();
