@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "effective_from": "2026-10-24",
+  "decided_by": "product owner",
+  "decided_on": "2026-10-24",
+  "decision_source": "ut-docs#667, ut-docs#4193 (publication approved 2026-10-24)",
+  "amounts_are": "integer minor units (cents/pence), net of VAT",
+  "plans": ["local", "local_plus", "shop", "pro", "multi_location"],
+  "enterprise_and_chains": "talk to us",
+  "annual_rule": "two months free: annual_per_month_minor = round(10 * monthly_minor / 12), billed as 10 x monthly up front",
+  "countries": {
+    "gb": {
+      "name": "United Kingdom",
+      "currency": "GBP",
+      "monthly_minor": {"local": 0, "local_plus": 1000, "shop": 2900, "pro": 4900, "multi_location": 12000},
+      "annual_per_month_minor": {"local": 0, "local_plus": 833, "shop": 2417, "pro": 4083, "multi_location": 10000},
+      "extra_location": {"monthly_minor": 3300, "annual_per_month_minor": 2750, "max_locations": 10},
+      "tse_per_main_till": null
+    },
+    "de": {
+      "name": "Germany",
+      "currency": "EUR",
+      "monthly_minor": {"local": 0, "local_plus": 1000, "shop": 2900, "pro": 4900, "multi_location": 12000},
+      "annual_per_month_minor": {"local": 0, "local_plus": 833, "shop": 2417, "pro": 4083, "multi_location": 10000},
+      "extra_location": {"monthly_minor": 3300, "annual_per_month_minor": 2750, "max_locations": 10},
+      "tse_per_main_till": {
+        "monthly_minor": 1200,
+        "applies_to": ["shop", "pro", "multi_location"],
+        "min_months_per_activated_till": 12,
+        "discountable": false,
+        "satellites": "free"
+      }
+    },
+    "eurozone": {
+      "name": "Eurozone outside Germany",
+      "currency": "EUR",
+      "monthly_minor": {"local": 0, "local_plus": 1000, "shop": 2900, "pro": 4900, "multi_location": 12000},
+      "annual_per_month_minor": {"local": 0, "local_plus": 833, "shop": 2417, "pro": 4083, "multi_location": 10000},
+      "extra_location": {"monthly_minor": 3300, "annual_per_month_minor": 2750, "max_locations": 10},
+      "tse_per_main_till": null
+    }
+  },
+  "not_covered_by_this_decision": ["tr", "pt", "gcc", "rest_of_world"],
+  "partner_commission": {"base_bp": 2500, "stepped_bp": 3500, "step_up_paid_shops": 25, "other_rates": "none"},
+  "shop_refers_shop": {"discount_bp": 1000, "months": 12, "max_referrals": 3}
+}

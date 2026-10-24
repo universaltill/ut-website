@@ -19,6 +19,10 @@
       "rewrite": "/en-gb/start.html"
     },
     {
+      "route": "/en-gb/find-your-setup",
+      "rewrite": "/en-gb/find-your-setup.html"
+    },
+    {
       "route": "/en-gb/store",
       "redirect": "/en-gb",
       "statusCode": 301
@@ -46,6 +50,10 @@
     {
       "route": "/tr-tr/start",
       "rewrite": "/tr-tr/start.html"
+    },
+    {
+      "route": "/tr-tr/find-your-setup",
+      "rewrite": "/tr-tr/find-your-setup.html"
     },
     {
       "route": "/tr-tr/store",
@@ -77,6 +85,10 @@
       "rewrite": "/zh-cn/start.html"
     },
     {
+      "route": "/zh-cn/find-your-setup",
+      "rewrite": "/zh-cn/find-your-setup.html"
+    },
+    {
       "route": "/zh-cn/store",
       "redirect": "/zh-cn",
       "statusCode": 301
@@ -106,6 +118,10 @@
       "rewrite": "/fa-ir/start.html"
     },
     {
+      "route": "/fa-ir/find-your-setup",
+      "rewrite": "/fa-ir/find-your-setup.html"
+    },
+    {
       "route": "/fa-ir/store",
       "redirect": "/fa-ir",
       "statusCode": 301
@@ -133,6 +149,10 @@
     {
       "route": "/de-de/start",
       "rewrite": "/de-de/start.html"
+    },
+    {
+      "route": "/de-de/find-your-setup",
+      "rewrite": "/de-de/find-your-setup.html"
     },
     {
       "route": "/de-de/store",
@@ -172,6 +192,11 @@
       "statusCode": 301
     },
     {
+      "route": "/find-your-setup",
+      "redirect": "/en-gb/find-your-setup",
+      "statusCode": 301
+    },
+    {
       "route": "/store",
       "redirect": "/en-gb",
       "statusCode": 301
@@ -204,6 +229,11 @@
     {
       "route": "/start.html",
       "redirect": "/en-gb/start",
+      "statusCode": 301
+    },
+    {
+      "route": "/find-your-setup.html",
+      "redirect": "/en-gb/find-your-setup",
       "statusCode": 301
     },
     {
