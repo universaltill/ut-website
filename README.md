@@ -160,6 +160,20 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   moved there too and is **gone from this repo** — it has to be same-origin
   with the CMS, because Decap's popup `postMessage` is origin-pinned
   (ut-docs#468). `scripts/check-swa-config.js` (CI) fails if any of it returns.
+- **…but its source is built here, as images (Phase 2 card C4, ut-docs#4998).**
+  Azure Container Apps has no ConfigMaps, so the admin page + nginx config
+  (`cms/web/`) and the OAuth relay (`cms/relay/relay.js`) are baked into
+  `ghcr.io/universaltill/ut-cms-web` and `ghcr.io/universaltill/ut-cms-relay`
+  by `.github/workflows/cms-images.yml` (main only; multi-arch, cosign-signed,
+  tagged by commit sha; the digests are in the run summary). Neither image
+  holds a secret: the GitHub OAuth client id/secret reach the relay at run
+  time as files under `SECRETS_DIR`. Nothing in `cms/` is served by the SWA
+  (it ships `dist/` only). Tests: `node --test cms/tests/*.test.js`; runtime
+  smoke: `WEB_IMAGE=… RELAY_IMAGE=… bash cms/scripts/smoke.sh`. New GHCR
+  packages start private: after their first publish the owner flips both to
+  public once (package settings; no API), or the deployer cannot pull them. Until the
+  homelab deployment switches to these images, homelab-k8s's ConfigMaps are
+  a second copy — change both.
 - **There is a build step now**: `npm ci && npm run build` → `dist/`, which is
   what gets deployed. `dist/`, `.astro/` and `node_modules/` are git-ignored.
   `package.json`'s `devDependencies` also carry Playwright (`tests/`,

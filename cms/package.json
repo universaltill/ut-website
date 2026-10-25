@@ -1,0 +1,5 @@
+{
+  "//": "cms/ is CommonJS: relay.js runs as plain node in the ut-cms-relay image (no package.json there), and the tests require() it. The site root is an ES module package.",
+  "private": true,
+  "type": "commonjs"
+}
