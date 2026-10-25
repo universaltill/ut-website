@@ -1,0 +1,6 @@
+# Build context is this directory; only the files the Dockerfile copies.
+*
+!Dockerfile
+!nginx.conf
+!default.conf
+!index.html

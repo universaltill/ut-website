@@ -15,3 +15,6 @@ dist/
 # (Workflow/Agent isolation: "worktree") — local scratch state, same
 # convention already used in universal-till/ut-infra's .gitignore.
 .claude/worktrees/
+
+# Local git worktrees for feature branches (pipeline convention).
+/.worktrees/

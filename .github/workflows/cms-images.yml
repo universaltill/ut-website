@@ -1,0 +1,216 @@
+name: CMS images
+
+# Builds the two images behind cms.universaltill.com (the Decap CMS admin) and
+# publishes them to GHCR — Phase 2 design card C4 (ut-docs#4998):
+#
+#   ghcr.io/universaltill/ut-cms-web    nginx + cms/web/{index.html,default.conf}
+#   ghcr.io/universaltill/ut-cms-relay  node  + cms/relay/relay.js
+#
+# Until now both were homelab-k8s ConfigMaps mounted into upstream images.
+# Azure Container Apps has no ConfigMaps, so the config is baked into images
+# built here, in the repo whose content the CMS edits. The deployer (ut-infra
+# Terraform, card C6) pins each image BY DIGEST — the digests are printed in
+# this run's summary and uploaded as the `cms-image-digests` artifact.
+#
+# PUBLIC repo → GitHub-hosted runners only, never the homelab ones (a fork PR
+# would run code in the homelab). Nothing secret is built in: the images hold
+# a static page, nginx config and one stdlib-only Node file; the GitHub OAuth
+# client id/secret reach the relay at run time as files from a Key Vault
+# secret volume. Auth to GHCR is this run's GITHUB_TOKEN — no stored secret.
+#
+# ONE-TIME OWNER STEP: GHCR creates a new package PRIVATE. After the first
+# publish, flip both ut-cms-web and ut-cms-relay to public in the package
+# settings (GitHub has no API for it; same step as ut-admin-app, ut-docs#2603).
+# The deployer pulls anonymously; until the flip the images exist and this run
+# is green (it pulls with its own token), but Container Apps cannot pull them.
+#
+# Signed like ut-admin-app's image (ADR-0109 Decision 6): keyless cosign with
+# this run's GitHub OIDC token on refs/heads/main, plus SLSA provenance and an
+# SBOM. Verify with:
+#   cosign verify ghcr.io/universaltill/ut-cms-web@<digest> \
+#     --certificate-identity https://github.com/universaltill/ut-website/.github/workflows/cms-images.yml@refs/heads/main \
+#     --certificate-oidc-issuer https://token.actions.githubusercontent.com
+
+on:
+  pull_request:
+    paths:
+      - "cms/**"
+      - ".github/workflows/cms-images.yml"
+  push:
+    branches: [main]
+    paths:
+      - "cms/**"
+      - ".github/workflows/cms-images.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One publish at a time per ref; queue, never cancel.
+concurrency:
+  group: cms-images-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  WEB_IMAGE: ghcr.io/universaltill/ut-cms-web
+  RELAY_IMAGE: ghcr.io/universaltill/ut-cms-relay
+  PLATFORMS: linux/amd64,linux/arm64
+  SIGNER_IDENTITY: https://github.com/universaltill/ut-website/.github/workflows/cms-images.yml@refs/heads/main
+  SIGNER_ISSUER: https://token.actions.githubusercontent.com
+
+jobs:
+  # The relay mints GitHub tokens; its regression suite, the admin page's
+  # config checks and the Dockerfile security floor (digest-pinned bases,
+  # non-root, no secret baked in).
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          # Same major as the relay image's pinned node (cms/relay/Dockerfile).
+          node-version: "26"
+      - run: node --test cms/tests/*.test.js
+      - run: shellcheck cms/scripts/smoke.sh
+
+  # Build each image natively on both architectures it ships for and prove it
+  # starts hardened (read-only root, no capabilities, its own non-root user)
+  # and serves its routes — scripts/smoke.sh. Nothing is pushed here.
+  smoke:
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -t ut-cms-web:ci cms/web
+      - run: docker build -t ut-cms-relay:ci cms/relay
+      - run: bash cms/scripts/smoke.sh
+        env:
+          WEB_IMAGE: ut-cms-web:ci
+          RELAY_IMAGE: ut-cms-relay:ci
+
+  publish:
+    needs: [test, smoke]
+    # Only main publishes: a PR or a dispatch from a branch must not produce
+    # an image, and its signature would not verify against SIGNER_IDENTITY.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+      id-token: write # keyless cosign signing (OIDC -> Sigstore); nothing else
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Pinned binary + checksum (same as ut-admin-app's build-and-push.yml).
+      # Hashes are from the v3.0.6 release's cosign_checksums.txt.
+      - name: Install cosign
+        env:
+          COSIGN_VERSION: v3.0.6
+          SHA256_AMD64: c956e5dfcac53d52bcf058360d579472f0c1d2d9b69f55209e256fe7783f4c74
+        run: |
+          set -euo pipefail
+          dir="${RUNNER_TEMP}/cosign-bin"
+          mkdir -p "$dir"
+          curl -fsSL --retry 3 --retry-all-errors -o "$dir/cosign" \
+            "https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-linux-amd64"
+          echo "${SHA256_AMD64}  $dir/cosign" | sha256sum -c -
+          chmod +x "$dir/cosign"
+          echo "$dir" >> "$GITHUB_PATH"
+
+      # arm64 layers are a COPY and an rm — cheap under QEMU.
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Tagged with the commit sha only: no moving :latest. The deployer pins
+      # the digest; the sha tag is for humans finding the build.
+      - name: Build and push ut-cms-web
+        id: web
+        uses: docker/build-push-action@v7
+        with:
+          context: cms/web
+          platforms: ${{ env.PLATFORMS }}
+          push: true
+          build-args: GIT_SHA=${{ github.sha }}
+          # Public with the image: mode=max publishes the Dockerfile and build
+          # steps, which are this public repo's own files.
+          provenance: mode=max
+          sbom: true
+          labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          tags: ${{ env.WEB_IMAGE }}:${{ github.sha }}
+
+      - name: Build and push ut-cms-relay
+        id: relay
+        uses: docker/build-push-action@v7
+        with:
+          context: cms/relay
+          platforms: ${{ env.PLATFORMS }}
+          push: true
+          build-args: GIT_SHA=${{ github.sha }}
+          provenance: mode=max
+          sbom: true
+          labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          tags: ${{ env.RELAY_IMAGE }}:${{ github.sha }}
+
+      # The published bytes, not the CI build: pull by digest and smoke again
+      # BEFORE signing, so a digest that fails never carries the production
+      # signature. (This runner pulls the amd64 variant; the arm64 variant is
+      # built from the same inputs and base digest that the native-arm `smoke`
+      # job above ran.)
+      - name: Smoke the published digests
+        run: bash cms/scripts/smoke.sh
+        env:
+          WEB_IMAGE: ${{ env.WEB_IMAGE }}@${{ steps.web.outputs.digest }}
+          RELAY_IMAGE: ${{ env.RELAY_IMAGE }}@${{ steps.relay.outputs.digest }}
+
+      # Sign by digest, never by tag. Then check the pushed index really
+      # carries both architectures (Phase 2 gate P3).
+      - name: Sign, verify and inspect
+        env:
+          WEB_DIGEST: ${{ steps.web.outputs.digest }}
+          RELAY_DIGEST: ${{ steps.relay.outputs.digest }}
+        run: |
+          set -euo pipefail
+          for ref in "${WEB_IMAGE}@${WEB_DIGEST}" "${RELAY_IMAGE}@${RELAY_DIGEST}"; do
+            case "$ref" in *@sha256:*) ;; *) echo "::error::no digest for $ref"; exit 1 ;; esac
+            cosign sign --yes "$ref"
+            cosign verify "$ref" \
+              --certificate-identity "$SIGNER_IDENTITY" \
+              --certificate-oidc-issuer "$SIGNER_ISSUER" > /dev/null
+            platforms="$(docker buildx imagetools inspect "$ref" --format '{{json .Manifest.Manifests}}' \
+              | jq -r '[.[] | select(.platform.os == "linux") | .platform.architecture] | sort | join(",")')"
+            [ "$platforms" = "amd64,arm64" ] || { echo "::error::$ref has platforms '$platforms', want amd64,arm64"; exit 1; }
+            echo "signed, verified, multi-arch: $ref"
+          done
+
+      - name: Record the digests
+        env:
+          WEB_DIGEST: ${{ steps.web.outputs.digest }}
+          RELAY_DIGEST: ${{ steps.relay.outputs.digest }}
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/digests"
+          printf '%s@%s\n%s@%s\n' "$WEB_IMAGE" "$WEB_DIGEST" "$RELAY_IMAGE" "$RELAY_DIGEST" \
+            | tee "${RUNNER_TEMP}/digests/cms-image-digests.txt"
+          {
+            echo "### ut-cms images (commit ${GITHUB_SHA})"
+            echo '```'
+            cat "${RUNNER_TEMP}/digests/cms-image-digests.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: cms-image-digests
+          path: ${{ runner.temp }}/digests/cms-image-digests.txt
+          retention-days: 90

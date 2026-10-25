@@ -1,0 +1,4 @@
+# Build context is this directory; only the file the Dockerfile copies.
+*
+!Dockerfile
+!relay.js
