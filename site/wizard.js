@@ -4,10 +4,12 @@
 // live in site/wizard-rules.js (one data table, unit-tested); this file only
 // draws questions, remembers the answers IN MEMORY and draws the answer.
 //
-// Privacy: answers are never stored (no localStorage / cookie / URL), never
-// sent (no fetch / XHR / beacon / form post) and never logged. They live in a
-// local variable until the tab closes. Lead capture with consent is a later
-// slice (ut-docs#2550).
+// Privacy: the page itself never stores the answers (no localStorage / cookie
+// / URL), never sends them (no fetch / XHR / beacon / form post) and never logs
+// them. They live in a local variable until the tab closes. The one exception
+// is the visitor's own action: the "Talk to us" mailto link carries the answers
+// into the visitor's own mail app, and nothing is sent unless they send that
+// email. Lead capture with consent is a later slice (ut-docs#2550).
 //
 // Progressive enhancement: with JS off the page still shows the two plain links
 // ("Download the free app" / "Open my.universaltill.com") from the HTML.
@@ -41,7 +43,8 @@
   var MY_LOCALES = ["en-gb", "en-us", "de-de", "es-es", "fr-fr", "it-it", "pt-pt", "tr-tr", "ar-sa", "fa-ir"];
   var MY = "https://my.universaltill.com/" + (MY_LOCALES.indexOf(lang) !== -1 ? lang : "en-gb") + "/";
   var DOWNLOAD = "/" + lang + "/download";
-  var TALK = "mailto:support@universaltill.com?subject=" + encodeURIComponent(t("wiz.talk.subject"));
+  var TALK_BASE = "mailto:support@universaltill.com?subject=" + encodeURIComponent(t("wiz.talk.subject"));
+  var TALK = TALK_BASE; // redrawn with the answers when the result is drawn
 
   // The no-JS cloud link carries the build's locale; keep it on the visible one.
   Array.prototype.forEach.call(document.querySelectorAll("a[data-my-link]"), function (a) { a.setAttribute("href", MY); });
@@ -195,6 +198,7 @@
 
   function renderResult() {
     var r = R.recommend(answers);
+    TALK = R.talkHref(TALK_BASE, answers, r, t);
     clear();
     var box = el("div", "wiz-result");
     box.setAttribute("data-plan", r.plan);
@@ -221,6 +225,7 @@
     }
     if (r.route !== "talk") cta.appendChild(link(TALK, t("wiz.cta.talk"), "btn big"));
     next.appendChild(cta);
+    next.appendChild(el("p", "wiz-note", t("wiz.talk.note")));
     box.appendChild(next);
 
     var why = section("wiz.res.why");

@@ -5,8 +5,11 @@
 // by tests/wizard-rules.spec.js in plain Node. A classic script (no import /
 // export) like the rest of site/; it only sets window.UT_WIZARD_RULES.
 //
-// Nothing here talks to a network. The visitor's answers never leave the page
-// (the lead-capture-with-consent slice is ut-docs#2550).
+// Nothing here talks to a network. The page itself sends and stores nothing.
+// The one way the answers leave it is the visitor's own choice: the "Talk to
+// us" mailto link carries them (talkBody below) into the visitor's own mail
+// app, and nothing is sent unless they send that email (the
+// lead-capture-with-consent slice is ut-docs#2550).
 //
 // Plan names and prices: ut-docs/reference/subscription-plans.md ("Prices by
 // country"). Names are the CURRENT ones — Local, Local Plus, Shop, Pro,
@@ -184,6 +187,47 @@
     };
   }
 
+  // Body of the "Talk to us" mailto (RFC 6068: CRLF line breaks), so support need
+  // not ask the same questions again. Pure: `t` is the caller's translate
+  // function (key -> string). Skipped questions and an empty `needs` are left
+  // out. The last line is a language-neutral "ref:" code, plan last.
+  function talkBody(answers, result, t) {
+    var a = answers || {};
+    var lines = [t("wiz.talk.intro")];
+    var refs = [];
+    QUESTIONS.forEach(function (q) {
+      var label;
+      if (q.type === "many") {
+        var have = Array.isArray(a[q.id]) ? a[q.id] : [];
+        var picked = q.options.filter(function (o) { return have.indexOf(o) !== -1; });
+        if (!picked.length) return;
+        label = picked.map(function (o) { return t("wiz.o." + q.id + "." + o); }).join(", ");
+        refs.push(q.id + "=" + picked.join(","));
+      } else {
+        if (q.options.indexOf(a[q.id]) === -1) return;
+        label = t("wiz.o." + q.id + "." + a[q.id]);
+        refs.push(q.id + "=" + a[q.id]);
+      }
+      lines.push(t("wiz.q." + q.id) + ": " + label);
+    });
+    lines.push(t("wiz.talk.plan") + ": " + t("wiz.plan." + result.plan));
+    refs.push("plan=" + result.plan);
+    lines.push("", "ref: " + refs.join("; "));
+    return lines.join("\r\n");
+  }
+
+  // Outlook/Windows cut a mailto off around 2 KB, and the ref line is last, so
+  // it would be lost first. Over TALK_MAX the body falls back to intro, plan
+  // and the ref line (ASCII apart from intro and plan, so it always fits).
+  var TALK_MAX = 1800;
+  function talkHref(base, answers, result, t) {
+    var href = base + "&body=" + encodeURIComponent(talkBody(answers, result, t));
+    if (href.length <= TALK_MAX) return href;
+    var full = talkBody(answers, result, t).split("\r\n");
+    var short = [full[0], full[full.length - 3], "", full[full.length - 1]];
+    return base + "&body=" + encodeURIComponent(short.join("\r\n"));
+  }
+
   // Every i18n key the UI can ask for, so tests can prove each locale has them.
   function allKeys() {
     var keys = [];
@@ -197,12 +241,13 @@
     GAPS.forEach(function (g) { keys.push(g.text); });
     NOTES.forEach(function (n) { keys.push(n.text); });
     PLUGINS.forEach(function (p) { keys.push("wiz.plugin." + p.slug); });
+    keys.push("wiz.talk.subject", "wiz.talk.intro", "wiz.talk.plan", "wiz.talk.note");
     return keys;
   }
 
   root.UT_WIZARD_RULES = {
     QUESTIONS: QUESTIONS, PLAN_ORDER: PLAN_ORDER, PRICES: PRICES, MAX_LOCATIONS: SRC.extraLocation.maxLocations, ROUTE_OF_PLAN: ROUTE_OF_PLAN,
     PLAN_RULES: PLAN_RULES, GAPS: GAPS, PLUGINS: PLUGINS, NOTES: NOTES,
-    recommend: recommend, allKeys: allKeys,
+    recommend: recommend, talkBody: talkBody, talkHref: talkHref, TALK_MAX: TALK_MAX, allKeys: allKeys,
   };
 })(typeof window !== "undefined" ? window : globalThis);

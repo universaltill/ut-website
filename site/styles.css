@@ -436,6 +436,7 @@ img { max-width: 100%; }
 .wiz-gaps { border-inline-start: 4px solid #b45309; padding-inline-start: .9rem; }
 .wiz-cta { display: flex; flex-wrap: wrap; gap: .7rem; }
 .wiz-sent { margin: 1.4rem 0 0; color: var(--muted); font-size: .9rem; }
+.wiz-note { margin: .6rem 0 0; color: var(--muted); font-size: .85rem; }
 .wiz-short { margin-top: 2.4rem; }
 .wiz-short h2 { font-size: 1.25rem; text-align: center; margin: 0 0 1rem; }
 .wiz-link { display: block; color: inherit; min-height: 44px; }
