@@ -227,3 +227,96 @@ test("Persian view uses Persian digits and stays RTL", async ({ page }) => {
   expect(t).toMatch(/[۰-۹]{3}/);
   expect(t).not.toMatch(/\d/);
 });
+
+// ut-docs#4193: "Talk to us" opens the visitor's own mail app with the answers
+// filled in. The page itself still sends nothing.
+for (const [locale, bizLabel, ntLabel] of [["en-gb", "Café or takeaway", "Tables and a kitchen screen"], ["zh-cn", null, null], ["fa-ir", null, null]]) {
+  test(`Talk to us carries the answers into the mailto body (${locale})`, async ({ page }) => {
+    const sent = [];
+    page.on("request", (r) => { const u = new URL(r.url()); if (u.hostname !== "localhost" || r.method() !== "GET") sent.push(`${r.method()} ${r.url()}`); });
+    await page.goto(`/${locale}/find-your-setup`);
+    // Read the labels the visitor is shown, rather than hard-coding them.
+    await page.locator("#wiz-biz-cafe").check();
+    const cafe = (await page.locator("label[for=wiz-biz-cafe]").innerText()).trim();
+    if (bizLabel) expect(cafe).toBe(bizLabel);
+    await page.locator(".wiz-actions button[type=submit]").click();
+    await page.locator("#wiz-country-de").check();
+    await page.locator(".wiz-actions button[type=submit]").click();
+    await page.locator(".wiz-actions button[type=submit]").click(); // sites skipped
+    const tables = (await page.locator("label[for=wiz-needs-tables]").innerText()).trim();
+    const stock = (await page.locator("label[for=wiz-needs-stock]").innerText()).trim();
+    await page.locator("#wiz-needs-tables").check();
+    await page.locator("#wiz-needs-stock").check();
+    await page.locator(".wiz-actions button[type=submit]").click();
+    await page.locator("#wiz-card-sumup").check();
+    await page.locator(".wiz-actions button[type=submit]").click();
+    await page.locator(".wiz-actions button[type=submit]").click(); // hardware skipped
+    await expect(page.locator(".wiz-result")).toBeVisible();
+    if (ntLabel) expect(tables).toContain(ntLabel);
+
+    const hrefs = await page.locator(".wiz-result a[href^='mailto:']").evaluateAll((as) => as.map((a) => a.getAttribute("href")));
+    expect(hrefs.length).toBeGreaterThan(0);
+    for (const href of hrefs) {
+      expect(href.startsWith("mailto:support@universaltill.com?subject=")).toBe(true);
+      const q = new URLSearchParams(href.slice(href.indexOf("?") + 1));
+      expect(q.get("subject")).toBeTruthy();
+      const body = q.get("body");
+      expect(body).toContain("\r\n");
+      expect(body).toContain(cafe);
+      expect(body).toContain(`${tables}, ${stock}`);
+      expect(body).toContain("ref: biz=cafe; country=de; needs=tables,stock; card=sumup; plan=");
+      expect(body).not.toContain("sites=");
+      expect(body).not.toContain("hardware=");
+      expect(href).not.toMatch(/[\r\n ]/); // fully encoded
+    }
+    await expect(page.locator(".wiz-note")).toBeVisible();
+    await expect(page.locator(".wiz-note")).not.toHaveText("wiz.talk.note");
+    if (locale === "en-gb") {
+      await expect(page.locator(".wiz-note")).toHaveText("“Talk to us” opens your own email app with your answers filled in. Nothing is sent unless you send that email.");
+    }
+    expect(sent).toEqual([]);
+    expect(await page.evaluate(() => Object.keys(localStorage).concat(document.cookie.split(";")).filter((k) => /wiz|answer|biz|ref:/i.test(k)))).toEqual([]);
+    expect(await page.evaluate(() => location.search + location.hash)).toBe("");
+  });
+}
+
+const ALL_NEEDS = ["tables", "stock", "online", "appointments", "fiscal", "remote", "team"];
+
+test("fa-ir worst case: the Talk to us href stays within 1800 chars and keeps the ref line", async ({ page }) => {
+  await page.goto("/fa-ir/find-your-setup");
+  await answer(page, { biz: "cafe", country: "de", sites: "one", needs: ALL_NEEDS, card: "sumup", hardware: "have" });
+  const hrefs = await page.locator(".wiz-result a[href^='mailto:']").evaluateAll((as) => as.map((a) => a.getAttribute("href")));
+  expect(hrefs.length).toBeGreaterThan(0);
+  for (const h of hrefs) {
+    expect(h.length).toBeLessThanOrEqual(1800);
+    expect(decodeURIComponent(h)).toContain("ref: biz=cafe; country=de; sites=one; needs=" + ALL_NEEDS.join(",") + "; card=sumup; hardware=have; plan=");
+  }
+});
+
+test("enterprise route: the primary Talk to us button carries the body", async ({ page }) => {
+  await page.goto("/en-gb/find-your-setup");
+  await answer(page, { biz: "retail", country: "uk", sites: "huge" });
+  const result = page.locator(".wiz-result");
+  await expect(result).toHaveAttribute("data-route", "talk");
+  const href = await result.locator("a.wiz-go").getAttribute("href");
+  expect(href.startsWith("mailto:support@universaltill.com?subject=")).toBe(true);
+  const body = new URLSearchParams(href.slice(href.indexOf("?") + 1)).get("body");
+  expect(body).toContain("ref: biz=retail; country=uk; sites=huge; plan=enterprise");
+});
+
+test("editing an answer after a result updates the Talk to us body", async ({ page }) => {
+  await page.goto("/en-gb/find-your-setup");
+  await answer(page, { biz: "cafe", country: "uk", sites: "one" });
+  const bodyOf = async () => {
+    const h = await page.locator(".wiz-result a[href^='mailto:']").first().getAttribute("href");
+    return new URLSearchParams(h.slice(h.indexOf("?") + 1)).get("body");
+  };
+  expect(await bodyOf()).toContain("biz=cafe; country=uk; sites=one; plan=local");
+  await page.locator(".wiz-actions button[type=button]").first().click(); // Edit answers
+  await page.locator("#wiz-biz-salon").check();
+  for (let i = 0; i < 6; i++) await page.locator(".wiz-actions button[type=submit]").click();
+  await expect(page.locator(".wiz-result")).toBeVisible();
+  const b = await bodyOf();
+  expect(b).toContain("biz=salon; country=uk; sites=one; plan=local");
+  expect(b).not.toContain("biz=cafe");
+});

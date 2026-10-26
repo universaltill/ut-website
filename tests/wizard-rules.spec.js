@@ -205,3 +205,108 @@ function ctxName(plan) {
   const m = src.match(/const I18N = (\{[\s\S]*?\});\s*\n\s*\(function/);
   return (0, eval)("(" + m[1] + ")")["en-gb"]["wiz.plan." + plan];
 }
+
+// ut-docs#4193: the "Talk to us" mailto body carries the answers to support.
+test.describe("talkBody", () => {
+  const en = () => { const d = loadDict()["en-gb"]; return (k) => (d[k] != null ? d[k] : k); };
+  const full = { biz: "cafe", country: "de", sites: "one", needs: ["tables", "stock"], card: "sumup", hardware: "have" };
+
+  test("full answers: intro, one line per question, plan line, blank line, ref line (CRLF)", () => {
+    const t = en();
+    const r = R.recommend({ ...full, needs: ["tables", "stock"] });
+    const lines = R.talkBody(full, r, t).split("\r\n");
+    expect(lines).toEqual([
+      "My answers from the Find your setup wizard:",
+      `${t("wiz.q.biz")}: ${t("wiz.o.biz.cafe")}`,
+      `${t("wiz.q.country")}: ${t("wiz.o.country.de")}`,
+      `${t("wiz.q.sites")}: ${t("wiz.o.sites.one")}`,
+      `${t("wiz.q.needs")}: ${t("wiz.o.needs.tables")}, ${t("wiz.o.needs.stock")}`,
+      `${t("wiz.q.card")}: ${t("wiz.o.card.sumup")}`,
+      `${t("wiz.q.hardware")}: ${t("wiz.o.hardware.have")}`,
+      `Suggested plan: ${t("wiz.plan." + r.plan)}`,
+      "",
+      `ref: biz=cafe; country=de; sites=one; needs=tables,stock; card=sumup; hardware=have; plan=${r.plan}`,
+    ]);
+    expect(R.talkBody(full, r, t)).not.toContain("\n\n");
+  });
+
+  test("the exact ref line, with plan last", () => {
+    const r = R.recommend({ ...full, needs: ["tables", "stock", "fiscal"] });
+    const body = R.talkBody({ ...full, needs: ["tables", "stock", "fiscal"] }, r, en());
+    expect(body.split("\r\n").pop()).toBe("ref: biz=cafe; country=de; sites=one; needs=tables,stock,fiscal; card=sumup; hardware=have; plan=shop");
+  });
+
+  test("skipped questions and empty needs are left out, everywhere", () => {
+    const t = en();
+    const a = { biz: "retail", needs: [] };
+    const body = R.talkBody(a, R.recommend(a), t);
+    const lines = body.split("\r\n");
+    expect(lines).toEqual([
+      "My answers from the Find your setup wizard:",
+      `${t("wiz.q.biz")}: ${t("wiz.o.biz.retail")}`,
+      "Suggested plan: Local",
+      "",
+      "ref: biz=retail; plan=local",
+    ]);
+    expect(body).not.toContain(t("wiz.q.needs"));
+    expect(body).not.toContain("country=");
+  });
+
+  test("nothing answered at all still gives intro, plan and ref", () => {
+    const t = en();
+    const body = R.talkBody({ needs: [] }, R.recommend({ needs: [] }), t);
+    expect(body.split("\r\n")).toEqual(["My answers from the Find your setup wizard:", "Suggested plan: Local", "", "ref: plan=local"]);
+  });
+
+  test("the ref line is language-neutral; the labels use the given translate function", () => {
+    const dict = loadDict()["fa-ir"];
+    const t = (k) => (dict[k] != null ? dict[k] : k);
+    const r = R.recommend(full);
+    const lines = R.talkBody(full, r, t).split("\r\n");
+    expect(lines[0]).toBe(dict["wiz.talk.intro"]);
+    expect(lines[1]).toBe(`${dict["wiz.q.biz"]}: ${dict["wiz.o.biz.cafe"]}`);
+    expect(lines[lines.length - 1]).toMatch(/^ref: biz=cafe; country=de; .*; plan=\w+$/);
+    expect(lines[lines.length - 1]).toMatch(/^[\x20-\x7e]+$/);
+  });
+
+  test("the new keys are in allKeys()", () => {
+    expect(R.allKeys()).toEqual(expect.arrayContaining(["wiz.talk.intro", "wiz.talk.plan", "wiz.talk.note"]));
+  });
+});
+
+test.describe("talkHref", () => {
+  const dictOf = (loc) => { const d = loadDict()[loc]; return (k) => (d[k] != null ? d[k] : k); };
+  const BASE = "mailto:support@universaltill.com?subject=x";
+  const all = { biz: "cafe", country: "de", sites: "one", needs: ["tables", "stock", "online", "appointments", "fiscal", "remote", "team"], card: "sumup", hardware: "have" };
+
+  test("a short en case keeps the full body", () => {
+    const t = dictOf("en-gb");
+    const r = R.recommend(all);
+    const href = R.talkHref(BASE, all, r, t);
+    expect(href).toBe(BASE + "&body=" + encodeURIComponent(R.talkBody(all, r, t)));
+    expect(href.length).toBeLessThanOrEqual(R.TALK_MAX);
+  });
+
+  test("an fa-ir all-needs case falls back to the short body, ref line kept, under the limit", () => {
+    const t = dictOf("fa-ir");
+    const r = R.recommend(all);
+    const full = BASE + "&body=" + encodeURIComponent(R.talkBody(all, r, t));
+    expect(full.length).toBeGreaterThan(R.TALK_MAX); // the case really is too long
+    const href = R.talkHref(BASE, all, r, t);
+    expect(href.length).toBeLessThanOrEqual(R.TALK_MAX);
+    const body = decodeURIComponent(href.slice(href.indexOf("&body=") + 6)).split("\r\n");
+    expect(body).toHaveLength(4);
+    expect(body[0]).toBe(t("wiz.talk.intro"));
+    expect(body[1]).toBe(`${t("wiz.talk.plan")}: ${t("wiz.plan." + r.plan)}`);
+    expect(body[2]).toBe("");
+    expect(body[3]).toBe(`ref: biz=cafe; country=de; sites=one; needs=tables,stock,online,appointments,fiscal,remote,team; card=sumup; hardware=have; plan=${r.plan}`);
+  });
+
+  test("talkBody: needs follow the options order, no duplicates, unknown values dropped", () => {
+    const a = { needs: ["stock", "tables", "tables", "bogus"] };
+    const body = R.talkBody(a, R.recommend(a), (k) => k);
+    expect(body).toContain("needs=tables,stock;");
+    expect(body).toContain("wiz.o.needs.tables, wiz.o.needs.stock");
+    expect(() => R.talkBody({ needs: "tables" }, R.recommend({}), (k) => k)).not.toThrow();
+  });
+});
