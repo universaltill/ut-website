@@ -73,3 +73,30 @@ for (const locale of LOCALES) {
     expect(over).toBeLessThanOrEqual(0);
   });
 }
+
+// ut-docs#5253 — a subscription is a contract (CAP code / UWG); the only term
+// promise is "no minimum term on monthly billing". No key may say "no contract".
+test("no dict value in any locale claims 'no contract'", () => {
+  const re = /no[- ]contracts?\b|contract[- ]free|without (a )?contract|kein(e|en)? Vertr|ohne Vertrag|vertragsfrei|sözleşme(siz| yok| gerekm)|(无|没有|无需|免|不签)合同|بدون (نیاز به )?قرارداد|قرارداد(ی)? ندارد(?!ن)/i;
+  for (const l of LOCALES) for (const [k, v] of Object.entries(I18N[l])) expect(String(v), `${l} ${k}`).not.toMatch(re);
+});
+
+test("en-gb and de-de carry the monthly-billing wording; the German FAQ names the TSE", () => {
+  const en = I18N["en-gb"];
+  for (const k of ["faq.a2", "meta.home.desc", "start.lede"]) expect(en[k], k).toContain("no minimum term on monthly billing");
+  expect(I18N["de-de"]["faq.a2"]).toContain("TSE");
+  // The German managed-TSE minimum term comes from the vendored price file, never typed twice (#4203 M1).
+  const tse = JSON.parse(fs.readFileSync(path.join(ROOT, "data/plan-prices.json"), "utf8")).countries.de.tse_per_main_till;
+  expect(I18N["de-de"]["faq.a2"]).toContain(`${tse.min_months_per_activated_till} Monate Mindestlaufzeit`);
+  // /start shows no why.exit.d caveat, so its German "keine Mindestlaufzeit" must carry the TSE exception itself.
+  expect(I18N["de-de"]["start.lede"]).toContain("TSE");
+});
+
+test("the English fallback text in index.html and start.html equals the en-gb dict", () => {
+  const en = I18N["en-gb"];
+  const index = fs.readFileSync(path.join(ROOT, "site/index.html"), "utf8");
+  const start = fs.readFileSync(path.join(ROOT, "site/start.html"), "utf8");
+  expect(decode(index.match(/<meta name="description"[^>]*content="([^"]*)"/)[1])).toBe(en["meta.home.desc"]);
+  expect(decode(index.match(/data-i18n="faq\.a2">([\s\S]*?)<\/p>/)[1])).toBe(en["faq.a2"]);
+  expect(decode(start.match(/data-i18n="start\.lede">([\s\S]*?)<\/p>/)[1])).toBe(en["start.lede"]);
+});
