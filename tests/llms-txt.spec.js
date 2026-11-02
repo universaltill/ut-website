@@ -54,7 +54,7 @@ const FAQ_QS = [...index.matchAll(/data-i18n="(faq\.q\d+)"/g)].map((m) => m[1]);
 
 test("/llms-full.txt carries every English marketing page and every FAQ answer verbatim", async ({ request }) => {
   const body = await (await request.get("/llms-full.txt")).text();
-  for (const k of ["hero.title", "hero.lede", "why.offline.d", "hw.lede", "about.title", "meta.download.title", "meta.start.title", "meta.pilot.title"]) {
+  for (const k of ["hero.title", "hero.lede", "why.offline.d", "free.body", "switch.body", "close.title", "hw.lede", "about.title", "meta.download.title", "meta.start.title", "meta.pilot.title"]) {
     expect(body, k).toContain(EN[k]);
   }
   expect(body).not.toContain(EN["meta.language.title"]); // the noindex picker
