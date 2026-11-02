@@ -113,12 +113,15 @@ test.describe("prerendered pages still switch language client-side", () => {
 // only "point of sale"; the raw home page must use their words, and its FAQ
 // must be machine-readable (FAQPage JSON-LD) with exactly the visible text.
 test.describe("home page keywords + FAQ (ut-docs#4320)", () => {
-  test("en-gb title and H1 use EPOS / till; de-de title uses Kassensystem", async ({ request }) => {
+  test("en-gb title uses EPOS / till, H1 uses till; de-de title uses Kassensystem", async ({ request }) => {
     const en = await (await request.get("/en-gb")).text();
     const title = decode(en.match(/<title[^>]*>([^<]*)<\/title>/)[1]);
     expect(title).toMatch(/EPOS/);
     expect(title).toMatch(/till/i);
-    expect(decode(en.match(/<h1[^>]*>([^<]*)<\/h1>/)[1])).toMatch(/EPOS/);
+    // ut-docs#4203: the owner's H1 ("Your till. Your money. Your data.") no longer says EPOS;
+    // the keyword stays in the title, the meta description and the FAQ below.
+    expect(decode(en.match(/<h1[^>]*>([^<]*)<\/h1>/)[1])).toMatch(/till/i);
+    expect(en).toMatch(/<summary[^>]*>[^<]*EPOS/);
     const de = await (await request.get("/de-de")).text();
     expect(decode(de.match(/<title[^>]*>([^<]*)<\/title>/)[1])).toMatch(/Kassensystem/);
   });

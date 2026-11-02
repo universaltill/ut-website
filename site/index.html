@@ -50,10 +50,10 @@
 <main>
   <section class="hero">
     <div class="hero-text">
-      <h1 data-i18n="hero.title">The free EPOS system that's actually yours.</h1>
-      <p class="lede" data-i18n="hero.lede">Free, open source and offline-first — a full sale completes with no internet at all. Runs on a Raspberry Pi, an old laptop, or a proper touch terminal. No monthly fee for the core. Ever.</p>
+      <h1 data-i18n="hero.title">Your till. Your money. Your data.</h1>
+      <p class="lede" data-i18n="hero.lede">The till that never stops selling, runs on the hardware you already have, and costs nothing to start. No minimum term on monthly billing. No card-machine tie-in.</p>
       <div class="cta">
-        <a class="btn primary" href="/find-your-setup" data-i18n="hero.cta1">Get started</a>
+        <a class="btn primary" href="/find-your-setup" data-i18n="hero.cta1">Start free</a>
         <a class="btn ghost" href="https://github.com/universaltill/universal-till" data-i18n="hero.cta2">See the source</a>
       </div>
       <p class="hero-note" data-i18n="hero.note">MIT licensed · one small binary · works today</p>
@@ -62,6 +62,36 @@
     <div class="hero-art">
       <img class="screenshot" src="/images/till-sell.webp" srcset="/images/till-sell-480.webp 480w, /images/till-sell-640.webp 640w, /images/till-sell-768.webp 768w, /images/till-sell-1024.webp 1024w, /images/till-sell-1280.webp 1280w, /images/till-sell.webp 1600w" sizes="(max-width: 900px) min(520px, calc(100vw - 32px)), calc((min(100vw, 1120px) - 128px) * 0.46)"
            alt="Fast touch sale screen" data-i18n-alt="tour.sale" width="1600" height="1000" loading="eager" fetchpriority="high">
+    </div>
+  </section>
+
+  <section id="why" class="section band">
+    <div class="section-head">
+      <h2 data-i18n="why.title">Why shops switch</h2>
+    </div>
+    <div class="grid two">
+      <div class="card"><h3 data-i18n="why.offline.t">It never stops selling.</h3><p data-i18n="why.offline.d">A full sale completes with no internet at all. Your tills catch up with each other as soon as they reconnect.</p></div>
+      <div class="card"><h3 data-i18n="why.hardware.t">Use what you have.</h3><p data-i18n="why.hardware.d">An old PC or laptop, a Raspberry Pi, an Android tablet or phone. Unlimited tills, never charged per till.</p></div>
+      <div class="card"><h3 data-i18n="why.payments.t">Keep your card provider.</h3><p data-i18n="why.payments.d">SumUp, Stripe or any standalone card machine: use whoever gives you the best rate. We never take a cut of your takings.</p></div>
+      <div class="card"><h3 data-i18n="why.exit.t">No tie-in, ever.</h3><p data-i18n="why.exit.d">No minimum term on monthly billing: cancel any month and take all your data with you, free.</p></div>
+    </div>
+  </section>
+
+  <section id="free" class="section">
+    <div class="section-head">
+      <h2 data-i18n="free.title">Free means free.</h2>
+      <p class="section-sub" data-i18n="free.body">Tables, kitchen screens, a self-order kiosk, stock, staff and shifts, promotions, vouchers, reports and an AI assistant that uses your own AI provider: all in the free plan, on as many tills as you like.</p>
+      <p class="section-sub" data-i18n="free.pay">If it runs in your shop, it costs nothing. You only pay for our cloud and our people.</p>
+      <a class="btn primary" href="/find-your-setup" data-i18n="free.cta">Find the plan that fits →</a>
+    </div>
+  </section>
+
+  <section id="switch" class="section band">
+    <div class="section-head">
+      <h2 data-i18n="switch.title">Switch this afternoon</h2>
+      <p class="section-sub" data-i18n="switch.body">Import your products from Loyverse, Square, SumUp, Shopify or a spreadsheet. You see a preview before anything is saved.</p>
+      <p class="section-sub" data-i18n="switch.side">Run it next to your old till until you're sure.</p>
+      <p class="section-sub" data-i18n="switch.pro">On Pro, we move you over for you.</p>
     </div>
   </section>
 
@@ -101,18 +131,6 @@
         <h3 data-i18n="sol.multi.t">Growing to many tills</h3>
         <p data-i18n="sol.multi.d">Add a second till by scanning a QR; they sync over your own LAN for free, no cloud required.</p>
       </article>
-    </div>
-  </section>
-
-  <section id="why" class="section band">
-    <div class="section-head">
-      <h2 data-i18n="why.title">No lock-in. Of any kind.</h2>
-    </div>
-    <div class="grid two">
-      <div class="card"><h3 data-i18n="why.contracts.t">No contracts or proprietary hardware</h3><p data-i18n="why.contracts.d">Runs on generic hardware you already own — a complete DIY till costs from about £70. No multi-year tie-ins.</p></div>
-      <div class="card"><h3 data-i18n="why.payments.t">No payment-processor lock-in</h3><p data-i18n="why.payments.d">We never sit in your money flow. Use any card machine and any processor — no fee creep, no frozen payouts.</p></div>
-      <div class="card"><h3 data-i18n="why.data.t">Your data, exportable, always</h3><p data-i18n="why.data.d">Full catalogue and sales export to CSV whenever you want. Your shop, your records — take them anywhere.</p></div>
-      <div class="card"><h3 data-i18n="why.offline.t">Offline-first, truly</h3><p data-i18n="why.offline.d">The internet going down never stops a sale. Everything works locally; syncing is a bonus, never a requirement.</p></div>
     </div>
   </section>
 
@@ -227,6 +245,15 @@
       <details class="faq-item"><summary data-i18n="faq.q5">Can I take card payments?</summary><p data-i18n="faq.a5">Yes. We never sit in your money flow: use any card machine and any processor — no fee creep, no frozen payouts.</p></details>
       <details class="faq-item"><summary data-i18n="faq.q6">Can I move from my current till?</summary><p data-i18n="faq.a6">Yes. Export your catalogue from your current system and import it: Loyverse, Square, SumUp and Shopify exports are recognised automatically, and any CSV or Excel file with name and price columns works. You see a preview before anything is saved.</p></details>
     </div>
+  </section>
+  <section id="close" class="section band">
+    <div class="section-head">
+      <h2 data-i18n="close.title">Start free today</h2>
+    </div>
+    <div class="get-cta">
+      <a class="btn primary big" href="/find-your-setup" data-i18n="close.cta">Start free</a>
+    </div>
+    <p class="hero-note" style="text-align:center"><span data-i18n="close.talk">Or talk to a person:</span> <bdi><a href="mailto:support@universaltill.com">support@universaltill.com</a></bdi></p>
   </section>
 </main>
 

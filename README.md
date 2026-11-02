@@ -88,6 +88,12 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   side. Every "Get started" button (header, hero, every page and locale) opens the
   wizard at `/<locale>/find-your-setup` (`tests/cta-wizard.spec.js`); the wizard's
   last step is the only link on to my.universaltill.com.
+- **Home page copy (ut-docs#4203).** `site/index.html` order: hero, `#why`
+  (4 cards), `#free`, `#switch`, then the older sections, with `#close` (the
+  closing "Start free" CTA + support mailbox) last. Claims there are checked
+  against shipped behaviour: "no minimum term" (not "no contract" - annual
+  billing exists) and, in `de-de` only, the managed TSE exception to "never
+  charged per till". `tests/home-copy.spec.js`.
 - **`/llms.txt` and `/llms-full.txt` (ut-docs#4319)** — the llmstxt.org
   summary of the site for AI assistants, plus the full English home copy and
   every en-gb blog post as Markdown. Generated at build by
