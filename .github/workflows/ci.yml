@@ -41,6 +41,16 @@ jobs:
       - run: bash scripts/guard-plan-prices.sh
       - run: bash scripts/download-redirects_test.sh
 
+  # ut-docs#4405 (follow-up of #4229): only allow-listed @universaltill.com
+  # addresses (real M365 aliases, send-only senders) may appear in tracked
+  # files. The script is byte-identical with ut-docs scripts/; see its header.
+  check-mail-addresses:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: bash scripts/guard-mail-addresses.sh
+      - run: bash scripts/guard-mail-addresses_test.sh
+
   # Any /opt or /usr path the site tells a shop owner to run must exist in the
   # shipped package (ut-docs#541: download.html pointed at
   # /opt/unitill/bin/unitill-kiosk-setup, which the .deb has never contained).
