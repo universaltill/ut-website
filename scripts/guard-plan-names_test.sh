@@ -47,10 +47,16 @@ mk e3; rm "$C"/*.mdx; fail "an empty content dir"
 # A grep without -P (BSD/macOS) must make the guard fail loudly, not report clean.
 mk g1
 printf '#!/bin/sh\necho "grep: invalid option -- P" >&2\nexit 2\n' >"${TMPDIR}/nopgrep"; chmod +x "${TMPDIR}/nopgrep"
-if out="$(GREP="${TMPDIR}/nopgrep" bash "${GUARD}" "$I" "$H" "$A" "$C" 2>&1)"; then
+rc=0; out="$(GREP="${TMPDIR}/nopgrep" bash "${GUARD}" "$I" "$H" "$A" "$C" 2>&1)" || rc=$?
+if [ "$rc" -eq 0 ]; then
   echo "❌ FAIL: guard passed with a grep that lacks -P" >&2; FAIL_COUNT=$((FAIL_COUNT + 1))
-elif printf '%s' "$out" | grep -q "needs GNU grep"; then echo "✓ rejected a grep without -P with the install hint"
+elif [ "$rc" -eq 2 ] && printf '%s' "$out" | grep -q "needs GNU grep"; then echo "✓ rejected a grep without -P with the install hint"
 else echo "❌ FAIL: no 'needs GNU grep' message without -P: $out" >&2; FAIL_COUNT=$((FAIL_COUNT + 1)); fi
+
+# A grep that passes the probe but fails during the scan must not read as clean.
+printf '#!/bin/sh\nif [ "$1" = "-qP" ]; then exit 0; fi\necho boom >&2\nexit 2\n' >"${TMPDIR}/flakygrep"; chmod +x "${TMPDIR}/flakygrep"
+rc=0; GREP="${TMPDIR}/flakygrep" bash "${GUARD}" "$I" "$H" "$A" "$C" >/dev/null 2>&1 || rc=$?
+if [ "$rc" -eq 2 ]; then echo "✓ rejected a grep that fails mid-scan"; else echo "❌ FAIL: mid-scan grep failure exit ${rc}, want 2" >&2; FAIL_COUNT=$((FAIL_COUNT + 1)); fi
 
 if bash "${GUARD}" >/dev/null 2>&1; then echo "✓ passed the real repo tree"; else echo "❌ FAIL: real tree rejected" >&2; FAIL_COUNT=$((FAIL_COUNT + 1)); fi
 
