@@ -36,12 +36,28 @@ ALLOW_MARKER="plan-name:allow"
 # so a title-case "Enterprise and Chains" heading passes). Line-based: a name
 # wrapped across lines or split by markup is a known gap, like the compliance guard.
 PATTERN='\bChain\b|\bEnterprise\b(?! and (?i:chains)\b)'
+# The pattern needs PCRE (grep -P). BSD grep (macOS) lacks it; fail loudly
+# instead of swallowing the error and reporting clean (ut-docs#5226).
+# GREP overrides the binary; otherwise ggrep (brew install grep) is preferred.
+if [ -z "${GREP:-}" ]; then GREP=grep; command -v ggrep >/dev/null 2>&1 && GREP=ggrep; fi
+if ! printf 'Enterprise\n' | "$GREP" -qP "$PATTERN" 2>/dev/null; then
+  echo "❌ plan-names guard: needs GNU grep with -P (brew install grep -> ggrep)" >&2
+  exit 2
+fi
+
 failed=0
 
 scan_file() {
   local file="$1" allow_hatch="$2"
   local rel="${file#"${ROOT_DIR}/"}" matches m lineno content
-  matches="$(grep -n -P "$PATTERN" "$file" || true)"
+  # grep exits 1 for "no match"; any other non-zero status is a real failure
+  # and must not read as clean.
+  local rc=0
+  matches="$("$GREP" -n -P "$PATTERN" "$file")" || rc=$?
+  if [ "$rc" -gt 1 ]; then
+    echo "❌ plan-names guard: ${GREP} failed (exit ${rc}) scanning ${rel}" >&2
+    exit 2
+  fi
   [ -z "$matches" ] && return
   while IFS= read -r m; do
     lineno="${m%%:*}"
