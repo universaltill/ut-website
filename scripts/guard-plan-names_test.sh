@@ -44,6 +44,14 @@ mk e1; rm "$H"/*.html; fail "an empty html dir"
 mk e2; rm "$A"/*.astro; fail "an empty astro dir"
 mk e3; rm "$C"/*.mdx; fail "an empty content dir"
 
+# A grep without -P (BSD/macOS) must make the guard fail loudly, not report clean.
+mk g1
+printf '#!/bin/sh\necho "grep: invalid option -- P" >&2\nexit 2\n' >"${TMPDIR}/nopgrep"; chmod +x "${TMPDIR}/nopgrep"
+if out="$(GREP="${TMPDIR}/nopgrep" bash "${GUARD}" "$I" "$H" "$A" "$C" 2>&1)"; then
+  echo "❌ FAIL: guard passed with a grep that lacks -P" >&2; FAIL_COUNT=$((FAIL_COUNT + 1))
+elif printf '%s' "$out" | grep -q "needs GNU grep"; then echo "✓ rejected a grep without -P with the install hint"
+else echo "❌ FAIL: no 'needs GNU grep' message without -P: $out" >&2; FAIL_COUNT=$((FAIL_COUNT + 1)); fi
+
 if bash "${GUARD}" >/dev/null 2>&1; then echo "✓ passed the real repo tree"; else echo "❌ FAIL: real tree rejected" >&2; FAIL_COUNT=$((FAIL_COUNT + 1)); fi
 
 [ "${FAIL_COUNT}" -eq 0 ] || { echo "${FAIL_COUNT} guard-plan-names_test.sh assertion(s) failed" >&2; exit 1; }

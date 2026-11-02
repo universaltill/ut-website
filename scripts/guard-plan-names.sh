@@ -31,6 +31,15 @@ for d in "$HTML_DIR" "$ASTRO_DIR" "$CONTENT_DIR"; do
   [ -d "$d" ] || { echo "❌ plan-names guard: ${d} does not exist" >&2; exit 1; }
 done
 
+# The pattern needs PCRE (grep -P). BSD grep (macOS) lacks it; fail loudly
+# instead of swallowing the error and reporting clean (ut-docs#5226).
+# GREP overrides the binary; otherwise ggrep (brew install grep) is preferred.
+if [ -z "${GREP:-}" ]; then GREP=grep; command -v ggrep >/dev/null 2>&1 && GREP=ggrep; fi
+if ! echo x | "$GREP" -qP x 2>/dev/null; then
+  echo "❌ plan-names guard: needs GNU grep with -P (brew install grep -> ggrep)" >&2
+  exit 2
+fi
+
 ALLOW_MARKER="plan-name:allow"
 # "Chain" as a word, or "Enterprise" not followed by " and chains" (any case,
 # so a title-case "Enterprise and Chains" heading passes). Line-based: a name
@@ -41,7 +50,7 @@ failed=0
 scan_file() {
   local file="$1" allow_hatch="$2"
   local rel="${file#"${ROOT_DIR}/"}" matches m lineno content
-  matches="$(grep -n -P "$PATTERN" "$file" || true)"
+  matches="$("$GREP" -n -P "$PATTERN" "$file" || true)"
   [ -z "$matches" ] && return
   while IFS= read -r m; do
     lineno="${m%%:*}"
