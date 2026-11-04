@@ -131,6 +131,8 @@ test("Germany + Shop with fiscal: managed-TSE line excl. VAT", async ({ page }) 
   await expect(page.locator(".wiz-price-main")).toHaveText("€29 per month, excl. VAT");
   await expect(page.locator(".wiz-price-sub").nth(0)).toHaveText("Or €24.17 per month when billed annually (two months free).");
   await expect(page.locator(".wiz-price-sub").nth(1)).toHaveText("Plus €12 per month, excl. VAT, for each main till (managed fiscal device). Not discounted, also on annual billing.");
+  await expect(page.locator(".wiz-price-sub")).toHaveCount(3);
+  await expect(page.locator(".wiz-price-sub").nth(2)).toHaveText("The fiscal device line has a minimum term of 12 months for each activated main till; the plan itself has none. If your plan ends before a till's 12 months are up, we keep its managed fiscal device (TSE) running, and billed, until they are.");
 });
 
 test("another euro country + fiscal: honest gap, no claim about the law", async ({ page }) => {
@@ -213,6 +215,8 @@ test("German view: the same ladder in EUR and the +EUR 12 TSE line, in German", 
     expect(t).toContain("29 € per month, excl. VAT");
     expect(t).toContain("12 € per month, excl. VAT, for each main till");
   }
+  // The minimum term (legal-tier too): German once approved, English until then; the number comes from the price file.
+  if (!translated("de-de", "wiz.price.tsemin")) expect(t).toContain("minimum term of 12 months for each activated main till");
   expect(t).toContain("24,17 €"); // the number formatting follows the page locale either way
 });
 
