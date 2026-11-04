@@ -110,6 +110,8 @@ jobs:
   # reach dist/ byte-for-byte (astro.config.mjs publicDir: 'site').
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -121,11 +123,19 @@ jobs:
       # fetch stubbed: no plugin repo ships a real picture today, so the
       # build alone would never exercise it.
       - run: node --test src/lib/plugins_test.mjs
+      # ut-docs#5355: public help pages - front-matter, public flag, link
+      # rewriting, fallback, prev/next, image checks, ref resolution (no network).
+      - run: node --test src/lib/help_test.mjs
+      - run: node --test scripts/guard-help_test.mjs
       # `npm run build` = `astro build && node scripts/postbuild.mjs`. Run
       # the two halves separately so this guard still checks Astro's
       # publicDir pass-through byte-for-byte BEFORE postbuild deliberately
       # inlines styles.css and minifies the site JS (ut-docs#3520).
+      # The help source (product repo web/help at its latest release tag, or
+      # HELP_REF) is cloned here; the token only lifts the API rate limit.
       - run: npx astro build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: site/ must be copied through unchanged
         run: |
           fail=0
@@ -163,9 +173,14 @@ jobs:
       # Two real fixture builds (a new locale appears by data alone; an absent
       # locale leaves no route, page, sitemap, hreflang or switcher entry).
       - run: node --test scripts/locale-fixtures_test.mjs
+      # ut-docs#5355: every public help topic in every locale, every internal
+      # link/image resolves, no front-matter leakage, sitemap vs canonicals.
+      - run: node scripts/guard-help.mjs
 
   playwright:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -177,4 +192,6 @@ jobs:
       # (ut-docs#3595); cap the install so a hang fails fast, not at 6h.
       - run: npx playwright install --with-deps chromium
         timeout-minutes: 15
+      # No token here: the help build falls back from the release API to
+      # `git ls-remote` (public repo), so the test step needs no credential.
       - run: npx playwright test

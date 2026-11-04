@@ -3,6 +3,7 @@ import { LANGS } from '../layouts/BaseLayout.astro';
 import { getAllLocalizedPosts } from '../lib/blogPosts';
 import { getAllLocalizedLegalPages } from '../lib/legalPages';
 import { loadPlugins } from '../lib/plugins';
+import { loadHelp, localized } from '../lib/help';
 import { isNoindex, marketingRoutes, templateFor } from '../lib/marketingPages';
 // Marketing pages (site/*.html) are plain HTML served via publicDir and
 // prerendered per locale by src/pages/[lang]/[file].ts — they never pass
@@ -41,9 +42,16 @@ export const GET: APIRoute = async ({ site }) => {
   // One page per plugin per locale (ut-docs#4645), from the same list the
   // grid and the pages themselves are built from.
   const plugins = await loadPlugins();
+  // Help (ut-docs#5355): the index in every locale; a topic only where it has
+  // a real translation (an English stand-in canonicalises to en-gb, #3811).
+  const help = await loadHelp();
   for (const lang of LANGS) {
     entries.push(urlEntry(`${base}/${lang}/blog/`));
     entries.push(urlEntry(`${base}/${lang}/plugins/`));
+    entries.push(urlEntry(`${base}/${lang}/help/`));
+    for (const entry of help.entries.filter((e) => !localized(e, lang).isFallback)) {
+      entries.push(urlEntry(`${base}/${lang}/help/${entry.slug}/`));
+    }
     for (const { slug } of plugins) {
       entries.push(urlEntry(`${base}/${lang}/plugins/${slug}/`));
     }

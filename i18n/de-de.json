@@ -400,5 +400,22 @@
   "site.machine_label_badge": "KI",
   "site.fallback_note": "Einige Texte auf dieser Seite sind noch nicht übersetzt und werden auf Englisch angezeigt.",
   "site.legal_english_binding": "Dieser Rechtstext ist nur auf Englisch verfügbar. Maßgeblich ist die englische Fassung.",
-  "language.current": "Aktuell"
+  "language.current": "Aktuell",
+  "help.title": "Hilfe",
+  "help.meta.desc": "Schritt-für-Schritt-Anleitungen für jeden Bereich von Universal Till: Verkauf, Einrichtung des Shops, Berichte, Geräte und Plugins.",
+  "help.intro": "Kurze Anleitungen zu jedem Bereich der Kasse. Suchen Sie danach, was Sie tun möchten.",
+  "help.search.label": "Hilfethemen durchsuchen",
+  "help.search.placeholder": "z. B. Bondrucker, MwSt., Rückgaben",
+  "help.count": "{total} Themen",
+  "help.count.none": "Keine Themen passen zu „{q}“. Versuchen Sie weniger Wörter oder löschen Sie die Suche.",
+  "help.crumb.label": "Brotkrumennavigation",
+  "help.prev": "Vorheriges Thema",
+  "help.next": "Nächstes Thema",
+  "help.pager.label": "Vorheriges und nächstes Thema",
+  "help.more": "Weitere Themen in {section}",
+  "help.untranslated": "Dieses Thema ist noch nicht auf {language} verfügbar. Sie sehen die englische Fassung.",
+  "help.shot.alt": "Screenshot: {title}",
+  "help.back": "Alle Hilfethemen",
+  "help.count.filtered": "{n} von {total} Themen",
+  "help.clear": "Suche löschen"
 }

@@ -400,5 +400,22 @@
   "site.machine_label_badge": "AI",
   "site.fallback_note": "本页部分文字尚未翻译，暂以英文显示。",
   "site.legal_english_binding": "本法律文本仅提供英文版，以英文版本为准。",
-  "language.current": "当前"
+  "language.current": "当前",
+  "help.title": "帮助",
+  "help.meta.desc": "Universal Till 各个部分的分步指南：销售、店铺设置、报表、设备和插件。",
+  "help.intro": "收银台各个部分的简明指南。按你想做的事情来搜索。",
+  "help.search.label": "搜索帮助主题",
+  "help.search.placeholder": "例如 小票打印机、增值税、退款",
+  "help.count": "{total} 个主题",
+  "help.count.none": "没有与“{q}”匹配的主题。请减少关键词，或清除搜索。",
+  "help.crumb.label": "面包屑导航",
+  "help.prev": "上一个主题",
+  "help.next": "下一个主题",
+  "help.pager.label": "上一个和下一个主题",
+  "help.more": "{section} 中的更多主题",
+  "help.untranslated": "此主题暂无{language}版本，你正在阅读英文版。",
+  "help.shot.alt": "截图：{title}",
+  "help.back": "所有帮助主题",
+  "help.count.filtered": "{total} 个主题中的 {n} 个",
+  "help.clear": "清除搜索"
 }

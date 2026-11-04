@@ -400,5 +400,22 @@
   "site.machine_label_badge": "YZ",
   "site.fallback_note": "Bu sayfadaki bazı metinler henüz çevrilmedi ve İngilizce gösteriliyor.",
   "site.legal_english_binding": "Bu hukuki metin yalnızca İngilizce olarak sunulmaktadır. Bağlayıcı olan İngilizce sürümdür.",
-  "language.current": "Geçerli"
+  "language.current": "Geçerli",
+  "help.title": "Yardım",
+  "help.meta.desc": "Universal Till'in her bölümü için adım adım rehberler: satış, mağazanızın kurulumu, raporlar, cihazlar ve eklentiler.",
+  "help.intro": "Kasanın her bölümü için kısa rehberler. Yapmak istediğiniz şeye göre arayın.",
+  "help.search.label": "Yardım konularında ara",
+  "help.search.placeholder": "ör. fiş yazıcısı, KDV, iadeler",
+  "help.count": "{total} konu",
+  "help.count.none": "“{q}” ile eşleşen konu yok. Daha az sözcük deneyin veya aramayı temizleyin.",
+  "help.crumb.label": "Gezinti yolu",
+  "help.prev": "Önceki konu",
+  "help.next": "Sonraki konu",
+  "help.pager.label": "Önceki ve sonraki konular",
+  "help.more": "{section} bölümünde diğer konular",
+  "help.untranslated": "Bu konu henüz {language} olarak mevcut değil. İngilizce sürümünü okuyorsunuz.",
+  "help.shot.alt": "Ekran görüntüsü: {title}",
+  "help.back": "Tüm yardım konuları",
+  "help.count.filtered": "{total} konudan {n} tanesi",
+  "help.clear": "Aramayı temizle"
 }
