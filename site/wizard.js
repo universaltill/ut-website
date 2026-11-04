@@ -176,7 +176,7 @@
   }
   function list(keys, cls) {
     var ul = el("ul", cls || "wiz-list");
-    var vars = { tse: money(R.PRICES.de.currency, R.PRICES.de.tsePerMainTill) };
+    var vars = { tse: money(R.PRICES.de.currency, R.PRICES.de.tsePerMainTill), months: num(R.PRICES.de.tseMinMonths) };
     keys.forEach(function (k) { ul.appendChild(el("li", null, fill(t(k), vars))); });
     return ul;
   }

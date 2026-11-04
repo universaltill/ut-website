@@ -4,7 +4,12 @@
 // the visitor's locale, no broken links, nothing sent anywhere.
 import { expect, test } from "@playwright/test";
 
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { LOCALES, translated, MY_SERVED } from "./helpers/locales.js";
+// The German managed-TSE minimum term is read from the vendored price file, never typed twice.
+const TSE_MIN = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "data/plan-prices.json"), "utf8")).countries.de.tse_per_main_till.min_months_per_activated_till;
 // my.universaltill.com has no zh-cn tree (ut-my-shop/src/i18n/i18n.ts): that locale links to en-gb.
 // Which locales my. serves comes from the published list (cloud.manage), not from here.
 const MY = (l) => `https://my.universaltill.com/${MY_SERVED.includes(l) ? l : "en-gb"}/`;
@@ -123,6 +128,17 @@ test("Germany + Local Plus: price excl. VAT and no managed-TSE line; the TSE-law
   await expect(page.locator(".wiz-price-main")).toHaveText("€10 per month, excl. VAT");
   await expect(page.locator(".wiz-price-sub")).toHaveText("Or €8.33 per month when billed annually (two months free).");
   await expect(page.locator(".wiz-result")).toContainText("German law requires every business to have a TSE");
+  // ut-docs#5485: the law note names the managed line's minimum term, from the price file.
+  await expect(page.locator(".wiz-result")).toContainText(`That line has a minimum term of ${TSE_MIN} months for each activated main till; the plan itself has none.`);
+});
+
+test("Germany + Multi-location without fiscal tick: the law note carries the managed-TSE minimum; the UK note does not", async ({ page }) => {
+  await page.goto("/en-gb/find-your-setup");
+  await answer(page, { country: "de", sites: "few" });
+  await expect(page.locator(".wiz-result")).toContainText(`That line has a minimum term of ${TSE_MIN} months for each activated main till; the plan itself has none.`);
+  await page.goto("/en-gb/find-your-setup");
+  await answer(page, { country: "uk", needs: ["remote"] });
+  await expect(page.locator(".wiz-result")).not.toContainText("minimum term");
 });
 
 test("Germany + Shop with fiscal: managed-TSE line excl. VAT", async ({ page }) => {

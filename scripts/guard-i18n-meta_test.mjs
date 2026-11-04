@@ -165,12 +165,12 @@ test("real metadata: marketing copy is standard, binding claims are legal", () =
   const meta = JSON.parse(fs.readFileSync(path.join(repo, "i18n/en.meta.json"), "utf8"));
   for (const k of ["foot.tagline", "hero.cta1", "close.cta", "close.title", "free.title", "nav.start", "wiz.cta.download", "wiz.price.pick"])
     assert.equal(meta[k].review, "standard", k);
-  for (const k of ["wiz.privacy", "wiz.res.sent", "wiz.talk.note", "consent.text", "foot.privacy", "foot.terms", "foot.impressum", "wiz.price.month", "wiz.price.tse", "wiz.price.tsemin", "wiz.n.detse", "wiz.gap.tr", "wiz.q.card.hint", "why.exit.d", "pluginspage.perm.net", "free.body", "wiz.gap.team", "about.body", "hero.note"])
+  for (const k of ["wiz.privacy", "wiz.res.sent", "wiz.talk.note", "consent.text", "foot.privacy", "foot.terms", "foot.impressum", "wiz.price.month", "wiz.price.tse", "wiz.price.tsemin", "wiz.n.detsemin", "wiz.gap.tr", "wiz.q.card.hint", "why.exit.d", "pluginspage.perm.net", "free.body", "wiz.gap.team", "about.body", "hero.note"])
     assert.equal(meta[k].review, "legal", k);
 });
 test("real metadata: legal-tier count is pinned so re-classification shows in review", () => {
   const meta = JSON.parse(fs.readFileSync(path.join(repo, "i18n/en.meta.json"), "utf8"));
-  // 64: + wiz.price.tsemin, the German managed-TSE minimum term (ut-docs#5473).
+  // 64: + wiz.price.tsemin, the German managed-TSE minimum term (ut-docs#5473); wiz.n.detse -> wiz.n.detsemin is one removed, one added, so still 64 (ut-docs#5485).
   assert.equal(Object.values(meta).filter((e) => e.review === "legal").length, 64);
 });
 

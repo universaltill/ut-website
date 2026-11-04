@@ -108,7 +108,7 @@
     { id: "uk-fiscal", if: { country: ["uk"], needs: ["fiscal"] }, text: "wiz.n.ukfiscal" },
     // Germany: a TSE is required by law whatever the till. Shown whenever the
     // visitor did not tick the fiscal need (the fiscal tick has its own notes).
-    { id: "de-tse-law", if: { country: ["de"], noNeeds: ["fiscal"] }, text: "wiz.n.detse" },
+    { id: "de-tse-law", if: { country: ["de"], noNeeds: ["fiscal"] }, text: "wiz.n.detsemin" },
     // Only when the German fiscal need ALONE put them on Shop. With sites
     // pushing the plan to Multi-location or beyond, Local would not fit anyway.
     { id: "de-own-device", if: { country: ["de"], needs: ["fiscal"], plan: ["shop"] }, text: "wiz.n.deowndevice" },

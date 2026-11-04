@@ -99,11 +99,28 @@ test("en-gb and de-de carry the monthly-billing wording; the German FAQ names th
   if (translated("de-de", "start.lede")) expect(I18N["de-de"]["start.lede"]).toContain("TSE");
 });
 
+// ut-docs#5485 — every headline "no minimum term" claim carries Germany's managed-TSE exception in the same sentence.
+test("headline 'no minimum term' claims carry the Germany managed-TSE exception (en-gb)", () => {
+  const en = I18N["en-gb"];
+  const tseMin = JSON.parse(fs.readFileSync(path.join(ROOT, "data/plan-prices.json"), "utf8")).countries.de.tse_per_main_till.min_months_per_activated_till;
+  expect(en["hero.lede"]).toContain("No minimum term on monthly billing, except Germany's managed TSE line.");
+  expect(en["start.lede"]).toContain("no minimum term on monthly billing, except Germany's managed TSE line.");
+  expect(en["meta.home.desc"]).toContain("no minimum term on monthly billing (Germany's managed TSE line excepted)");
+  expect(en["why.exit.d"]).toContain("No minimum term on monthly billing:");
+  expect(en["why.exit.d"]).toContain(`The one exception is Germany's managed TSE line, which has a ${tseMin}-month minimum per activated main till.`);
+  for (const k of ["hero.lede", "why.exit.d", "start.lede", "meta.home.desc"]) expect(en[k], k).not.toMatch(/certified|compliant/i);
+  // Legal M1 (ut-docs#5485): the card heading must not deny the tie-in its own body names.
+  expect(en["why.exit.t"]).toBe("No tie-in on your plan.");
+});
+
 test("the English fallback text in index.html and start.html equals the en-gb dict", () => {
   const en = I18N["en-gb"];
   const index = fs.readFileSync(path.join(ROOT, "site/index.html"), "utf8");
   const start = fs.readFileSync(path.join(ROOT, "site/start.html"), "utf8");
   expect(decode(index.match(/<meta name="description"[^>]*content="([^"]*)"/)[1])).toBe(en["meta.home.desc"]);
+  expect(decode(index.match(/data-i18n="hero\.lede">([\s\S]*?)<\/p>/)[1])).toBe(en["hero.lede"]);
+  expect(decode(index.match(/data-i18n="why\.exit\.t">([\s\S]*?)<\/h3>/)[1])).toBe(en["why.exit.t"]);
+  expect(decode(index.match(/data-i18n="why\.exit\.d">([\s\S]*?)<\/p>/)[1])).toBe(en["why.exit.d"]);
   expect(decode(index.match(/data-i18n="faq\.a2">([\s\S]*?)<\/p>/)[1])).toBe(en["faq.a2"]);
   expect(decode(start.match(/data-i18n="start\.lede">([\s\S]*?)<\/p>/)[1])).toBe(en["start.lede"]);
 });
