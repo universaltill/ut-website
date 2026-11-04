@@ -140,13 +140,20 @@ test.describe("language switcher", () => {
   test("tab order is the list order, and sizes meet 44px on a phone", async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 740 });
     await page.goto("/de-de/language?from=%2Fdownload");
-    for (const sel of [".locale-card", ".lang-link", ".mt-band a"]) {
-      for (const el of await page.locator(sel).all()) {
-        const box = await el.boundingBox();
-        expect(box.height, sel).toBeGreaterThanOrEqual(43.5);
-        if (sel !== ".mt-band a") expect(box.width, sel).toBeGreaterThanOrEqual(43.5);
+    let checked = 0;
+    for (const p of ["/de-de/language?from=%2Fdownload", "/de-de/download", "/fa-ir/blog/", "/zh-cn"]) {
+      await page.goto(p);
+      for (const sel of [".locale-card", ".lang-link", ".mt-band a"]) {
+        for (const el of await page.locator(sel).all()) {
+          const box = await el.boundingBox();
+          expect(box.height, `${p} ${sel}`).toBeGreaterThanOrEqual(43.5);
+          if (sel !== ".mt-band a") expect(box.width, `${p} ${sel}`).toBeGreaterThanOrEqual(43.5);
+          checked++;
+        }
       }
     }
+    expect(checked).toBeGreaterThan(15);
+    await page.goto("/de-de/language?from=%2Fdownload");
     const order = await page.locator(".locale-card").evaluateAll((as) => as.map((a) => a.getAttribute("data-code")));
     expect(order).toEqual(LOCALES);
     await page.locator(`a[data-code="${LOCALES[0]}"]`).focus();
@@ -173,6 +180,7 @@ test.describe("scripts that must not be letter-spaced or slanted", () => {
           const s = getComputedStyle(el);
           if (!(s.letterSpacing === "normal" || parseFloat(s.letterSpacing) === 0)) out.push(el.tagName + " ls=" + s.letterSpacing);
           if (s.fontStyle === "italic") out.push(el.tagName + " italic");
+          if (s.textTransform !== "none" && !el.classList.contains("locale-code") && /^(ar|fa)/.test(document.documentElement.lang)) out.push(el.tagName + " text-transform=" + s.textTransform);
         }
         return out.slice(0, 5);
       });

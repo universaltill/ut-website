@@ -15,7 +15,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { check } from "./check-locale-consistency.mjs";
-import { ROOT, buildSwaConfig, localeRoutes, legalApproved } from "./lib/locales.mjs";
+import { ROOT, buildSwaConfig, localeRoutes, legalApproved, htmlProblems, websiteLocales } from "./lib/locales.mjs";
 
 const real = path.join(ROOT, "i18n");
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "ut-locale-fixture-"));
@@ -150,4 +150,29 @@ test("legalApproved: per-document flag wins, summary flag is the fallback, Engli
   assert.equal(legalApproved(l(undefined, true), "terms"), true);
   assert.equal(legalApproved(l(undefined, false), "terms"), false);
   assert.equal(legalApproved({ url: "xx-xx", surfaces: {} }, "terms"), false);
+});
+
+test("htmlProblems: the allow-list rejects handlers, odd separators, styles, script URLs and tag drift", () => {
+  const en = 'Run <code>unitill</code> or <a href="/download">download</a>.';
+  assert.deepEqual(htmlProblems('Starte <code>unitill</code> oder <a href="/download">lade</a>.', en), []);
+  for (const bad of [
+    '<code/onmouseover=alert(1)>unitill</code> <a href="/download">x</a>',
+    '<code onmouseover="alert(1)">unitill</code> <a href="/download">x</a>',
+    '<code style="position:fixed;inset:0">unitill</code> <a href="/download">x</a>',
+    '<code>unitill</code> <a href="/download" target=_blank>x</a>',
+    '<code>unitill</code> <a href="javascript:alert(1)">x</a>',
+    '<code>unitill</code> <a href=" java\tscript:alert(1)">x</a>',
+    '<code>unitill</code> <a href="/elsewhere">x</a>',
+    '<code>unitill</code> <img src=x onerror=alert(1)> <a href="/download">x</a>',
+    '<code>unitill</code> <a href="/download">x</a><script>1</script>',
+    '<code>unitill <a href="/download">x</a>',
+    '<code>unitill</code> <a href="/download">x</a> <b',
+  ]) assert.notDeepEqual(htmlProblems(bad, en), [], bad);
+});
+
+test("a published list with an odd url locale is refused, and shared language aliases are emitted once", () => {
+  const l = (url) => ({ url, native_name: url, english_name: url, dir: "ltr", surfaces: { website: { published: true } } });
+  assert.throws(() => websiteLocales({ locales: [l("en-gb"), l("es-419")] }), /xx-yy/);
+  const aliases = localeRoutes({ locales: [l("en-gb"), l("pt-pt"), l("pt-br")], withdrawn: [] }).filter((r) => r.route === "/pt");
+  assert.equal(aliases.length, 1);
 });

@@ -58,6 +58,7 @@ const surfaceOf = (l, name = SURFACE) => (l.surfaces && l.surfaces[name]) || nul
 /** Locales the website serves: published for the `website` surface; the English source first, then by English name. */
 export function websiteLocales(list) {
   const out = list.locales.filter((l) => l.url === SOURCE || (surfaceOf(l) && surfaceOf(l).published === true));
+  for (const l of out) if (!/^[a-z]{2}-[a-z]{2}$/.test(l.url)) throw new Error(`published list: url locale ${JSON.stringify(l.url)} must look like xx-yy (routes and guards rely on it)`);
   if (!out.some((l) => l.url === SOURCE)) throw new Error(`the published list has no ${SOURCE} source locale`);
   return out.sort((a, b) => (a.url === SOURCE ? -1 : b.url === SOURCE ? 1 : String(a.english_name).localeCompare(String(b.english_name))));
 }
@@ -108,21 +109,34 @@ export function loadDicts(dir = i18nDir()) {
 
 // ---- HTML-bearing values (translator-supplied markup) ----------------------
 const ALLOWED_TAGS = new Set(["a", "b", "i", "em", "strong", "br", "span", "code"]);
-const tagSet = (s) => [...String(s).matchAll(/<\s*(\/?)\s*([a-zA-Z][a-zA-Z0-9]*)([^>]*)>/g)].map((m) => ({ close: m[1] === "/", name: m[2].toLowerCase(), attrs: m[3] }));
+// Attributes per tag: anything not listed is rejected. Only <a href> carries one.
+const ALLOWED_ATTRS = { a: new Set(["href"]) };
+const TAG = /<\s*(\/?)\s*([a-zA-Z][a-zA-Z0-9]*)((?:"[^"]*"|'[^']*'|[^>"'])*)>/g;
+const tagSet = (s) => [...String(s).matchAll(TAG)].map((m) => ({ close: m[1] === "/", name: m[2].toLowerCase(), attrs: m[3] }));
+// Attribute list the way a browser splits it: whitespace OR "/" separates, so `<code/onmouseover=x>` has one.
+const ATTR = /([^\s"'<>\/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
+const attrsOf = (raw) => [...String(raw).matchAll(ATTR)].map((m) => ({ name: m[1].toLowerCase(), value: m[2] ?? m[3] ?? m[4] ?? "" }));
+const SAFE_HREF = /^(\/|#|https:\/\/|mailto:)/i;
 
 /** Problems with an HTML-bearing value against the allow-list; [] when safe. */
 export function htmlProblems(value, english) {
   const out = [];
+  if (/<!--|<!\[|<\?/.test(String(value))) out.push("comments, CDATA and processing instructions are not allowed");
   for (const t of tagSet(value)) {
-    if (!ALLOWED_TAGS.has(t.name)) out.push(`tag <${t.name}> is not allowed`);
-    if (/\son[a-z]+\s*=/i.test(t.attrs)) out.push(`<${t.name}> has an event handler`);
-    if (/javascript:|data:|vbscript:/i.test(t.attrs)) out.push(`<${t.name}> has a script URL`);
-    if (!t.close && t.name === "a" && !/\shref\s*=/.test(t.attrs)) out.push("<a> without href");
+    if (!ALLOWED_TAGS.has(t.name)) { out.push(`tag <${t.name}> is not allowed`); continue; }
+    if (t.close) continue;
+    for (const at of attrsOf(t.attrs)) {
+      if (!(ALLOWED_ATTRS[t.name] && ALLOWED_ATTRS[t.name].has(at.name))) out.push(`<${t.name}> has the attribute ${at.name}, which is not allowed`);
+      else if (at.name === "href" && !SAFE_HREF.test(at.value.trim().replace(/[\u0000-\u0020]/g, ""))) out.push(`<a href="${at.value}"> is not a site path, https or mailto link`);
+    }
+    if (t.name === "a" && !attrsOf(t.attrs).some((x) => x.name === "href")) out.push("<a> without href");
   }
+  // Anything that still looks like an unterminated tag would be completed by the browser.
+  if (/<[a-zA-Z/]/.test(String(value).replace(TAG, ""))) out.push("unterminated or malformed tag");
   if (english !== undefined) {
     const sig = (s) => tagSet(s).map((t) => (t.close ? "/" : "") + t.name).sort().join(",");
     if (sig(value) !== sig(english)) out.push("tag set differs from the English text");
-    const hrefs = (s) => [...String(s).matchAll(/href\s*=\s*"([^"]*)"/gi)].map((m) => m[1]).sort().join("|");
+    const hrefs = (s) => tagSet(s).filter((t) => !t.close).flatMap((t) => attrsOf(t.attrs).filter((a) => a.name === "href").map((a) => a.value)).sort().join("|");
     if (hrefs(value) !== hrefs(english)) out.push("link targets differ from the English text");
   }
   return out;
@@ -145,14 +159,18 @@ export function localeRoutes(list) {
     for (const p of PAGES) out.push({ route: `/${l.url}${p.suffix}`, rewrite: `/${l.url}/${p.file}` });
     for (const s of REDIRECT_SUFFIXES) out.push({ route: `/${l.url}${s}`, redirect: `/${l.url}`, statusCode: 301 });
   }
+  const seen = new Set();
   for (const l of websiteLocales(list)) {
-    if (l.url !== SOURCE) out.push({ route: `/${l.url.split("-")[0]}`, redirect: `/${l.url}`, statusCode: 301 });
+    const alias = `/${l.url.split("-")[0]}`;
+    if (l.url !== SOURCE && !seen.has(alias)) { seen.add(alias); out.push({ route: alias, redirect: `/${l.url}`, statusCode: 301 }); }
   }
   for (const url of withdrawnUrls(list)) {
     if (websiteLocales(list).some((l) => l.url === url)) continue;
     for (const p of PAGES) out.push({ route: `/${url}${p.suffix}`, redirect: `/${SOURCE}${p.suffix}`, statusCode: 301 });
     for (const a of ASTRO_INDEXES) out.push({ route: `/${url}${a}`, redirect: `/${SOURCE}${a}`, statusCode: 301 });
     out.push({ route: `/${url}/*`, redirect: `/${SOURCE}`, statusCode: 301 });
+    const alias = `/${url.split("-")[0]}`;
+    if (!seen.has(alias)) { seen.add(alias); out.push({ route: alias, redirect: `/${SOURCE}`, statusCode: 301 }); }
   }
   return out;
 }
