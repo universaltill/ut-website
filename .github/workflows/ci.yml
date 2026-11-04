@@ -4,6 +4,7 @@ on:
   push:
     branches-ignore: [main]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   check-i18n:
@@ -17,6 +18,7 @@ jobs:
       # ADR-0177 / ut-docs#5405: the English source + translator metadata for
       # Weblate (i18n/en.json is the source since the #5406 cutover).
       - run: node scripts/guard-i18n-meta.mjs
+      - run: node --test scripts/sync-locales_test.mjs
       - run: node --test scripts/guard-i18n-meta_test.mjs
       # ut-docs#5406: site/i18n-data.js and the locale routes of
       # site/staticwebapp.config.json are GENERATED from i18n/published/locales.json

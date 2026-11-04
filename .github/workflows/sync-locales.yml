@@ -1,0 +1,95 @@
+# Pull the published website locales from ut-translations@main and open a PR
+# (ADR-0177 section 3; ut-docs#5545, part of #5405).
+#
+#   published/locales.json            -> i18n/published/locales.json
+#   published/website/<code>.json     -> i18n/<url-locale>.json
+#   then `node scripts/gen-locales.mjs` regenerates site/i18n-data.js and the
+#   locale routes of site/staticwebapp.config.json.
+#
+# A language goes live when its PR is merged: the merge to main runs deploy.yml.
+#
+# PUBLIC repo: GitHub-hosted runner only, no secrets (ut-translations is
+# public and read with no credential; the PR is opened with this run's own
+# GITHUB_TOKEN). Least privilege: contents + pull-requests write, actions
+# write only to dispatch CI. The branch is never pushed to main directly.
+# A PR created with GITHUB_TOKEN does not start `pull_request` workflows,
+# so this job dispatches ci.yml on the sync branch; its check runs attach to
+# the PR head commit.
+
+name: sync-locales
+
+on:
+  schedule:
+    - cron: "41 */6 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: sync-locales
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+      - uses: actions/checkout@v7
+        with:
+          repository: universaltill/ut-translations
+          ref: main
+          path: .ut-translations
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "26"
+
+      - name: Sync locales
+        run: node scripts/sync-locales.mjs --from .ut-translations
+
+      - name: Regenerate and check
+        run: |
+          node scripts/gen-locales.mjs
+          node scripts/gen-locales.mjs --check
+
+      - name: Open or update the PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          # generated_at moves on every upstream refresh; only real content opens a PR
+          git add -A i18n site
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          files=$(git diff --cached --name-only)
+          if [ "$files" = "i18n/published/locales.json" ]; then
+            real=$(git diff --cached -U0 i18n/published/locales.json | grep -E '^[+-] ' | grep -vcE '"(generated_at|source_commit)"' || true)
+            if [ "$real" = "0" ]; then echo "only timestamps changed"; exit 0; fi
+          fi
+          src=$(git -C .ut-translations rev-parse --short=12 HEAD)
+          branch="sync-locales/auto"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -q -B "$branch"
+          git commit -q -m "locales: sync published website locales from ut-translations@${src}"
+          # The branch is bot-owned. Same content as the open PR's branch -> nothing to push, no CI re-run.
+          if git fetch -q origin "$branch" 2>/dev/null; then
+            if [ "$(git rev-parse 'HEAD^{tree}')" = "$(git rev-parse 'FETCH_HEAD^{tree}')" ]; then echo "PR branch already has this content"; exit 0; fi
+            if [ "$(git log -1 --format=%ae FETCH_HEAD)" != "41898282+github-actions[bot]@users.noreply.github.com" ]; then
+              echo "::error::$branch has a commit that is not the bot's; a person is working on it. Merge or close that PR first."; exit 1
+            fi
+            git push -q --force-with-lease="$branch:$(git rev-parse FETCH_HEAD)" origin "$branch"
+          else
+            git push -q origin "$branch"
+          fi
+          if [ -z "$(gh pr list --head "$branch" --state open --json number --jq '.[0].number')" ]; then
+            gh pr create --base main --head "$branch" --title "locales: sync published website locales (ut-translations@${src})" \
+              --body "Automated by sync-locales.yml. Merging deploys the new or updated languages. Review the AI-label state in i18n/published/locales.json (human_reviewed / machine_label) before merging."
+          fi
+          gh workflow run ci.yml --ref "$branch"
