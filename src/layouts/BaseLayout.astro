@@ -1,5 +1,7 @@
 ---
 import { I18N, langPillLabel, langPillText } from '../lib/marketingPages';
+import { LANGS, SOURCE_LOCALE, dirOf, infoOf, isMachineLabelled } from '../lib/locales';
+import { bandHtml, esc, fallbackNoteHtml, footerReportHtml } from '../lib/chrome';
 // No stylesheet import here on purpose. site/styles.css (linked below, served
 // straight from publicDir) is the ONLY stylesheet on this site — these pages
 // used to also load a Tailwind-based global.css that redeclared the same
@@ -8,30 +10,19 @@ import { I18N, langPillLabel, langPillText } from '../lib/marketingPages';
 // exactly the "am I on a different website?" feeling a visitor gets before
 // they can name why.
 
-// Locales and their writing direction, mirroring site/i18n.js. Every locale
-// gets its own URL prefix (/tr-tr/blog), because a language that exists only
-// behind a click is a language search engines never index — and a visitor who
-// bookmarks a Turkish page should get a Turkish page back.
-//
-// Region-tagged, not language-only. VAT, receipt law and payment
-// rails differ by COUNTRY, not by language, so "tr" has nowhere to put a
-// future difference between two markets sharing a language. en-GB is the
-// default and lives at the root.
-export const LANGS = ['en-gb', 'tr-tr', 'zh-cn', 'fa-ir', 'de-de'];
-// The locale content is authored in, and the fallback when a translation is
-// missing. Exported so the blog pages don't each hard-code "en-gb".
-export const SOURCE_LOCALE = 'en-gb';
+// The locales, their direction and the AI label all come from the published
+// list (src/lib/locales.ts): no locale is named here. Every locale gets its
+// own URL prefix (/tr-tr/blog), because a language that exists only behind a
+// click is a language search engines never index. Region-tagged because VAT,
+// receipt law and payment rails differ by COUNTRY, not language (ADR-0038).
+export { LANGS, SOURCE_LOCALE };
 const DEFAULT_LANG = SOURCE_LOCALE;
-const DIR = { 'en-gb': 'ltr', 'tr-tr': 'ltr', 'zh-cn': 'ltr', 'fa-ir': 'rtl', 'de-de': 'ltr' };
 
 // BCP-47 uppercases the region subtag; crawlers accept either, humans read it.
 // Exported so JSON-LD's `inLanguage` (blog/[slug].astro) uses the exact same
 // mapping as this file's own <html lang> and hreflang tags, rather than a
 // second copy that could drift.
-export const bcp47 = (code: string) => {
-  const parts = code.split('-');
-  return parts.length === 2 ? `${parts[0]}-${parts[1].toUpperCase()}` : code;
-};
+export const bcp47 = (code: string) => infoOf(code).bcp47;
 
 interface Props {
   title: string;
@@ -49,12 +40,20 @@ interface Props {
    *  the canonical points at the en-gb URL, so a search engine indexes the
    *  original once rather than five copies of it (ut-docs#3811). */
   isFallback?: boolean;
+  /** Keep this page out of search results (an unreviewed machine translation
+   *  of a post or help page, ADR-0177 section 7). It also gets no hreflang. */
+  noindex?: boolean;
+  /** i18n keys the page body renders with t(); the fallback note appears when
+   *  any of them (or the header/footer) falls back to English. */
+  keys?: string[];
+  /** Show the "English is binding" notice (legal pages served in English). */
+  legalEnglish?: boolean;
 }
 
-const { title, description, lang, path, translatedLangs = LANGS, isFallback = false } = Astro.props;
+const { title, description, lang, path, translatedLangs = LANGS, isFallback = false, noindex = false, keys = [], legalEnglish = false } = Astro.props;
 const current = lang ?? DEFAULT_LANG;
-const dir = DIR[current] ?? 'ltr';
-const canonical = new URL(isFallback ? `/${SOURCE_LOCALE}${path}` : Astro.url.pathname, Astro.site);
+const dir = dirOf(current);
+const canonical = new URL(isFallback || noindex ? `/${SOURCE_LOCALE}${path}` : Astro.url.pathname, Astro.site);
 
 // The chrome's data-i18n strings, rendered in this page's locale at build
 // time — the same dict site/i18n.js applies at runtime, so a crawler that
@@ -63,6 +62,14 @@ const canonical = new URL(isFallback ? `/${SOURCE_LOCALE}${path}` : Astro.url.pa
 export const t = (locale: string, key: string): string =>
   I18N[locale]?.[key] ?? I18N[SOURCE_LOCALE][key] ?? key;
 const T = (key: string) => t(current, key);
+// A key the locale does not ship shows English; mark it lang="en" so a screen
+// reader switches voice and the page can say so once.
+const fbKeys = new Set<string>(I18N[current]?._fb ?? []);
+const F = (key: string) => (fbKeys.has(key) ? `<span lang="en" dir="ltr" data-i18n-fallback>${esc(T(key))}</span>` : esc(T(key)));
+const CHROME_KEYS = ['nav.solutions', 'nav.tour', 'nav.why', 'nav.hardware', 'nav.plugins', 'nav.news', 'nav.about', 'nav.get', 'nav.menu', 'foot.tagline', 'foot.owner', 'foot.rights', 'foot.impressum', 'foot.privacy', 'foot.terms'];
+const usedFallback = [...CHROME_KEYS, ...keys].some((k) => fbKeys.has(k));
+const labelled = isMachineLabelled(current);
+const pagePath = path === '/' ? '' : path;
 
 // Prefix a site path with the current language, so navigating out of a
 // Turkish page lands on a Turkish page rather than silently switching to
@@ -77,7 +84,7 @@ const L = (p: string) => `/${current}${p === '/' ? '' : p}` || '/';
 // duplicates competing with each other. Only real translations are listed;
 // an English fallback declares none (it isn't its own canonical, so it isn't
 // a member of the set — ut-docs#3811).
-const alternates = isFallback
+const alternates = isFallback || noindex
   ? []
   : LANGS.filter((code) => translatedLangs.includes(code)).map((code) => ({
       code,
@@ -91,8 +98,9 @@ const alternates = isFallback
   <meta charset="utf-8" />
   <script is:inline>if(location.hostname==="universaltill.com"){location.replace("https://www.universaltill.com"+location.pathname+location.search+location.hash);}</script>
   <link rel="canonical" href={canonical} />
+  {noindex && <meta name="robots" content="noindex" />}
   {alternates.map((a) => <link rel="alternate" hreflang={bcp47(a.code)} href={a.href} />)}
-  {!isFallback && <link rel="alternate" hreflang="x-default" href={new URL(`/${DEFAULT_LANG}${path}`, Astro.site).href} />}
+  {!isFallback && !noindex && <link rel="alternate" hreflang="x-default" href={new URL(`/${DEFAULT_LANG}${path}`, Astro.site).href} />}
   <link rel="alternate" type="application/rss+xml" title="Universal Till News" href={new URL(`/${current}/blog/rss.xml`, Astro.site).href} />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title} — Universal Till</title>
@@ -102,6 +110,7 @@ const alternates = isFallback
        .card, .section and the body typeface all come from here, so these
        pages are the same site rather than a lookalike. -->
   <link rel="stylesheet" href="/styles.css" />
+  <script defer src="/i18n-data.js"></script>
   <script defer src="/i18n.js"></script>
   <!-- nav.js too: the hamburger below is markup this header carries
        (ut-docs#458). Without it the toggle would render and do nothing at
@@ -126,24 +135,28 @@ const alternates = isFallback
     <span>Universal <strong>Till</strong></span>
   </a>
   <nav id="site-nav">
-    <a href={`${L('/')}#solutions`} data-i18n="nav.solutions">{T('nav.solutions')}</a>
-    <a href={`${L('/')}#tour`} data-i18n="nav.tour">{T('nav.tour')}</a>
-    <a href={`${L('/')}#why`} data-i18n="nav.why">{T('nav.why')}</a>
-    <a href={`${L('/')}#hardware`} data-i18n="nav.hardware">{T('nav.hardware')}</a>
-    <a href={L('/plugins/')} data-i18n="nav.plugins">{T('nav.plugins')}</a>
-    <a href={L('/blog/')} data-i18n="nav.news">{T('nav.news')}</a>
-    <a href={`${L('/')}#about`} data-i18n="nav.about">{T('nav.about')}</a>
+    <a href={`${L('/')}#solutions`} data-i18n="nav.solutions" set:html={F('nav.solutions')}></a>
+    <a href={`${L('/')}#tour`} data-i18n="nav.tour" set:html={F('nav.tour')}></a>
+    <a href={`${L('/')}#why`} data-i18n="nav.why" set:html={F('nav.why')}></a>
+    <a href={`${L('/')}#hardware`} data-i18n="nav.hardware" set:html={F('nav.hardware')}></a>
+    <a href={L('/plugins/')} data-i18n="nav.plugins" set:html={F('nav.plugins')}></a>
+    <a href={L('/blog/')} data-i18n="nav.news" set:html={F('nav.news')}></a>
+    <a href={`${L('/')}#about`} data-i18n="nav.about" set:html={F('nav.about')}></a>
   </nav>
   <div class="nav-actions">
     <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label={T('nav.menu')} data-i18n-aria-label="nav.menu">
       <span class="nav-toggle-bars" aria-hidden="true"></span>
     </button>
-    <a class="btn" href={L('/find-your-setup')} data-i18n="nav.get">{T('nav.get')}</a>
+    <a class="btn" href={L('/find-your-setup')} data-i18n="nav.get" set:html={F('nav.get')}></a>
     <!-- i18n.js rewrites this href at runtime to carry the current page, so
          choosing a language returns you HERE rather than to the homepage. -->
     <a class="lang-link" rel="nofollow" href={`/${current}/language?from=${encodeURIComponent(path)}`} aria-label={langPillLabel(current)} data-i18n-aria-label="nav.language">{langPillText(current)}</a>
   </div>
 </header>
+
+{labelled && <Fragment set:html={bandHtml(current, pagePath, I18N[current])} />}
+{usedFallback && <Fragment set:html={fallbackNoteHtml(I18N[current])} />}
+{legalEnglish && <div class="mt-band mt-band--note" role="note" data-legal-english><p class="mt-band__text">{T('site.legal_english_binding')}</p></div>}
 
 <main>
   <slot />
@@ -155,16 +168,16 @@ const alternates = isFallback
     <img src="/logo.svg" alt="" width="19" height="26" />
     <span>Universal <strong>Till</strong></span>
   </div>
-  <p class="foot-tagline" data-i18n="foot.tagline">{T('foot.tagline')}</p>
-  <p class="foot-owner" data-i18n="foot.owner">{T('foot.owner')}</p>
-  <p class="foot-rights" data-i18n="foot.rights">{T('foot.rights')}</p>
+  <p class="foot-tagline" data-i18n="foot.tagline" set:html={F('foot.tagline')}></p>
+  <p class="foot-owner" data-i18n="foot.owner" set:html={F('foot.owner')}></p>
+  <p class="foot-rights" data-i18n="foot.rights" set:html={F('foot.rights')}></p>
   <!-- Same three links as site/*.html's footer (ut-docs#1552) — but here,
        unlike site/*.html, THROUGH L() like every other link in this file
        (review caught an earlier draft hardcoding these unprefixed, which
        is right for site/*.html — plain HTML pages never rewrite a generic
        href — but wrong here: this file's whole point is that every link
        stays in the current locale, and an unprefixed /legal/impressum
-       301s to /en-gb/legal/impressum, ejecting a tr-tr/de-de/fa-ir/zh-cn
+       301s to /en-gb/legal/impressum, ejecting a non-English
        reader out of their own locale on click). A real space (not just
        adjacent whitespace) around "·" so Astro's HTML compression can't
        collapse it away the way it does a newline+indent — verified against
@@ -173,10 +186,11 @@ const alternates = isFallback
        this footer link-for-link (only .foot-tagline's presence), but no
        reason to let it drift anyway. -->
   <p class="foot-legal">
-    <a href={L('/legal/impressum/')} data-i18n="foot.impressum">{T('foot.impressum')}</a>{' · '}
-    <a href={L('/legal/privacy/')} data-i18n="foot.privacy">{T('foot.privacy')}</a>{' · '}
-    <a href={L('/legal/terms/')} data-i18n="foot.terms">{T('foot.terms')}</a>
+    <a href={L('/legal/impressum/')} data-i18n="foot.impressum" set:html={F('foot.impressum')}></a>{' · '}
+    <a href={L('/legal/privacy/')} data-i18n="foot.privacy" set:html={F('foot.privacy')}></a>{' · '}
+    <a href={L('/legal/terms/')} data-i18n="foot.terms" set:html={F('foot.terms')}></a>
   </p>
+  {labelled && <Fragment set:html={footerReportHtml(current, pagePath, I18N[current])} />}
 </footer>
 
 </body>

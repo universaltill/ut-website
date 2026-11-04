@@ -14,7 +14,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+// The repo root. Next to this file when run as a script; the Astro build bundles
+// this module into its own output folder, where "next to this file" is wrong, so
+// fall back to the directory the build was started from (the repo root).
+const HERE_ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+export const ROOT = fs.existsSync(path.join(HERE_ROOT, "i18n")) ? HERE_ROOT : process.cwd();
 export const SOURCE = "en-gb";
 export const SURFACE = "website";
 

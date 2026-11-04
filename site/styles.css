@@ -81,6 +81,9 @@ img { max-width: 100%; }
   border-radius: 999px; padding: .3rem .7rem; font-size: .8rem; color: var(--muted);
 }
 .lang-link:hover { border-color: var(--brand); color: var(--brand); }
+.lang-link:focus-visible, .locale-card:focus-visible, .mt-band a:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+/* 44px touch target on phones and tablets (the product rule; WCAG 2.5.8 only asks 24). */
+@media (max-width: 768px) { .lang-link { min-height: 44px; min-width: 44px; justify-content: center; } }
 
 /* Language picker page */
 .locale-grid {
@@ -96,10 +99,42 @@ img { max-width: 100%; }
 .locale-name { font-size: 1.05rem; font-weight: 600; color: var(--ink); }
 .locale-english { font-size: .92rem; color: var(--ink-soft); margin-top: .15rem; }
 .locale-code { font-size: .75rem; color: var(--muted); text-transform: uppercase; margin-top: .4rem; }
-.rtl-badge {
-  display: inline-block; margin-inline-start: .5rem; padding: .1rem .45rem;
-  border-radius: 999px; background: #dcfce7; color: #166534; font-size: .68rem; font-weight: 700;
+.locale-grid { list-style: none; padding: 0; }
+.locale-grid li { display: contents; }
+.locale-card { min-height: 44px; }
+.locale-name, .locale-english, .locale-code { display: block; }
+.locale-card[aria-current="true"] { border-width: 2px; }
+.locale-current { display: inline-flex; align-items: center; gap: .3rem; margin-inline-start: .5rem; font-size: .8rem; font-weight: 600; color: var(--ink-soft); }
+.locale-current svg { color: var(--brand); }
+
+/* "Translated with AI" (owner decision 2026-11-04). Meaning is icon + words,
+   never colour or border alone; tokens only, no dark mode exists yet. */
+.mt-band {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .9rem;
+  padding: .5rem clamp(1rem, 4vw, 2.4rem);
+  background: var(--band); color: var(--ink-soft);
+  border-block-end: 1px solid var(--border);
+  font-size: .9rem; line-height: 1.6;
 }
+.mt-band__icon { flex: none; color: var(--brand); }
+.mt-band__text { flex: 1 1 24ch; margin: 0; overflow-wrap: anywhere; }
+.mt-band__text strong { color: var(--ink); font-weight: 600; }
+.mt-band__links { display: flex; flex-wrap: wrap; gap: 0 1.1rem; margin: 0; }
+.mt-band a { display: inline-flex; align-items: center; min-height: 44px; padding-inline: .25rem; text-decoration: underline; }
+.mt-band--note { border-block-end: 1px solid var(--border); }
+.mt-badge {
+  display: inline-block; margin-inline-start: .5rem; padding: .1rem .45rem;
+  border: 1px solid var(--ink-soft); border-radius: 999px;
+  color: var(--ink-soft); font-size: .72rem; font-weight: 700; letter-spacing: 0; text-transform: none;
+}
+.foot-report a { text-decoration: underline; }
+
+/* Scripts that break when letters are spaced or slanted (UX spec 3, 4). */
+:lang(ar), :lang(fa), :lang(zh), :lang(ar) *, :lang(fa) *, :lang(zh) * { letter-spacing: 0 !important; font-style: normal; }
+:lang(ar) *, :lang(fa) * { text-transform: none !important; }
+:lang(zh) { font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC", sans-serif; line-break: strict; word-break: normal; }
+:lang(zh) body, body:lang(zh) { line-height: 1.7; }
+:lang(zh) .btn, :lang(zh) .card, :lang(zh) .locale-card { overflow-wrap: anywhere; }
 
 /* Buttons */
 .btn {

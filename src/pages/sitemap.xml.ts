@@ -49,7 +49,7 @@ export const GET: APIRoute = async ({ site }) => {
     }
     // An untranslated fallback canonicalises to its en-gb original, so only
     // real translations are listed (ut-docs#3811).
-    for (const { slug, post } of (byLocale[lang] ?? []).filter((p) => !p.isFallback)) {
+    for (const { slug, post } of (byLocale[lang] ?? []).filter((p) => !p.isFallback && p.indexable)) {
       entries.push(urlEntry(`${base}/${lang}/blog/${slug}/`, post.data.date.toISOString()));
     }
     for (const { slug, page } of (legalByLocale[lang] ?? []).filter((p) => !p.isFallback)) {

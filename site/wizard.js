@@ -40,7 +40,8 @@
 
   // my.universaltill.com serves only these locales (ut-my-shop/src/i18n/i18n.ts);
   // a visitor on any other site language (zh-cn) lands on its en-gb tree.
-  var MY_LOCALES = ["en-gb", "en-us", "de-de", "es-es", "fr-fr", "it-it", "pt-pt", "tr-tr", "ar-sa", "fa-ir"];
+  // The list comes from the published-locale list (i18n-data.js `my`), not from here.
+  var MY_LOCALES = U.my || ["en-gb"];
   var MY = "https://my.universaltill.com/" + (MY_LOCALES.indexOf(lang) !== -1 ? lang : "en-gb") + "/";
   var DOWNLOAD = "/" + lang + "/download";
   var TALK_BASE = "mailto:support@universaltill.com?subject=" + encodeURIComponent(t("wiz.talk.subject"));

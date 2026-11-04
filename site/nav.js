@@ -92,7 +92,27 @@
     });
   }
 
+  // /language: the grid is prerendered (real links, works without JS). This
+  // only carries the page the visitor came from into every link, so choosing a
+  // language returns them where they were. `from` arrives in the query string
+  // and is sanitised by i18n.js (same-origin path only, no open redirect).
+  function wireLanguagePage() {
+    const grid = document.getElementById("locale-grid");
+    const ut = window.UT_I18N;
+    if (!grid || !ut) return;
+    const from = ut.sanitizeFrom(new URLSearchParams(location.search).get("from"));
+    grid.querySelectorAll("a[data-code]").forEach(function (a) {
+      a.setAttribute("href", ut.pathFor(a.getAttribute("data-code"), from));
+    });
+    const back = document.querySelector(".back-link a");
+    if (back) back.setAttribute("href", ut.pathFor(ut.pick(), from));
+    // The picker is this page's whole purpose: start on the current language.
+    const here = grid.querySelector('a[aria-current="true"]');
+    if (here) here.focus({ preventScroll: true });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".nav-toggle").forEach(wire);
+    wireLanguagePage();
   });
 })();
