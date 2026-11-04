@@ -5,7 +5,7 @@
 // picture, so it must follow the page language like any visible string).
 import { expect, test } from "@playwright/test";
 
-const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
+import { LOCALES } from "./helpers/locales.js";
 
 for (const loc of LOCALES) {
   test(`/${loc} screenshots load and carry alt text in the page language`, async ({ page }) => {

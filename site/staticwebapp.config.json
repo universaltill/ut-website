@@ -3,7 +3,7 @@
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "strict-origin-when-cross-origin",
-    "Content-Security-Policy": "default-src 'none'; script-src 'self' https://www.googletagmanager.com 'sha256-4yk2lWZVXqqXmhFZ13aMSYifxHEQT6GtRRpK0JWD7TM=' 'sha256-wBr7utg6HJ3CmztmKfVGV23pLoC5YVvgqHYg2fzE+Ao=' 'sha256-z9fePDEhZXoXbQKRcoSesZ6bFFC6pOQ1kwIbWYyJCP4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; font-src 'self'; connect-src 'self' https://api.github.com https://*.google-analytics.com https://*.googletagmanager.com https://*.analytics.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    "Content-Security-Policy": "default-src 'none'; script-src 'self' https://www.googletagmanager.com 'sha256-4yk2lWZVXqqXmhFZ13aMSYifxHEQT6GtRRpK0JWD7TM=' 'sha256-z9fePDEhZXoXbQKRcoSesZ6bFFC6pOQ1kwIbWYyJCP4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; font-src 'self'; connect-src 'self' https://api.github.com https://*.google-analytics.com https://*.googletagmanager.com https://*.analytics.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
   },
   "routes": [
     {
@@ -23,11 +23,6 @@
       "rewrite": "/en-gb/find-your-setup.html"
     },
     {
-      "route": "/en-gb/store",
-      "redirect": "/en-gb",
-      "statusCode": 301
-    },
-    {
       "route": "/en-gb/pilot",
       "rewrite": "/en-gb/pilot.html"
     },
@@ -40,37 +35,9 @@
       "rewrite": "/en-gb/language.html"
     },
     {
-      "route": "/tr-tr",
-      "rewrite": "/tr-tr/index.html"
-    },
-    {
-      "route": "/tr-tr/download",
-      "rewrite": "/tr-tr/download.html"
-    },
-    {
-      "route": "/tr-tr/start",
-      "rewrite": "/tr-tr/start.html"
-    },
-    {
-      "route": "/tr-tr/find-your-setup",
-      "rewrite": "/tr-tr/find-your-setup.html"
-    },
-    {
-      "route": "/tr-tr/store",
-      "redirect": "/tr-tr",
+      "route": "/en-gb/store",
+      "redirect": "/en-gb",
       "statusCode": 301
-    },
-    {
-      "route": "/tr-tr/pilot",
-      "rewrite": "/tr-tr/pilot.html"
-    },
-    {
-      "route": "/tr-tr/android-till",
-      "rewrite": "/tr-tr/android-till.html"
-    },
-    {
-      "route": "/tr-tr/language",
-      "rewrite": "/tr-tr/language.html"
     },
     {
       "route": "/zh-cn",
@@ -89,11 +56,6 @@
       "rewrite": "/zh-cn/find-your-setup.html"
     },
     {
-      "route": "/zh-cn/store",
-      "redirect": "/zh-cn",
-      "statusCode": 301
-    },
-    {
       "route": "/zh-cn/pilot",
       "rewrite": "/zh-cn/pilot.html"
     },
@@ -106,37 +68,9 @@
       "rewrite": "/zh-cn/language.html"
     },
     {
-      "route": "/fa-ir",
-      "rewrite": "/fa-ir/index.html"
-    },
-    {
-      "route": "/fa-ir/download",
-      "rewrite": "/fa-ir/download.html"
-    },
-    {
-      "route": "/fa-ir/start",
-      "rewrite": "/fa-ir/start.html"
-    },
-    {
-      "route": "/fa-ir/find-your-setup",
-      "rewrite": "/fa-ir/find-your-setup.html"
-    },
-    {
-      "route": "/fa-ir/store",
-      "redirect": "/fa-ir",
+      "route": "/zh-cn/store",
+      "redirect": "/zh-cn",
       "statusCode": 301
-    },
-    {
-      "route": "/fa-ir/pilot",
-      "rewrite": "/fa-ir/pilot.html"
-    },
-    {
-      "route": "/fa-ir/android-till",
-      "rewrite": "/fa-ir/android-till.html"
-    },
-    {
-      "route": "/fa-ir/language",
-      "rewrite": "/fa-ir/language.html"
     },
     {
       "route": "/de-de",
@@ -155,11 +89,6 @@
       "rewrite": "/de-de/find-your-setup.html"
     },
     {
-      "route": "/de-de/store",
-      "redirect": "/de-de",
-      "statusCode": 301
-    },
-    {
       "route": "/de-de/pilot",
       "rewrite": "/de-de/pilot.html"
     },
@@ -170,6 +99,97 @@
     {
       "route": "/de-de/language",
       "rewrite": "/de-de/language.html"
+    },
+    {
+      "route": "/de-de/store",
+      "redirect": "/de-de",
+      "statusCode": 301
+    },
+    {
+      "route": "/fa-ir",
+      "rewrite": "/fa-ir/index.html"
+    },
+    {
+      "route": "/fa-ir/download",
+      "rewrite": "/fa-ir/download.html"
+    },
+    {
+      "route": "/fa-ir/start",
+      "rewrite": "/fa-ir/start.html"
+    },
+    {
+      "route": "/fa-ir/find-your-setup",
+      "rewrite": "/fa-ir/find-your-setup.html"
+    },
+    {
+      "route": "/fa-ir/pilot",
+      "rewrite": "/fa-ir/pilot.html"
+    },
+    {
+      "route": "/fa-ir/android-till",
+      "rewrite": "/fa-ir/android-till.html"
+    },
+    {
+      "route": "/fa-ir/language",
+      "rewrite": "/fa-ir/language.html"
+    },
+    {
+      "route": "/fa-ir/store",
+      "redirect": "/fa-ir",
+      "statusCode": 301
+    },
+    {
+      "route": "/tr-tr",
+      "rewrite": "/tr-tr/index.html"
+    },
+    {
+      "route": "/tr-tr/download",
+      "rewrite": "/tr-tr/download.html"
+    },
+    {
+      "route": "/tr-tr/start",
+      "rewrite": "/tr-tr/start.html"
+    },
+    {
+      "route": "/tr-tr/find-your-setup",
+      "rewrite": "/tr-tr/find-your-setup.html"
+    },
+    {
+      "route": "/tr-tr/pilot",
+      "rewrite": "/tr-tr/pilot.html"
+    },
+    {
+      "route": "/tr-tr/android-till",
+      "rewrite": "/tr-tr/android-till.html"
+    },
+    {
+      "route": "/tr-tr/language",
+      "rewrite": "/tr-tr/language.html"
+    },
+    {
+      "route": "/tr-tr/store",
+      "redirect": "/tr-tr",
+      "statusCode": 301
+    },
+    {
+      "route": "/zh",
+      "redirect": "/zh-cn",
+      "statusCode": 301
+    },
+    {
+      "route": "/de",
+      "redirect": "/de-de",
+      "statusCode": 301
+    },
+    {
+      "route": "/fa",
+      "redirect": "/fa-ir",
+      "statusCode": 301
+    },
+    {
+      "route": "/tr",
+      "redirect": "/tr-tr",
+      "statusCode": 301
     },
     {
       "route": "/",
@@ -279,21 +299,6 @@
     {
       "route": "/blog/*",
       "redirect": "/en-gb/blog/",
-      "statusCode": 301
-    },
-    {
-      "route": "/tr",
-      "redirect": "/tr-tr",
-      "statusCode": 301
-    },
-    {
-      "route": "/zh",
-      "redirect": "/zh-cn",
-      "statusCode": 301
-    },
-    {
-      "route": "/fa",
-      "redirect": "/fa-ir",
       "statusCode": 301
     }
   ],

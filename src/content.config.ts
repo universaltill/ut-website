@@ -17,6 +17,9 @@ const blog = defineCollection({
     // machine translation is a small dishonesty that costs trust the first
     // time a reader hits an odd phrase.
     machineTranslated: z.boolean().default(false),
+    // A person has read this translation. Without it a machine translation in a
+    // locale that has no recorded human review is noindex (ADR-0177 section 7).
+    reviewed: z.boolean().default(false),
   }),
 });
 

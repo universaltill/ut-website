@@ -18,8 +18,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
 const ORIGIN = "https://www.universaltill.com";
 
-const i18nSrc = fs.readFileSync(path.join(ROOT, "site/i18n.js"), "utf8");
-const I18N = (0, eval)("(" + i18nSrc.match(/const I18N = (\{[\s\S]*?\});\s*\n\s*\(function/)[1] + ")");
+import { I18N } from "./helpers/locales.js";
 const LOCALES = Object.keys(I18N);
 const bcp47 = (c) => c.split("-")[0] + "-" + c.split("-")[1].toUpperCase();
 
@@ -130,8 +129,9 @@ test.describe("home page keywords + FAQ (ut-docs#4320)", () => {
     test(`/${locale} FAQ JSON-LD matches the visible FAQ`, async ({ request }) => {
       const html = await (await request.get(`/${locale}`)).text();
       const dict = I18N[locale];
-      const visible = [...html.matchAll(/<summary[^>]*data-i18n="(faq\.q\d+)"[^>]*>([^<]*)<\/summary>\s*<p[^>]*data-i18n="(faq\.a\d+)"[^>]*>([^<]*)<\/p>/g)]
-        .map((m) => ({ q: decode(m[2]), a: decode(m[4]) }));
+      const visible = [...html.matchAll(/<summary[^>]*data-i18n="(faq\.q\d+)"[^>]*>([\s\S]*?)<\/summary>\s*<p[^>]*data-i18n="(faq\.a\d+)"[^>]*>([\s\S]*?)<\/p>/g)]
+        // A key the locale does not ship is wrapped in a lang="en" span: compare the text.
+        .map((m) => ({ q: decode(m[2].replace(/<[^>]+>/g, "")), a: decode(m[4].replace(/<[^>]+>/g, "")) }));
       expect(visible.length).toBeGreaterThanOrEqual(6);
       for (const [i, v] of visible.entries()) {
         expect(v.q).toBe(dict[`faq.q${i + 1}`]);

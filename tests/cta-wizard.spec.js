@@ -4,7 +4,7 @@
 // that links on to my.universaltill.com.
 import { expect, test } from "@playwright/test";
 
-const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
+import { LOCALES } from "./helpers/locales.js";
 const PAGES = ["", "/download", "/start", "/pilot", "/language", "/android-till", "/find-your-setup", "/plugins/", "/blog/", "/legal/privacy"];
 const CTA = 'a[data-i18n="nav.start"], a[data-i18n="nav.get"], a[data-i18n="hero.cta1"], a[data-i18n="free.cta"], a[data-i18n="close.cta"]';
 

@@ -9,8 +9,8 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ORIGIN = "https://www.universaltill.com";
-const i18nSrc = fs.readFileSync(path.join(ROOT, "site/i18n.js"), "utf8");
-const EN = (0, eval)("(" + i18nSrc.match(/const I18N = (\{[\s\S]*?\});\s*\n\s*\(function/)[1] + ")")["en-gb"];
+import { I18N } from "./helpers/locales.js";
+const EN = I18N["en-gb"];
 
 const frontmatter = (file) => {
   const fm = fs.readFileSync(file, "utf8").match(/^---\n([\s\S]*?)\n---/)[1];

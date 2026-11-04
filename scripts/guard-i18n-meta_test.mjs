@@ -1,4 +1,4 @@
-// Self-test for scripts/guard-i18n-meta.mjs and scripts/extract-i18n.mjs
+// Self-test for scripts/guard-i18n-meta.mjs 
 // (ADR-0177 slice 2, ut-docs#5405). Run: node --test scripts/guard-i18n-meta_test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -9,7 +9,6 @@ import { spawnSync } from "node:child_process";
 import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 import { checkMeta } from "./guard-i18n-meta.mjs";
-import { extractEnglish, parseI18nSource } from "./extract-i18n.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repo = path.join(here, "..");
@@ -20,7 +19,7 @@ const okMeta = () => ({
   "c.d": { description: "Progress.", review: "standard", placeholders: ["{n} — current step", "{total} — number of steps"] },
   "e.f": { description: "Something.", review: "standard" },
 });
-const run = (en, meta, source = en) => checkMeta({ en, meta, source });
+const run = (en, meta) => checkMeta({ en, meta });
 
 test("clean fixture passes", () => assert.deepEqual(run(okEn, okMeta()), []));
 
@@ -73,14 +72,6 @@ test("html flag must match markup in the text", () => {
   m["a.b"].html = true;
   assert.match(run(en, m).join("\n"), /a\.b.*html/);
 });
-test("en.json out of sync with the en-gb block fails (missing, extra, changed)", () => {
-  const src = { ...okEn, "n.k": "New key" };
-  assert.match(run(okEn, okMeta(), src).join("\n"), /n\.k.*missing from en\.json/);
-  const src2 = { "a.b": "Hello", "c.d": "Step {n} of {total}" };
-  assert.match(run(okEn, okMeta(), src2).join("\n"), /e\.f.*not in the en-gb block/);
-  const src3 = { ...okEn, "a.b": "Hello there" };
-  assert.match(run(okEn, okMeta(), src3).join("\n"), /a\.b.*differs/);
-});
 test("legal-looking key or text cannot be standard without review_exception", () => {
   const en = { "foot.privacy": "Privacy policy", "x.y": "Only £5 per month", "z.z": "Fine" };
   const m = {
@@ -97,11 +88,6 @@ test("legal-looking key or text cannot be standard without review_exception", ()
   assert.deepEqual(run(en, m), []);
 });
 
-test("extractor drops _meta keys and keeps source order", () => {
-  const src = 'const I18N = {\n "en-gb": { _name: "English", "a": "A", "b": "B" },\n "tr-tr": { "a": "x" },\n};\n(function(){})();';
-  assert.deepEqual(Object.keys(extractEnglish(parseI18nSource(src))), ["a", "b"]);
-});
-
 test("repo: en.json and en.meta.json pass the guard", () => {
   const r = spawnSync(process.execPath, [path.join(here, "guard-i18n-meta.mjs")], { encoding: "utf8", cwd: repo });
   assert.equal(r.status, 0, r.stdout + r.stderr);
@@ -110,8 +96,7 @@ test("repo: en.json and en.meta.json pass the guard", () => {
 test("CLI fails on a mutated copy of the repo files", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "i18n-guard-"));
   try {
-    fs.mkdirSync(path.join(dir, "i18n")); fs.mkdirSync(path.join(dir, "site"));
-    fs.copyFileSync(path.join(repo, "site/i18n.js"), path.join(dir, "site/i18n.js"));
+    fs.mkdirSync(path.join(dir, "i18n"));
     const en = JSON.parse(fs.readFileSync(path.join(repo, "i18n/en.json"), "utf8"));
     const meta = JSON.parse(fs.readFileSync(path.join(repo, "i18n/en.meta.json"), "utf8"));
     delete meta["nav.news"].description;
@@ -122,21 +107,6 @@ test("CLI fails on a mutated copy of the repo files", () => {
     assert.equal(r.status, 1);
     assert.match(r.stderr, /nav\.news.*description/);
     assert.match(r.stderr, /nav\.home\.extra/);
-  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
-});
-
-test("extract --check detects drift", () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "i18n-extract-"));
-  try {
-    fs.mkdirSync(path.join(dir, "i18n")); fs.mkdirSync(path.join(dir, "site"));
-    fs.copyFileSync(path.join(repo, "site/i18n.js"), path.join(dir, "site/i18n.js"));
-    const script = path.join(here, "extract-i18n.mjs");
-    assert.equal(spawnSync(process.execPath, [script, "--root", dir, "--check"]).status, 1); // no file yet
-    assert.equal(spawnSync(process.execPath, [script, "--root", dir]).status, 0);
-    assert.equal(spawnSync(process.execPath, [script, "--root", dir, "--check"]).status, 0);
-    const p = path.join(dir, "i18n/en.json");
-    fs.writeFileSync(p, fs.readFileSync(p, "utf8").replace("Start free", "Start now"));
-    assert.equal(spawnSync(process.execPath, [script, "--root", dir, "--check"]).status, 1);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
 
@@ -177,8 +147,7 @@ test("placeholders must be a list and not repeat a name", () => {
 test("duplicate keys in the JSON files are caught by the CLI", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "i18n-dupe-"));
   try {
-    fs.mkdirSync(path.join(dir, "i18n")); fs.mkdirSync(path.join(dir, "site"));
-    fs.copyFileSync(path.join(repo, "site/i18n.js"), path.join(dir, "site/i18n.js"));
+    fs.mkdirSync(path.join(dir, "i18n"));
     fs.copyFileSync(path.join(repo, "i18n/en.json"), path.join(dir, "i18n/en.json"));
     const raw = fs.readFileSync(path.join(repo, "i18n/en.meta.json"), "utf8");
     const line = raw.split("\n")[1];
@@ -202,4 +171,19 @@ test("real metadata: marketing copy is standard, binding claims are legal", () =
 test("real metadata: legal-tier count is pinned so re-classification shows in review", () => {
   const meta = JSON.parse(fs.readFileSync(path.join(repo, "i18n/en.meta.json"), "utf8"));
   assert.equal(Object.values(meta).filter((e) => e.review === "legal").length, 63);
+});
+
+test("core is only allowed on standard keys", () => {
+  const m = okMeta(); m["a.b"].core = true;
+  assert.deepEqual(run(okEn, m), []);
+  m["a.b"].review = "legal";
+  assert.match(run(okEn, m).join("\n"), /a\.b.*core/);
+  const m2 = okMeta(); m2["a.b"].core = "yes";
+  assert.match(run(okEn, m2).join("\n"), /a\.b.*core/);
+});
+test("the AI-label and fallback keys are core and standard", () => {
+  const meta = JSON.parse(fs.readFileSync(path.join(repo, "i18n/en.meta.json"), "utf8"));
+  for (const k of ["site.machine_label", "site.machine_label_detail", "site.machine_label_link", "site.machine_label_report", "site.machine_label_badge", "site.fallback_note", "site.legal_english_binding", "language.current"]) {
+    assert.equal(meta[k].core, true, k); assert.equal(meta[k].review, "standard", k);
+  }
 });

@@ -2,7 +2,7 @@
 
 Public website for Universal Till — a product of **Task Runner Technology LTD**.
 
-- `site/` — the plain-HTML marketing site (en/tr/zh/fa/de). Deliberately **not**
+- `site/` — the plain-HTML marketing site (every locale in the published list). Deliberately **not**
   rewritten into Astro components: it is proven and multilingual, and
   re-transcribing ~500 translated strings by hand would risk silently
   introducing translation bugs. `astro.config.mjs` sets `publicDir: 'site'`,
@@ -68,7 +68,7 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   support mailbox. **All decisions are one data table in
   `site/wizard-rules.js`** (`PLAN_RULES`, `GAPS`, `NOTES`, `PLUGINS`, `PRICES`);
   `site/wizard.js` only draws questions and the answer, reading every string
-  from the `wiz.*` keys in `site/i18n.js` (all five locales; plan names stay
+  from the `wiz.*` keys in `i18n/en.json` (every published locale; plan names stay
   untranslated). Prices come from `data/plan-prices.json` (below) for
   the UK, Germany and the eurozone only; any other country shows "not published
   yet", never a guess. The answers live in memory only: no storage, no request,
@@ -141,11 +141,6 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   if a variant is missing, lies about its width, or the browser would pick a
   blurry or more than 1.4× oversized one at phone, tablet and desktop widths,
   including PageSpeed's own emulation (412px × 1.75, 1350px × 1).
-- **Legal pages currently ship English-only** in `tr-tr`/`zh-cn`/`fa-ir`/
-  `de-de` (an honest "not yet translated" fallback banner, not a 404) —
-  `scripts/translate-posts.js` only checks `src/content/blog/` today and
-  would need extending to cover `src/content/legal/` before that can
-  change; see `src/content.config.ts`'s comment on the `legal` collection.
 - **An untranslated page points search engines at its English original
   (ut-docs#3811).** A legal page or post that a locale serves as the English
   fallback carries a canonical to the `/en-gb/…` URL, is left out of
@@ -189,21 +184,83 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   edit the readable sources in `site/` and never hand-edit `dist/`.
   `tests/build-assets.spec.js` fails if a page links `/styles.css` again or a
   script ships unminified.
-- **Every page has a URL per locale, English included**: `/en-gb/…`,
-  `/tr-tr/…`, `/zh-cn/…`, `/fa-ir/…`, `/de-de/…`. Region-tagged because VAT, receipt law
-  and payment rails differ by country, not by language — and prefixed even for
-  the default, because an unprefixed URL states no language, so "switch back to
-  English" would land on a URL that still renders Turkish from the stored
-  preference. `site/i18n.js` derives the locale (and RTL) from the first path
+- **Every page has a URL per locale, English included**: `/en-gb/…`, `/de-de/…`
+  and so on for every locale in the **published list** (below). Region-tagged
+  because VAT, receipt law and payment rails differ by country, not by
+  language — and prefixed even for the default, because an unprefixed URL
+  states no language. `site/i18n.js` derives the locale from the first path
   segment, path beating any stored choice; the Astro pages build one file per
-  locale; `staticwebapp.config.json` maps the prefixed pretty-URLs and 301s
-  every older URL (`/`, `/blog`, `/download`, `/tr`, …). The globe carries the
-  current page (`/language?from=…`) so choosing a language returns you where
-  you were, not to the homepage.
+  locale; the generated `staticwebapp.config.json` maps the prefixed
+  pretty-URLs and 301s every older URL (`/`, `/blog`, `/download`, `/tr`, …).
+  The globe carries the current page (`/language?from=…`) so choosing a
+  language returns you where you were.
+
+## Published locales (ADR-0177, ut-docs#5406) — no locale is named in code
+
+The locale set is **data**: `i18n/published/locales.json` (the file
+`ut-translations` publishes; schema 1) plus `i18n/<url-locale>.json` (approved
+strings, flat key → text) and `i18n/en.json` / `en.meta.json` (the English
+source and translator metadata, edited here). Nothing else lists a locale.
+
+- **Seed (today).** Weblate has no `website` component yet, so the files for the
+  five live locales were produced once by `scripts/seed-published-locales.mjs`
+  from the old hand dictionaries (every non-English locale is `machine_label`,
+  `legal_approved: false`, legal-tier keys omitted). The future
+  `sync-locales.yml` overwrites exactly these files from `ut-translations@main`
+  (`published/locales.json`, `published/website/<code>.json`). **ar, fr, ms, pt,
+  es and it are not translated here and are not faked:** they appear on the site
+  automatically (routes, pages, hreflang, sitemap, switcher, band) the day
+  ut-translations publishes them for the `website` surface and the files land.
+- **Generator.** `node scripts/gen-locales.mjs` writes `site/i18n-data.js` (the
+  dictionaries `i18n.js` runs on; `i18n.js` is logic only) and the locale part of
+  `site/staticwebapp.config.json` (routes, short aliases `/de`, withdrawn-locale
+  301s; every hand-kept entry is preserved). `--check` is the CI guard. It
+  refuses a string file for a locale that is not published, a key not in
+  `en.json`, an empty value, a `core` key missing from a published locale, and
+  any HTML-bearing value outside the allow-list (`a[href] b i em strong br span
+  code`, no handlers or script URLs, tag set and link targets equal to English).
+- **Build.** `src/lib/locales.ts` (via `scripts/lib/locales.mjs`, shared with the
+  generator, guards and specs) gives the Astro pages and the marketing prerender
+  `LANGS`, direction, BCP-47, the AI label and the my. locales. `<html lang dir>`,
+  canonical, hreflang + `x-default`, the sitemap and the `/language` picker are
+  all produced from it. `UT_I18N_DIR` / `UT_OUT_DIR` point a build at another
+  list (the fixture builds).
+- **Per-key English fallback.** A key a locale does not ship renders the English
+  text in `<span lang="en" dir="ltr" data-i18n-fallback>`; the page shows
+  `site.fallback_note` once, under the header, only when such a span exists.
+- **"Translated with AI" (owner decision 2026-11-04).** Any locale whose list
+  entry has no recorded human review (`machine_label`) gets, prerendered on every
+  page: the notice band (`role="note"`, not dismissible, English link to the same
+  page, `mailto:` report link), the report link in the footer and an `AI` badge on
+  its `/language` card. When the list says `human_reviewed` they all disappear
+  with no code change. The branded 404 (one file for every locale) builds the band
+  in the browser. Copy and a11y: UX spec in ut-docs#5405; keys `site.machine_label*`.
+- **Legal pages** are the English text, canonical to `/en-gb/…`, outside hreflang
+  and the sitemap, under the in-language `site.legal_english_binding` notice,
+  unless `surfaces.website.legal.<doc>` (or `legal_approved`) is true for that
+  locale **and** a translated MDX exists. Footer and cookie-banner legal links
+  always resolve (`tests/locale-label.spec.js`).
+- **Blog.** Locale directories under `src/content/blog/` must be published
+  locales (`check-locale-consistency` fails on a stray one). A post exists in a
+  locale only where translated; elsewhere the English page is served with the
+  "available in English" note, canonical to English. A machine-translated post
+  (`machineTranslated: true`) in a locale with the AI label is `noindex`, canonical
+  to English and out of hreflang and the sitemap unless the post says
+  `reviewed: true`. `llms.txt` stays English.
+- **Guards.** `scripts/check-locale-consistency.mjs` (after a build) fails when
+  routes, pages, hreflang, canonical, sitemap, switcher, band/badge, my. links or
+  content directories disagree with the list, or an `--absent` locale leaks.
+  `node --test scripts/locale-fixtures_test.mjs` does two real builds: a list with
+  `ms-my` and `ar-sa` added (appear everywhere, rtl for ar, label, fallback,
+  English-only legal; one human-reviewed locale loses the label) and a list
+  without `fa-ir` (no route, page, sitemap, hreflang or switcher entry, only a
+  withdrawn 301 may name it). The Playwright specs iterate the list through
+  `tests/helpers/locales.js`.
+
 - **Posts are translated, not just the chrome.** English posts live in
   `src/content/blog/en-gb/` and are the only ones written by hand (that is the
-  folder the CMS files into). Translations into `tr-tr/`, `zh-cn/`, `fa-ir/`
-  and `de-de/` are written by the pipeline cycle's own model (Claude or
+  folder the CMS files into). Translations into a published locale's folder (today `tr-tr/`, `zh-cn/`, `fa-ir/`
+  and `de-de/`) are written by the pipeline cycle's own model (Claude or
   Codex, whichever is running the Dev step) directly into those folders,
   following the checklist in `ut-docs/reference/translation.md`, and
   committed like any other content — so the site depends on files in git
@@ -227,11 +284,11 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `noindex` with no canonical. `/downloads` and `/downloads/` 301 to
   `/en-gb/download`, because that folder only holds per-installer redirects.
 - `scripts/check-i18n-keys.js` (run on every push/PR via `.github/workflows/ci.yml`)
-  guards `site/i18n.js`: every `data-i18n`/`data-i18n-html`/`data-i18n-aria-label`
-  key used across `site/*.html` and `src/**/*.astro` must exist in all five
-  locale dicts (en/tr/zh/fa/de), and the dicts must share the same key set —
-  a missing key otherwise fails silently (the untranslated string, or
-  aria-label, just keeps its English source text in every locale).
+  guards the keys: every `data-i18n`/`data-i18n-html`/`data-i18n-aria-label` key
+  used across `site/*.html` and `src/**/*.astro` must exist in `i18n/en.json`
+  (otherwise the template's hard-coded text shows in every locale and nothing
+  reaches translators), and no string file may carry a key `en.json` lacks.
+  Missing keys in a locale are not an error: they fall back to English by design.
 - `scripts/guard-compliance-claims.sh` + `scripts/guard-compliance-claims_test.sh`
   (ut-docs#702, the `check-compliance-claims` CI job) enforce the
   product-owner-approved fiscal-compliance wording denylist (ut-docs#667) —
@@ -294,17 +351,18 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
 
 `i18n/en.json` (flat key -> English text) and `i18n/en.meta.json` (per key a
 translator `description`, `placeholders` as `"{name} — meaning"`, optional
-`max_length`, `html`, and `review`: `legal` or `standard`) are the English
-source that `ut-translations` syncs into Weblate. `en.json` is **derived**: run
-`node scripts/extract-i18n.mjs` after changing the `en-gb` block of
-`site/i18n.js` (`--check` is what CI runs). `site/i18n.js` is still the runtime
-source until the ADR-0177 cutover. New keys need a metadata entry in the same
-change; `node scripts/guard-i18n-meta.mjs` fails on a missing description or
-review, a placeholder that does not match the English, or an `en.json` that is
-out of sync (self-test: `node --test scripts/guard-i18n-meta_test.mjs`).
-Anything that looks legal, privacy, terms, cookie-consent or pricing must be
-`review: "legal"` (only a human-reviewed translation is published) unless it
-carries a `review_exception` reason.
+`max_length`, `html`, `core`, and `review`: `legal` or `standard`) are the English
+source that `ut-translations` syncs into Weblate, and **they are edited by hand**
+(since the #5406 cutover the old dictionaries in `site/i18n.js` are gone). New
+keys need a metadata entry in the same change; `node scripts/guard-i18n-meta.mjs`
+fails on a missing description or review, a placeholder that does not match the
+English, or an unknown field (self-test: `node --test
+scripts/guard-i18n-meta_test.mjs`). Anything that looks legal, privacy, terms,
+cookie-consent or pricing must be `review: "legal"` (only a human-reviewed
+translation is published; until then the English text shows) unless it carries a
+`review_exception` reason. `core: true` marks the keys every published page frame
+needs (the AI label, fallback note, legal notice, language picker); they must be
+`standard` and a locale is not published without them.
 
 ## Custom domain
 

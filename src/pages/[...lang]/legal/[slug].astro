@@ -34,6 +34,7 @@ const { Content } = await render(page);
   path={`/legal/${slug}/`}
   isFallback={isFallback}
   translatedLangs={translatedLangs}
+  legalEnglish={isFallback}
 >
   <article class="section" style="max-width:44rem">
     <h1 dir={isFallback ? 'ltr' : undefined} lang={isFallback ? 'en' : undefined}>{page.data.title}</h1>
@@ -51,20 +52,6 @@ const { Content } = await render(page);
     >
       <bdi><time datetime={page.data.updated.toISOString().slice(0, 10)}>{formatDate(page.data.updated, isFallback ? SOURCE_LOCALE : lang)}</time></bdi>
     </p>
-
-    {/* Reuses blog's existing "news.untranslated" key rather than minting a
-        new one: a fresh key would itself need translating into tr/zh/fa/de
-        before it could honestly appear on a non-English URL, which is
-        exactly the capability this fallback exists to work around. The
-        wording says "post" rather than "page", which is a little loose for
-        a legal document, but it's already translated in all five locales
-        and understating precision here is a smaller honesty cost than a
-        hardcoded English banner sitting on a de-de/tr-tr/zh-cn/fa-ir URL. */}
-    {isFallback && (
-      <p class="muted" style="font-size:.85rem;margin:.2rem 0 1rem" data-i18n="news.untranslated">
-        {t(lang, 'news.untranslated')}
-      </p>
-    )}
 
     <div
       style="line-height:1.7;color:var(--ink-soft)"

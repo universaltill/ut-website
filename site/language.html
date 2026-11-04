@@ -10,6 +10,7 @@
   <meta name="robots" content="noindex"><!-- a language picker, not indexable content -->
   <link rel="icon" type="image/svg+xml" href="/logo.svg">
   <link rel="stylesheet" href="/styles.css">
+  <script defer src="/i18n-data.js"></script>
   <script defer src="/i18n.js"></script>
   <script defer src="/nav.js"></script>
   <!-- Cookie banner + GA4, only after Accept (ut-docs#3507). -->
@@ -38,11 +39,11 @@
 <main>
   <section class="section" style="max-width:56rem">
     <div class="section-head" style="text-align:center">
-      <h1 data-i18n="language.select">Choose your language</h1>
+      <h1 id="language-title" data-i18n="language.select">Choose your language</h1>
       <p class="section-sub" data-i18n="language.subtitle">Pick the language for the whole site.</p>
     </div>
 
-    <div class="locale-grid" id="locale-grid"></div>
+    <ul class="locale-grid" id="locale-grid"></ul>
 
     <p class="back-link" style="text-align:center; margin-top:2rem">
       <a href="/" data-i18n="language.back">Back</a>
@@ -61,36 +62,5 @@
   </p>
 </footer>
 
-<script>
-  // Real <a href> per locale (no JS click handler needed to switch) — works
-  // with JS disabled, crawlable, and each link is the same crawlable URL the
-  // hreflang tags on every other page already point at. This script only
-  // builds the grid and marks the active card.
-  document.addEventListener("DOMContentLoaded", function () {
-    var api = window.UT_I18N;
-    if (!api) return;
-    var current = api.pick();
-    // Where the visitor was before they clicked the globe. Every locale link
-    // and the Back link return THERE, in the chosen language — landing on the
-    // homepage instead is how you lose someone mid-article.
-    var from = api.sanitizeFrom(new URLSearchParams(location.search).get("from"));
-    var back = document.querySelector(".back-link a");
-    if (back) back.href = api.pathFor(current, from);
-    var host = document.getElementById("locale-grid");
-    api.supported.forEach(function (code) {
-      var dict = api.I18N[code];
-      var a = document.createElement("a");
-      a.className = "locale-card" + (code === current ? " active" : "");
-      a.href = api.pathFor(code, from);
-      a.innerHTML =
-        '<div class="locale-name">' + dict._name +
-        (dict._dir === "rtl" ? '<span class="rtl-badge">RTL</span>' : '') +
-        '</div>' +
-        '<div class="locale-english">' + dict._english + '</div>' +
-        '<div class="locale-code">' + code.toUpperCase() + '</div>';
-      host.appendChild(a);
-    });
-  });
-</script>
 </body>
 </html>

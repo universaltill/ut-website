@@ -1,3 +1,4 @@
+import { I18N } from "./helpers/locales.js";
 // ut-docs#1552: Impressum, privacy policy and terms of use pages, and the
 // footer links to them from every page. Only en-gb has real page content
 // right now (the pipeline's own-model translation workflow only targets
@@ -44,9 +45,8 @@ test.describe("footer legal links", () => {
     await expect(page.locator('.foot-legal a[href="/de-de/legal/impressum/"]')).toHaveCount(1);
     await expect(page.locator('.foot-legal a[href="/de-de/legal/privacy/"]')).toHaveCount(1);
     await expect(page.locator('.foot-legal a[href="/de-de/legal/terms/"]')).toHaveCount(1);
-    // The German-language label needs no translation to be correct — see
-    // the comment above.
-    await expect(page.locator('.foot-legal a[href="/de-de/legal/impressum/"]')).toHaveText("Impressum");
+    // The label is the published list's text (legal-tier: English until a human approves it).
+    await expect(page.locator('.foot-legal a[href="/de-de/legal/impressum/"]')).toHaveText(I18N["de-de"]["foot.impressum"]);
   });
 });
 
@@ -64,7 +64,10 @@ test.describe("legal pages render", () => {
   test("/de-de/legal/impressum falls back to English content, honestly labelled", async ({ page }) => {
     await page.goto("/de-de/legal/impressum");
     await expect(page.locator("h1")).toBeVisible();
-    await expect(page.locator('[data-i18n="news.untranslated"]')).toBeVisible();
+    // In the visitor's language: English is the binding version (ADR-0177 section 7).
+    await expect(page.locator("[data-legal-english]")).toBeVisible();
+    await expect(page.locator("[data-legal-english]")).toHaveText(I18N["de-de"]["site.legal_english_binding"]);
+    await expect(page.locator("[data-legal-english]")).toHaveAttribute("role", "note");
     // The fallback body is forced ltr/en even though the page chrome
     // around it is de-de — same rule blog/[slug].astro already applies.
     const bodyLang = await page.locator("article div[lang]").getAttribute("lang");

@@ -18,40 +18,21 @@
 // emits. The route table stays the one source of truth for which locale
 // URLs exist — sitemap.xml.ts reads it too.
 import { parse, parseFragment, serialize } from 'parse5';
-import swaConfig from '../../site/staticwebapp.config.json';
+// @ts-ignore - plain ESM shared with the node scripts
+import { PAGES } from '../../scripts/lib/locales.mjs';
+import { I18N, LANGS, dirOf, infoOf, isMachineLabelled, myLocaleFor } from './locales';
+import { ORIGIN, bandHtml, fallbackNoteHtml, footerReportHtml, languageGridHtml } from './chrome';
 
-export const ORIGIN = 'https://www.universaltill.com';
-
-// Locales my.universaltill.com serves (ut-my-shop/src/i18n/i18n.ts).
-const MY_LOCALES = new Set(['en-gb', 'en-us', 'de-de', 'es-es', 'fr-fr', 'it-it', 'pt-pt', 'tr-tr', 'ar-sa', 'fa-ir']);
+export { ORIGIN, I18N };
+export const LOCALES: string[] = LANGS;
 
 const templates = import.meta.glob('../../site/*.html', {
   eager: true,
   query: '?raw',
   import: 'default',
 }) as Record<string, string>;
-const i18nSrc = import.meta.glob('../../site/i18n.js', {
-  eager: true,
-  query: '?raw',
-  import: 'default',
-}) as Record<string, string>;
 
-// The dict is a plain object literal of developer-authored strings — the
-// same extraction scripts/check-i18n-keys.js does, so the two can't disagree
-// about what the dict contains.
-function loadDict(): Record<string, Record<string, string>> {
-  const src = Object.values(i18nSrc)[0];
-  const m = src?.match(/const I18N = (\{[\s\S]*?\});\s*\n\s*\(function/);
-  if (!m) throw new Error('marketingPages: could not locate the I18N object literal in site/i18n.js');
-  return (0, eval)('(' + m[1] + ')');
-}
-export const I18N = loadDict();
-export const LOCALES = Object.keys(I18N);
-
-const bcp47 = (code: string) => {
-  const parts = code.split('-');
-  return parts.length === 2 ? `${parts[0]}-${parts[1].toUpperCase()}` : code;
-};
+const bcp47 = (code: string) => infoOf(code).bcp47;
 
 /** The language pill's visible text and accessible name — same as i18n.js. */
 export const langPillText = (locale: string) => '🌐 ' + locale.toUpperCase();
@@ -66,20 +47,15 @@ export interface MarketingRoute {
   file: string;
 }
 
-/** Every locale-prefixed route that rewrites to a prerendered page. */
+/**
+ * Every locale-prefixed route that rewrites to a prerendered page: each
+ * published locale x each marketing page. The locale list is the published
+ * list (src/lib/locales.ts); scripts/gen-locales.mjs writes the matching
+ * site/staticwebapp.config.json from the same code, and
+ * scripts/check-locale-consistency.mjs fails CI if the two ever differ.
+ */
 export function marketingRoutes(): MarketingRoute[] {
-  const out: MarketingRoute[] = [];
-  for (const r of (swaConfig as any).routes) {
-    if (typeof r.rewrite !== 'string' || !r.rewrite.endsWith('.html') || r.route.includes('*')) continue;
-    const m = r.route.match(/^\/([a-z]{2}-[a-z]{2})(\/[a-z-]+)?$/);
-    if (!m || !LOCALES.includes(m[1])) continue;
-    const file = r.rewrite.split('/').pop()!;
-    if (r.rewrite !== `/${m[1]}/${file}`) {
-      throw new Error(`marketingPages: ${r.route} must rewrite to /${m[1]}/${file}, not ${r.rewrite}`);
-    }
-    out.push({ locale: m[1], suffix: m[2] ?? '', file });
-  }
-  return out;
+  return LANGS.flatMap((locale) => PAGES.map((p: { file: string; suffix: string }) => ({ locale, suffix: p.suffix, file: p.file })));
 }
 
 export function templateFor(file: string): string {
@@ -200,8 +176,16 @@ export function renderMarketingPage(route: MarketingRoute, routes: MarketingRout
   });
 
   setAttr(html!, 'lang', bcp47(route.locale));
-  setAttr(html!, 'dir', dict._dir);
+  setAttr(html!, 'dir', dirOf(route.locale));
 
+  const fb = new Set<string>(dict._fb ?? []);
+  let usedFallback = false;
+  const fallbackSpan = (children: Node[]) => {
+    usedFallback = true;
+    const span = { nodeName: 'span', tagName: 'span', attrs: [{ name: 'lang', value: 'en' }, { name: 'dir', value: 'ltr' }, { name: 'data-i18n-fallback', value: '' }], childNodes: [], namespaceURI: 'http://www.w3.org/1999/xhtml' };
+    setChildren(span, children);
+    return span;
+  };
   const suffixes = new Set(routes.filter((r) => r.locale === route.locale && r.suffix).map((r) => r.suffix));
   walk(doc, (n) => {
     if (!n.attrs) return;
@@ -213,9 +197,12 @@ export function renderMarketingPage(route: MarketingRoute, routes: MarketingRout
     // gets the page's locale, so the no-JS fallback matches what wizard.js
     // sets in the browser (ut-docs#4193). my. has no zh-cn tree, so that locale
     // links to en-gb (ut-my-shop/src/i18n/i18n.ts).
-    if (n.nodeName === 'a' && attr(n, 'data-my-link') != null) setAttr(n, 'href', `https://my.universaltill.com/${MY_LOCALES.has(route.locale) ? route.locale : 'en-gb'}/`);
-    if ((k = attr(n, 'data-i18n')) && dict[k] != null) setChildren(n, [textNode(dict[k])]);
-    if ((k = attr(n, 'data-i18n-html')) && dict[k] != null) setChildren(n, parseFragment(dict[k]).childNodes);
+    if (n.nodeName === 'a' && attr(n, 'data-my-link') != null) setAttr(n, 'href', `https://my.universaltill.com/${myLocaleFor(route.locale)}/`);
+    // A key this locale does not ship shows the English text, marked as such
+    // (lang="en", dir="ltr", data-i18n-fallback) so a screen reader switches
+    // voice and the page can say so once (site.fallback_note).
+    if ((k = attr(n, 'data-i18n')) && dict[k] != null) setChildren(n, fb.has(k) && n.nodeName !== 'title' ? [fallbackSpan([textNode(dict[k])])] : [textNode(dict[k])]);
+    if ((k = attr(n, 'data-i18n-html')) && dict[k] != null) setChildren(n, fb.has(k) ? [fallbackSpan(parseFragment(dict[k]).childNodes)] : parseFragment(dict[k]).childNodes);
     if ((k = attr(n, 'data-i18n-aria-label')) && dict[k] != null) setAttr(n, 'aria-label', dict[k]);
     if ((k = attr(n, 'data-i18n-alt')) && dict[k] != null) setAttr(n, 'alt', dict[k]);
     if ((k = attr(n, 'data-i18n-content')) && dict[k] != null) setAttr(n, 'content', dict[k]);
@@ -235,6 +222,34 @@ export function renderMarketingPage(route: MarketingRoute, routes: MarketingRout
         setAttr(n, 'href', `${target}?from=${encodeURIComponent(from)}`);
       }
       setAttr(n, 'rel', 'nofollow');
+    }
+  });
+
+  // The language picker is data: one real link per published locale.
+  walk(doc, (n) => {
+    if (route.file !== 'language.html' || attr(n, 'id') !== 'locale-grid' || !n.parentNode) return;
+    const grid = parseFragment(languageGridHtml(route.locale, dict)).childNodes[0];
+    const siblings = n.parentNode.childNodes;
+    siblings[siblings.indexOf(n)] = grid;
+    grid.parentNode = n.parentNode;
+  });
+
+  // The AI band (unreviewed locales only) and the once-per-page fallback note,
+  // directly under the header, plus the report link in the footer. Prerendered:
+  // no layout shift, and they exist with JavaScript off.
+  const labelled = isMachineLabelled(route.locale);
+  const notes = (labelled ? bandHtml(route.locale, route.suffix, dict) : '') + (usedFallback ? fallbackNoteHtml(dict) : '');
+  walk(doc, (n) => {
+    if (n.nodeName === 'header' && (attr(n, 'class') ?? '').split(/\s+/).includes('nav') && n.parentNode && notes) {
+      const siblings = n.parentNode.childNodes;
+      const frag = parseFragment(notes).childNodes;
+      for (const f of frag) f.parentNode = n.parentNode;
+      siblings.splice(siblings.indexOf(n) + 1, 0, ...frag);
+    }
+    if (n.nodeName === 'footer' && labelled) {
+      const frag = parseFragment(footerReportHtml(route.locale, route.suffix, dict)).childNodes;
+      for (const f of frag) f.parentNode = n;
+      n.childNodes.push(...frag);
     }
   });
 

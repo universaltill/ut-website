@@ -23,14 +23,17 @@ import { formatDate } from '../../../lib/dates';
 export async function getStaticPaths() {
   const byLocale = await getAllLocalizedPosts();
   return LANGS.flatMap((lang) =>
-    (byLocale[lang] ?? []).map(({ post, slug, isFallback }) => ({
+    (byLocale[lang] ?? []).map(({ post, slug, isFallback, indexable }) => ({
       params: { lang, slug },
-      props: { post, isFallback, translatedLangs: translatedLangsOf(byLocale, slug) },
+      props: { post, isFallback, indexable, translatedLangs: translatedLangsOf(byLocale, slug) },
     })),
   );
 }
 
-const { post, isFallback, translatedLangs } = Astro.props;
+const { post, isFallback, indexable, translatedLangs } = Astro.props;
+// A machine translation nobody has reviewed stays out of search results and
+// points at the English original (ADR-0177 section 7).
+const noindex = !isFallback && !indexable;
 const { lang, slug } = Astro.params;
 const { Content } = await render(post);
 
@@ -39,7 +42,7 @@ const { Content } = await render(post);
 // against Astro.site) and its <html lang> (bcp47(lang)), so a crawler never
 // sees this block disagree with the page it's sitting on. An untranslated
 // fallback's canonical is the en-gb original (ut-docs#3811), so is this.
-const pageUrl = new URL(isFallback ? `/${SOURCE_LOCALE}/blog/${slug}/` : Astro.url.pathname, Astro.site).href;
+const pageUrl = new URL(isFallback || noindex ? `/${SOURCE_LOCALE}/blog/${slug}/` : Astro.url.pathname, Astro.site).href;
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
@@ -66,6 +69,8 @@ const jsonLd = {
   lang={lang}
   path={`/blog/${slug}/`}
   isFallback={isFallback}
+  noindex={noindex}
+  keys={['news.machine', 'news.original', 'news.untranslated', 'news.back']}
   translatedLangs={translatedLangs}
 >
   {/* set:html because Astro would otherwise HTML-escape the JSON (turning

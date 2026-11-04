@@ -19,7 +19,7 @@ import path from "node:path";
 import { transform } from "esbuild";
 
 const DIST = path.resolve(import.meta.dirname, "../dist");
-const SCRIPTS = ["i18n.js", "nav.js", "consent.js", "wizard-rules.js", "wizard.js"];
+const SCRIPTS = ["i18n-data.js", "i18n.js", "nav.js", "consent.js", "wizard-rules.js", "wizard.js"];
 // es2017, not newer: the sources deliberately avoid `??`, `?.` and
 // `catch {}` (nav.js keeps a Safari < 14 fallback), and a newer target lets
 // esbuild rewrite `v != null ? v : x` into `v ?? x` — a SyntaxError that

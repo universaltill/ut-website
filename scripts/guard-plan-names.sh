@@ -7,7 +7,7 @@
 # the generated pricing source (ut-docs#729) and any page written from the old
 # wording fail here instead of shipping.
 #
-# Scans the same surfaces as guard-compliance-claims.sh: site/i18n.js,
+# Scans the same surfaces as guard-compliance-claims.sh: i18n/*.json,
 # site/*.html, src/**/*.astro and src/content/**/*.mdx. The match is
 # case-sensitive on purpose: lower-case "supply chain" or "chain store" is
 # ordinary prose; the plan name is the capitalised word. A reviewed exception
@@ -21,7 +21,11 @@ set -euo pipefail
 export LC_ALL=C.UTF-8
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-LOCALES_FILE="${1:-${ROOT_DIR}/site/i18n.js}"
+LOCALES_FILE="${1:-${ROOT_DIR}/i18n/en.json}"
+EXTRA_LOCALE_FILES=()
+if [ "$#" -eq 0 ]; then
+  while IFS= read -r f; do EXTRA_LOCALE_FILES+=("$f"); done < <(find "${ROOT_DIR}/i18n" -maxdepth 1 -name '??-??.json' | sort)
+fi
 HTML_DIR="${2:-${ROOT_DIR}/site}"
 ASTRO_DIR="${3:-${ROOT_DIR}/src}"
 CONTENT_DIR="${4:-${ROOT_DIR}/src/content}"
@@ -74,6 +78,7 @@ scan_file() {
 }
 
 scan_file "$LOCALES_FILE" 0
+for f in "${EXTRA_LOCALE_FILES[@]+"${EXTRA_LOCALE_FILES[@]}"}"; do scan_file "$f" 0; done
 html_checked=0
 while IFS= read -r -d '' f; do html_checked=$((html_checked + 1)); scan_file "$f" 1; done \
   < <(find "$HTML_DIR" -maxdepth 1 -name '*.html' -print0)

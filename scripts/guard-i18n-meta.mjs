@@ -4,8 +4,8 @@
 // English source for Weblate, i18n/en.meta.json the translator context.
 //
 // Fails when:
-//   1. i18n/en.json differs from the en-gb block of site/i18n.js (missing key,
-//      extra key or changed text; regenerate with scripts/extract-i18n.mjs);
+//   1. (since the ADR-0177 cutover i18n/en.json IS the English source; the
+//      hand dictionaries of site/i18n.js are gone, so there is nothing to diff);
 //   2. a key has no entry, no non-empty `description` or no valid `review`
 //      (legal | standard);
 //   3. `placeholders` ("{name} — meaning", one per {name} token) does not
@@ -19,23 +19,18 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { extractEnglish, parseI18nSource } from "./extract-i18n.mjs";
 
 export const LEGAL_KEY = /^(consent\.|foot\.(privacy|terms|impressum|cookies|owner|rights)$|wiz\.privacy$|wiz\.res\.sent$|wiz\.talk\.note$|wiz\.price\.|wiz\.hw\.need$|pluginspage\.(desc|intro|free|perm\.)|wiz\.gap\.(tr|fiscalother)$|wiz\.n\.(detse|ukfiscal|deowndevice)$|wiz\.r\.defiscal$|about\.body$)/;
 export const LEGAL_TEXT = /(£|€|\$)\s?\d|\bprivacy\b|\bcookies?\b|\bGDPR\b|\bterms\b|\bTSE\b|\bfiscal\b|\bVAT\b|\bno (monthly )?fee\b|\bfree forever\b|\bcosts? (nothing|from)\b|\bnever take a cut\b|\bwe take no cut\b|\bMIT licen[cs]e\b|\bopen source under\b|per month|\bimpressum\b|\blegal\b|\bno minimum term\b|\bno tie-in\b|\bmeans free\b|\bfree\b|\bno cost\b|\bcharged\b|\blicensed\b|\bsends nothing\b|\bon Pro\b/i;
 
-const FIELDS = new Set(["description", "review", "placeholders", "max_length", "html", "review_exception"]);
+// `core`: shown on every page frame (nav, footer, title/meta, the AI label and
+// fallback note); must be `standard` tier and approved before a locale publishes.
+const FIELDS = new Set(["description", "review", "placeholders", "max_length", "html", "review_exception", "core"]);
 const tokens = (s) => [...s.matchAll(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g)].map((m) => m[1]);
 
-export function checkMeta({ en, meta, source }) {
+export function checkMeta({ en, meta }) {
   const errors = [];
   const err = (m) => errors.push(m);
-
-  for (const k of Object.keys(source)) {
-    if (!(k in en)) err(`${k}: in the en-gb block of site/i18n.js but missing from en.json (run scripts/extract-i18n.mjs)`);
-    else if (en[k] !== source[k]) err(`${k}: en.json text differs from the en-gb block of site/i18n.js (run scripts/extract-i18n.mjs)`);
-  }
-  for (const k of Object.keys(en)) if (!(k in source)) err(`${k}: in en.json but not in the en-gb block of site/i18n.js (run scripts/extract-i18n.mjs)`);
 
   for (const k of Object.keys(meta)) if (!(k in en)) err(`${k}: meta entry for a key that is not in en.json`);
 
@@ -65,6 +60,7 @@ export function checkMeta({ en, meta, source }) {
 
     if (e.review === "standard" && (LEGAL_KEY.test(k) || LEGAL_TEXT.test(text)) && !(typeof e.review_exception === "string" && e.review_exception.trim()))
       err(`${k}: looks legal/privacy/terms/consent/pricing but is review "standard"; mark it "legal" or add a review_exception reason`);
+    if (e.core !== undefined && (e.core !== true || e.review !== "standard")) err(`${k}: core must be true and only on a "standard" key (a legal-tier core key would be English in every AI-only locale)`);
     if (e.review_exception !== undefined && e.review !== "standard") err(`${k}: review_exception only applies to review "standard"`);
   }
   return errors;
@@ -75,16 +71,15 @@ function main() {
   const ri = args.indexOf("--root");
   const root = ri >= 0 ? path.resolve(args[ri + 1]) : path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
   const read = (p) => JSON.parse(fs.readFileSync(path.join(root, p), "utf8"));
-  let en, meta, source;
+  let en, meta;
   try {
     en = read("i18n/en.json");
     meta = read("i18n/en.meta.json");
-    source = extractEnglish(parseI18nSource(fs.readFileSync(path.join(root, "site/i18n.js"), "utf8")));
   } catch (e) {
     console.error("guard-i18n-meta: " + e.message);
     process.exit(1);
   }
-  const errors = checkMeta({ en, meta, source });
+  const errors = checkMeta({ en, meta });
   for (const f of ["i18n/en.json", "i18n/en.meta.json"]) {
     const seen = new Set();
     for (const m of fs.readFileSync(path.join(root, f), "utf8").matchAll(/^ {2}("(?:[^"\\]|\\.)*"):/gm)) {
