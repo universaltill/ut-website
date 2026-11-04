@@ -166,7 +166,11 @@ test.describe("sitemap.xml", () => {
         translated("legal", locale, EXPECTED_LEGAL_SLUGS).length,
       0,
     );
-    const locCount = (text.match(/<loc>/g) || []).length;
+    // Help pages (ut-docs#5355) come from the product repo at a pinned ref, so
+    // their count is not a constant here; tests/help-pages.spec.js and
+    // scripts/guard-help.mjs check which of them are listed.
+    for (const locale of LOCALES) expect(text).toContain(`/${locale}/help/</loc>`);
+    const locCount = (text.match(/<loc>/g) || []).length - (text.match(/\/help\/[^<]*<\/loc>/g) || []).length;
     expect(locCount).toBe(expected);
   });
 

@@ -18,3 +18,7 @@ dist/
 
 # Local git worktrees for feature branches (pipeline convention).
 /.worktrees/
+
+# Public help pages: sparse clone of the product repo (src/lib/helpSource.ts).
+.help-src/
+.help-build/

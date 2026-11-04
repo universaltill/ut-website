@@ -1,0 +1,70 @@
+# Which help topics are published on the public website (ut-docs#5355).
+#
+# TEMPORARY. The product repo is adding a `public: true` front-matter flag to
+# web/help/en/<topic>.md. Once that flag has landed and shipped in a release,
+# DELETE THIS FILE (and its reading in src/lib/help.ts): the flag becomes the
+# only switch. Until then a topic is public if its front-matter says
+# `public: true` OR its slug is listed here; an explicit `public: false`
+# always wins over this list.
+#
+# One slug per line; `#` starts a comment. A slug listed here that does not
+# exist in the product's en/ folder fails the build.
+#
+# Decision (owner / pipeline, 2026-11-04): all 46 topics except the six
+# excluded at the bottom.
+
+# --- Everyday selling
+sell
+open-orders
+tables
+kitchen-stations
+order-status
+customer-order-tracking
+self-order
+vouchers
+voucher-import
+promotions
+age-restricted-sales
+menu
+option-sets
+channel-orders
+display
+invoices
+
+# --- Setting up your shop
+quickstart
+guided-tour
+catalog
+categories
+inventory
+tax-codes
+country-settings
+users
+elevation
+designer
+till-designer
+printing
+bluetooth-devices
+power-supply
+
+# --- Running the business
+reports
+my-reports
+backups
+recovery
+updates
+multitill
+alerts
+bug-reporting
+
+# --- Connecting & extending
+plugins
+payments
+
+# --- NOT public (kept out on purpose)
+# claim             pairing / transfer / approval-key security internals (owner decision)
+# support-partner   partner consent flow (business decision)
+# translate-mode    Weblate / manager tooling, not for the public
+# translations      Weblate / manager tooling, not for the public
+# fiscal-device     Turkey; the market track is paused
+# fiscal-register   Germany; fiscal contract unsigned, compliance-claim risk

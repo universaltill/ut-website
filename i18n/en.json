@@ -463,5 +463,22 @@
   "site.machine_label_badge": "AI",
   "site.fallback_note": "Some text on this page is not translated yet and is shown in English.",
   "site.legal_english_binding": "This legal text is available in English only. The English version is the binding one.",
-  "language.current": "Current"
+  "language.current": "Current",
+  "help.title": "Help",
+  "help.meta.desc": "Step-by-step guides for every part of Universal Till: selling, setting up your shop, reports, devices and plugins.",
+  "help.intro": "Short guides for every part of the till. Search by what you want to do.",
+  "help.search.label": "Search help topics",
+  "help.search.placeholder": "e.g. receipt printer, VAT, refunds",
+  "help.count": "{total} topics",
+  "help.count.none": "No topics match \"{q}\". Try fewer words or clear the search.",
+  "help.crumb.label": "Breadcrumb",
+  "help.prev": "Previous topic",
+  "help.next": "Next topic",
+  "help.pager.label": "Previous and next topics",
+  "help.more": "More in {section}",
+  "help.untranslated": "This topic isn't available in {language} yet. You're reading the English version.",
+  "help.shot.alt": "Screenshot: {title}",
+  "help.back": "All help topics",
+  "help.count.filtered": "{n} of {total} topics",
+  "help.clear": "Clear search"
 }

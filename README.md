@@ -47,6 +47,47 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   drops that plugin or picture with a warning, never the build.
   `src/lib/plugins_test.mjs` (`node --test`, fetch stubbed) and
   `tests/plugin-pages.spec.js`.
+- **Public help pages (ut-docs#5355, part of #4504)** - `/<locale>/help/` (index
+  grouped by section, with a filter) and `/<locale>/help/<topic>/` in every
+  locale. The text is NOT in this repo: it is the product manual,
+  `web/help/<folder>/*.md` + `web/help/img/<folder>/<id>.png` in the public
+  `universaltill/universal-till` repo (folders `en de tr fa`; `zh-cn` has none,
+  so English stands in; the product's `ar` folder is deliberately not published
+  and has no site locale). `src/lib/helpSource.ts` makes a sparse, shallow
+  clone into `.help-src/` (git-ignored) at **`HELP_REF`** (a tag or branch name, not a SHA), else the product's
+  latest release tag (GitHub API, then the highest `vX.Y.Z` from `git ls-remote`),
+  else - local builds only, with a warning - `main`; with `CI`/`GITHUB_ACTIONS`
+  set and no ref found the build **fails**. It logs the ref
+  (`[help] source: ... @ v0.35.3`). `HELP_SRC_DIR=<a web/help dir>` skips the
+  clone (tests, offline work). If the source cannot be had the **build fails**
+  - there is no committed copy to go stale; every entry point
+  (`npx astro build`, `npm run build`, the Playwright web server) does this
+  itself. `src/lib/help.ts` strips front-matter, renders Markdown with
+  `@astrojs/markdown-remark`, rewrites `/help/<slug>` links to
+  `/<locale>/help/<slug>/` (plain text when the topic is not public), turns
+  any other till route into plain text, adds `rel="noopener"` to external links
+  and wraps tables so they scroll. **Which topics are public:** front-matter
+  `public: true`, or a slug in `data/help-public-allowlist.txt` (temporary,
+  delete it once the product repo carries the flag, the build and guard work
+  without the file). `public` must be exactly unquoted `true`/`false`, anything
+  else is NOT public; `public: false` always wins. The allow-list is advisory:
+  a listed slug that is missing upstream or `public: false` only WARNS, a topic
+  with an unsafe slug or unparseable front-matter is skipped with a warning, a
+  bad screenshot (not PNG / too big) is dropped with a warning, so a product
+  release cannot break the deploy. The build writes what it published to
+  `.help-build/manifest.json` (git-ignored); the guard and the Playwright spec
+  read that, not the allow-list. Screenshots are
+  copied to `/help-img/` (PNG magic bytes, <= 1MB) so CSP `img-src` stays
+  `'self'`. A locale without a translation shows the English text with a notice,
+  canonical to en-gb, no hreflang, out of the sitemap (#3811). The filter is
+  `site/help.js` (external, deferred; with JS off the list is complete and the
+  form stays hidden). Checks: `node --test src/lib/help_test.mjs`,
+  `scripts/guard-help.mjs` after `astro build` (every topic in every locale,
+  internal links/anchors/images resolve, no orphan image, no front-matter
+  leakage, compliance denylist over the rendered text, sitemap vs canonicals;
+  test: `node --test scripts/guard-help_test.mjs`) and
+  `tests/help-pages.spec.js`. Not yet done: a Help link in the nav/footer
+  (every header is compared by `site-consistency.spec.js`, so it is its own change).
 - **Platform landing pages (ut-docs#4643)** — `site/android-till.html` →
   `/<locale>/android-till`, a marketing template like the others (routes in
   `staticwebapp.config.json`, keys in `site/i18n.js`). Each platform page is

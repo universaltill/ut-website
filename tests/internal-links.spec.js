@@ -74,7 +74,7 @@ test("every sitemap page links only to URLs that answer 200 directly", async ({ 
     const enOriginal = target.replace(/^\/[a-z]{2}-[a-z]{2}\//, "/en-gb/");
     // Also allowed (ADR-0177): the English legal text served at a locale URL with its
     // "English is binding" notice, and an unreviewed machine translation (noindex).
-    const says = html.includes('data-i18n="news.untranslated"') || html.includes("data-legal-english") || /<meta name="robots" content="noindex"/.test(html);
+    const says = html.includes('data-i18n="news.untranslated"') || html.includes("data-legal-english") || html.includes("data-untranslated") || /<meta name="robots" content="noindex"/.test(html);
     if (canonical && local(canonical) === enOriginal && says) continue;
     if (canonical && local(canonical) !== target.split("?")[0]) {
       bad.push(`${from} → ${target} is a duplicate of ${local(canonical)}`);
