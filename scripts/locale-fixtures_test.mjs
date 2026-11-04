@@ -43,6 +43,8 @@ let A, B;
 
 before(() => {
   A = fixture("a", (list, dir) => {
+    // A recorded human review for tr-tr: its label, badge and report link must vanish with no code change.
+    Object.assign(list.locales.find((l) => l.url === "tr-tr"), { human_reviewed: true, machine_label: false });
     list.locales.push(entry("ms-my", "ms", "ms-MY", "ltr", "Bahasa Melayu", "Malay"));
     list.locales.push(entry("ar-sa", "ar", "ar-SA", "rtl", "العربية", "Arabic"));
     const meta = JSON.parse(fs.readFileSync(path.join(dir, "en.meta.json"), "utf8"));
@@ -76,6 +78,15 @@ test("A: a new locale in the list appears everywhere, with no code change", () =
   assert.deepEqual(check({ dist: A.out, listDir: A.dir, swa: false, content: false }), []);
   const routes = localeRoutes(A.list).map((r) => r.route);
   assert.ok(routes.includes("/ms-my/download") && routes.includes("/ar-sa") && routes.includes("/ar"));
+});
+
+test("A: a human-reviewed locale loses the AI label, badge and report link by data alone", () => {
+  const tr = read(A.out, "tr-tr/index.html");
+  assert.doesNotMatch(tr, /data-mt-band|foot-report/);
+  const card = read(A.out, "en-gb/language.html").match(/<a class="locale-card[^"]*" href="[^"]*" hreflang="tr-TR".*?<\/a>/)[0];
+  assert.doesNotMatch(card, /mt-badge/);
+  assert.match(read(A.out, "en-gb/language.html").match(/hreflang="ms-MY".*?<\/a>/)[0], /mt-badge/);
+  assert.deepEqual(check({ dist: A.out, listDir: A.dir, swa: false, content: false }), []);
 });
 
 test("A: legal pages of an unapproved locale are the English text, canonical to en-gb, outside hreflang", () => {

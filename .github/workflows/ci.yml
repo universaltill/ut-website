@@ -15,10 +15,14 @@ jobs:
           node-version: "26"
       - run: node scripts/check-i18n-keys.js
       # ADR-0177 / ut-docs#5405: the English source + translator metadata for
-      # Weblate. en.json is derived from the en-gb block of site/i18n.js.
-      - run: node scripts/extract-i18n.mjs --check
+      # Weblate (i18n/en.json is the source since the #5406 cutover).
       - run: node scripts/guard-i18n-meta.mjs
       - run: node --test scripts/guard-i18n-meta_test.mjs
+      # ut-docs#5406: site/i18n-data.js and the locale routes of
+      # site/staticwebapp.config.json are GENERATED from i18n/published/locales.json
+      # and i18n/<locale>.json; fail on a stale file, a stray string file, a
+      # non-allow-listed HTML value or a core key missing from a published locale.
+      - run: node scripts/gen-locales.mjs --check
 
   check-brand-assets:
     runs-on: ubuntu-latest
@@ -152,6 +156,13 @@ jobs:
       # `npm ci && npm run build` this job already runs — a second job would
       # just pay that cost twice for no extra guarantee.
       - run: node scripts/generate-csp.js --check
+      # ut-docs#5406: what dist/ serves (routes, pages, <html lang dir>, hreflang,
+      # canonical, sitemap, switcher, AI band, my. links, content dirs) must equal
+      # the published-locale list.
+      - run: node scripts/check-locale-consistency.mjs
+      # Two real fixture builds (a new locale appears by data alone; an absent
+      # locale leaves no route, page, sitemap, hreflang or switcher entry).
+      - run: node --test scripts/locale-fixtures_test.mjs
 
   playwright:
     runs-on: ubuntu-latest
