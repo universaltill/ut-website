@@ -290,6 +290,22 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `website-swa-deploy-token` and is mirrored to this repo's
   `AZURE_STATIC_WEB_APPS_API_TOKEN` secret.
 
+## English source for Weblate (ADR-0177, ut-docs#5405)
+
+`i18n/en.json` (flat key -> English text) and `i18n/en.meta.json` (per key a
+translator `description`, `placeholders` as `"{name} — meaning"`, optional
+`max_length`, `html`, and `review`: `legal` or `standard`) are the English
+source that `ut-translations` syncs into Weblate. `en.json` is **derived**: run
+`node scripts/extract-i18n.mjs` after changing the `en-gb` block of
+`site/i18n.js` (`--check` is what CI runs). `site/i18n.js` is still the runtime
+source until the ADR-0177 cutover. New keys need a metadata entry in the same
+change; `node scripts/guard-i18n-meta.mjs` fails on a missing description or
+review, a placeholder that does not match the English, or an `en.json` that is
+out of sync (self-test: `node --test scripts/guard-i18n-meta_test.mjs`).
+Anything that looks legal, privacy, terms, cookie-consent or pricing must be
+`review: "legal"` (only a human-reviewed translation is published) unless it
+carries a `review_exception` reason.
+
 ## Custom domain
 
 `universaltill.com` is registered at GoDaddy. To go live on the real domain:
