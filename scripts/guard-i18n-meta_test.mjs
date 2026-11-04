@@ -188,3 +188,18 @@ test("duplicate keys in the JSON files are caught by the CLI", () => {
     assert.match(r.stderr, /duplicate key/);
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
+
+// Classification pins (ut-docs#5405 follow-up): an unapproved legal-tier key is
+// shown in English in every AI-only language (ADR-0160/0177), so plain
+// marketing copy must stay standard and binding claims must stay legal.
+test("real metadata: marketing copy is standard, binding claims are legal", () => {
+  const meta = JSON.parse(fs.readFileSync(path.join(repo, "i18n/en.meta.json"), "utf8"));
+  for (const k of ["foot.tagline", "hero.cta1", "close.cta", "close.title", "free.title", "nav.start", "wiz.cta.download", "wiz.price.pick"])
+    assert.equal(meta[k].review, "standard", k);
+  for (const k of ["wiz.privacy", "wiz.res.sent", "wiz.talk.note", "consent.text", "foot.privacy", "foot.terms", "foot.impressum", "wiz.price.month", "wiz.price.tse", "wiz.n.detse", "wiz.gap.tr", "wiz.q.card.hint", "why.exit.d", "pluginspage.perm.net", "free.body", "wiz.gap.team", "about.body", "hero.note"])
+    assert.equal(meta[k].review, "legal", k);
+});
+test("real metadata: legal-tier count is pinned so re-classification shows in review", () => {
+  const meta = JSON.parse(fs.readFileSync(path.join(repo, "i18n/en.meta.json"), "utf8"));
+  assert.equal(Object.values(meta).filter((e) => e.review === "legal").length, 63);
+});
