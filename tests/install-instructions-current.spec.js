@@ -34,12 +34,8 @@ function walk(dir) {
 
 const SHIPPED_FILES = [...walk(path.join(ROOT, "site")), ...walk(path.join(ROOT, "src"))];
 
-function loadI18N() {
-  const src = fs.readFileSync(path.join(ROOT, "site", "i18n.js"), "utf8");
-  const m = src.match(/const I18N = (\{[\s\S]*?\});\s*\n\s*\(function/);
-  if (!m) throw new Error("could not locate the I18N object literal in site/i18n.js");
-  return (0, eval)("(" + m[1] + ")");
-}
+import { I18N as ALL_I18N, LOCALES, translated } from "./helpers/locales.js";
+function loadI18N() { return ALL_I18N; }
 
 // The "right-click → Open" instruction in each launch language, plus the
 // manual kiosk step. Patterns are the wording the stale copy actually used.
@@ -94,11 +90,18 @@ test.describe("install instructions match the shipped packages (ut-docs#3803)", 
 
   const I18N = loadI18N();
 
-  test("every launch locale is covered", () => {
-    expect(Object.keys(I18N).sort()).toEqual(Object.keys(OPEN_ANYWAY).sort());
+  // A published locale that ships its own start.mac.2 / dl.next must be listed
+  // here with macOS's label for that language; one that does not ship them shows
+  // the English text (per-key fallback) and uses the English label.
+  test("every published locale that translates the install steps is covered", () => {
+    for (const lang of LOCALES) {
+      if (translated(lang, "start.mac.2") || translated(lang, "dl.next")) expect(OPEN_ANYWAY[lang], `${lang}: add macOS's "Open Anyway" label`).toBeTruthy();
+    }
   });
 
-  for (const [lang, label] of Object.entries(OPEN_ANYWAY)) {
+  for (const lang of LOCALES) {
+    const label = translated(lang, "start.mac.2") || translated(lang, "dl.next") ? OPEN_ANYWAY[lang] : OPEN_ANYWAY["en-gb"];
+    if (!label) continue;
     test(`${lang}: portable macOS step names Privacy & Security → ${label}`, () => {
       expect(I18N[lang]["start.mac.2"]).toContain(label);
     });

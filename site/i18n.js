@@ -102,7 +102,8 @@ const I18N = (window.UT_I18N_DATA && window.UT_I18N_DATA.locales) || {};
     p.appendChild(el("span", null, dict["site.machine_label_detail"]));
     const links = el("p", "mt-band__links");
     const en = el("a", null, dict["site.machine_label_link"]);
-    en.setAttribute("href", pathFor(DEFAULT, stripLang(location.pathname))); en.setAttribute("hreflang", "en-GB");
+    // The 404 page has no English twin to link to: go to the English home page.
+    en.setAttribute("href", document.body.hasAttribute("data-not-found") ? pathFor(DEFAULT, "/") : pathFor(DEFAULT, stripLang(location.pathname))); en.setAttribute("hreflang", "en-GB");
     const rep = el("a", null, dict["site.machine_label_report"]);
     rep.setAttribute("href", "mailto:support@universaltill.com?subject=" + encodeURIComponent("Translation error (" + lang + ")") + "&body=" + encodeURIComponent("Page: " + ORIGIN + pathFor(lang, stripLang(location.pathname)) + "\nWhat reads wrongly:\n"));
     [en, rep].forEach(function (a) { const w = document.createElement("bdi"); w.appendChild(a); links.appendChild(w); });

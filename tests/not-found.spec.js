@@ -13,8 +13,7 @@ import { expect, test } from "@playwright/test";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
-const i18nSrc = fs.readFileSync(path.join(ROOT, "site/i18n.js"), "utf8");
-const I18N = (0, eval)("(" + i18nSrc.match(/const I18N = (\{[\s\S]*?\});\s*\n\s*\(function/)[1] + ")");
+import { I18N } from "./helpers/locales.js";
 const LOCALES = Object.keys(I18N);
 
 test.describe("branded 404 (ut-docs#3809)", () => {

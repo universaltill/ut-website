@@ -25,7 +25,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
-const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
+import { LOCALES, isLabelled, SOURCE } from "./helpers/locales.js";
 
 // Same route table sitemap.xml.ts itself reads — not a second hand-kept
 // copy of the five paths, so this test can't drift from the config the
@@ -81,8 +81,21 @@ const PLUGIN_SLUGS = JSON.parse(fs.readFileSync(path.join(ROOT, "src/lib/plugin-
 // ut-docs#3811: only a locale's REAL translations are in the sitemap — an
 // untranslated fallback canonicalises to its en-gb original instead. Same
 // rule as the implementation, read from the same content directories.
+// ADR-0177 section 7 adds two rules on top: a legal page is a real translation
+// only when the list approves that document (none today), and a machine-
+// translated post in a locale without a recorded human review is noindex (so
+// not in the sitemap) unless the post is marked `reviewed`.
+const frontmatter = (file) => fs.readFileSync(file, "utf8").split("---")[1] ?? "";
 const translated = (collection, locale, slugs) =>
-  slugs.filter((slug) => fs.existsSync(path.join(ROOT, `src/content/${collection}/${locale}/${slug}.mdx`)));
+  slugs.filter((slug) => {
+    const file = path.join(ROOT, `src/content/${collection}/${locale}/${slug}.mdx`);
+    if (!fs.existsSync(file)) return false;
+    if (locale === SOURCE) return true;
+    if (collection === "legal") return false; // no locale has a human-approved legal document
+    const fm = frontmatter(file);
+    return !/^machineTranslated:\s*true/m.test(fm) || !isLabelled(locale) || /^reviewed:\s*true/m.test(fm);
+  });
+const hasFile = (collection, locale, slug) => fs.existsSync(path.join(ROOT, `src/content/${collection}/${locale}/${slug}.mdx`));
 
 async function fetchXml(page, path) {
   return page.evaluate(async (p) => {
@@ -202,12 +215,25 @@ test.describe("JSON-LD BlogPosting", () => {
     expect(data.author).toBeTruthy();
   });
 
-  test("the block's URL is locale-correct on a translated post", async ({ page }) => {
+  test("the block's URL is locale-correct on a translated post; an unreviewed machine translation names the English original", async ({ page }) => {
     const slug = EXPECTED_SLUGS[0];
     await page.goto(`/tr-tr/blog/${slug}`);
     const raw = await page.locator('script[type="application/ld+json"]').textContent();
     const data = JSON.parse(raw);
-    expect(data.mainEntityOfPage).toBe(`https://www.universaltill.com/tr-tr/blog/${slug}/`);
-    expect(data.inLanguage).toBe("tr-TR");
+    const indexable = translated("blog", "tr-tr", [slug]).length > 0;
+    expect(data.mainEntityOfPage).toBe(`https://www.universaltill.com/${indexable ? "tr-tr" : "en-gb"}/blog/${slug}/`);
+    expect(data.inLanguage).toBe("tr-TR"); // the text is Turkish either way
+  });
+
+  test("an unreviewed machine-translated post is noindex with the canonical on the English original", async ({ request }) => {
+    const slug = EXPECTED_SLUGS.find((s) => hasFile("blog", "tr-tr", s) && translated("blog", "tr-tr", [s]).length === 0);
+    test.skip(!slug, "every tr-tr post is indexable");
+    const html = await (await request.get(`/tr-tr/blog/${slug}/`)).text();
+    expect(html).toMatch(/<meta name="robots" content="noindex"/);
+    expect(html).toContain(`<link rel="canonical" href="https://www.universaltill.com/en-gb/blog/${slug}/"`);
+    expect(html).not.toMatch(/rel="alternate" hreflang=/);
+    // The English original does not offer it as an alternate.
+    const en = await (await request.get(`/en-gb/blog/${slug}/`)).text();
+    expect(en).not.toContain('hreflang="tr-TR"');
   });
 });

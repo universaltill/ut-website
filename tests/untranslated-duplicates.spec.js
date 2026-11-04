@@ -11,59 +11,57 @@ const raw = async (request, path) => (await request.get(path)).text();
 const canonicalOf = (html) => html.match(/<link[^>]*rel="canonical"[^>]*href="([^"]+)"/)?.[1];
 const hreflangs = (html) => [...html.matchAll(/<link[^>]*rel="alternate"[^>]*hreflang="([^"]+)"/g)].map((m) => m[1]);
 
-// Exact strings, so two locales left identical (both English) can't pass.
-const PLUGINS = {
-  "en-gb": { title: "Plugins — Universal Till", type: "Payment", download: "Download latest" },
-  "tr-tr": { title: "Eklentiler — Universal Till", type: "Ödeme", download: "En son sürümü indir" },
-  "zh-cn": { title: "插件 — Universal Till", type: "支付", download: "下载最新版本" },
-  "fa-ir": { title: "افزونه‌ها — Universal Till", type: "پرداخت", download: "دانلود آخرین نسخه" },
-  "de-de": { title: "Plugins — Universal Till", type: "Zahlung", download: "Neueste Version herunterladen" },
-};
+import { I18N, LOCALES, SOURCE, renderedText, translated } from "./helpers/locales.js";
+
+// Expectations come from the published list's dictionaries. A key a locale ships is
+// asserted to be the locale's text (and not English); a key it does not ship is
+// asserted to be the English text, marked lang="en" (per-key fallback).
+const PLUGINS = Object.fromEntries(LOCALES.map((l) => [l, {
+  title: `${I18N[l]["pluginspage.title"]} — Universal Till`,
+  type: I18N[l]["pluginspage.type.payment"],
+  download: I18N[l]["pluginspage.download"],
+}]));
 
 test.describe("/plugins is in its own language before any JS runs", () => {
   for (const [locale, want] of Object.entries(PLUGINS)) {
     test(`${locale}/plugins/`, async ({ request }) => {
       const html = await raw(request, `/${locale}/plugins/`);
       expect(html).toContain(`<title>${want.title}</title>`);
-      expect(html).toMatch(new RegExp(`data-i18n="pluginspage.type.payment"[^>]*>\\s*${want.type}\\s*<`));
+      expect(renderedText(html, "pluginspage.type.payment")?.trim()).toBe(want.type);
       expect(canonicalOf(html)).toBe(`${ORIGIN}/${locale}/plugins/`);
       // The download action moved to each plugin's own page (ut-docs#4645).
       const detail = await raw(request, `/${locale}/plugins/payment-sumup/`);
-      expect(detail).toContain(`data-i18n="pluginspage.download">${want.download}<`);
-      if (locale !== "en-gb") expect(html).not.toContain("Every plugin listed here is free, open source");
+      expect(renderedText(detail, "pluginspage.download")?.trim()).toBe(want.download);
+      if (locale !== SOURCE && translated(locale, "pluginspage.desc")) expect(html).not.toContain(I18N[SOURCE]["pluginspage.desc"]);
+      if (locale !== SOURCE && !translated(locale, "pluginspage.desc")) expect(html).toContain('data-i18n-fallback');
     });
   }
 });
 
 test("the shared chrome is server-rendered in the page's locale", async ({ request }) => {
-  const html = await raw(request, "/de-de/plugins/");
-  expect(html).toContain('data-i18n="nav.news">Neuigkeiten<');
-  expect(html).toContain('data-i18n="nav.get">Loslegen<');
-  expect(html).toContain('data-i18n="foot.privacy">Datenschutzerklärung<');
-  expect(html).toContain('data-i18n="foot.terms">Nutzungsbedingungen<');
+  for (const locale of LOCALES) {
+    const html = await raw(request, `/${locale}/plugins/`);
+    for (const key of ["nav.news", "nav.get", "foot.privacy", "foot.terms"]) expect(renderedText(html, key), `${locale} ${key}`).toBe(I18N[locale][key]);
+  }
+  // nav.news is a standard key: the German page really is German.
+  expect(renderedText(await raw(request, "/de-de/plugins/"), "nav.news")).toBe("Neuigkeiten");
 });
 
-test("footer privacy/terms labels are translated in every locale", async ({ request }) => {
-  const want = {
-    "tr-tr": ["Gizlilik politikası", "Kullanım koşulları"],
-    "zh-cn": ["隐私政策", "使用条款"],
-    "fa-ir": ["سیاست حریم خصوصی", "شرایط استفاده"],
-    "de-de": ["Datenschutzerklärung", "Nutzungsbedingungen"],
-  };
-  for (const [locale, [privacy, terms]] of Object.entries(want)) {
+test("footer privacy/terms labels are the published text in every locale", async ({ request }) => {
+  for (const locale of LOCALES) {
     for (const path of [`/${locale}/pilot`, `/${locale}/blog/`]) {
       const html = await raw(request, path);
-      expect(html, path).toMatch(new RegExp(`data-i18n="foot.privacy"[^>]*>${privacy}<`));
-      expect(html, path).toMatch(new RegExp(`data-i18n="foot.terms"[^>]*>${terms}<`));
+      expect(renderedText(html, "foot.privacy"), path).toBe(I18N[locale]["foot.privacy"]);
+      expect(renderedText(html, "foot.terms"), path).toBe(I18N[locale]["foot.terms"]);
     }
   }
 });
 
 test.describe("an untranslated legal page points search engines at its English original", () => {
-  for (const locale of ["tr-tr", "zh-cn", "fa-ir", "de-de"]) {
+  for (const locale of LOCALES.filter((l) => l !== SOURCE)) {
     test(`${locale}/legal/impressum/`, async ({ request }) => {
       const html = await raw(request, `/${locale}/legal/impressum/`);
-      expect(html).toContain('data-i18n="news.untranslated"');
+      expect(html).toContain("data-legal-english");
       expect(canonicalOf(html)).toBe(`${ORIGIN}/en-gb/legal/impressum/`);
       // It isn't its own canonical, so it declares no hreflang set at all.
       expect(hreflangs(html)).toEqual([]);
@@ -73,12 +71,14 @@ test.describe("an untranslated legal page points search engines at its English o
   test("the en-gb original stays its own canonical", async ({ request }) => {
     const html = await raw(request, "/en-gb/legal/privacy/");
     expect(canonicalOf(html)).toBe(`${ORIGIN}/en-gb/legal/privacy/`);
+    // Only real, approved translations are in the set - none of the legal pages has one yet.
     expect(hreflangs(html).sort()).toEqual(["en-GB", "x-default"]);
   });
 
   test("the fallback banner is in the visitor's language without JS", async ({ request }) => {
     const html = await raw(request, "/de-de/legal/terms/");
-    expect(html).toMatch(/data-i18n="news.untranslated">\s*Dieser Beitrag ist noch nicht übersetzt/);
+    expect(html).toContain(`<p class="mt-band__text">${I18N["de-de"]["site.legal_english_binding"]}</p>`);
+    expect(I18N["de-de"]["site.legal_english_binding"]).toContain("Englisch");
   });
 });
 
@@ -99,7 +99,7 @@ test("the sitemap lists only real versions of legal pages and posts", async ({ r
   const xml = await raw(request, "/sitemap.xml");
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].slice(ORIGIN.length));
   // Exactly the legal pages that exist as files, per locale — no fallbacks.
-  const onDisk = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"].flatMap((locale) => {
+  const onDisk = LOCALES.flatMap((locale) => {
     const dir = new URL(`../src/content/legal/${locale}/`, import.meta.url);
     return fs.existsSync(dir)
       ? fs.readdirSync(dir).filter((f) => f.endsWith(".mdx")).map((f) => `/${locale}/legal/${f.replace(/\.mdx$/, "")}/`)

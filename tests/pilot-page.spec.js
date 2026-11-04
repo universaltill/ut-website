@@ -6,7 +6,7 @@
 // intentional protection for the mailto content itself. This closes that gap.
 import { expect, test } from "@playwright/test";
 
-const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
+import { LOCALES } from "./helpers/locales.js";
 
 test.describe("/pilot mailto CTA", () => {
   for (const locale of LOCALES) {

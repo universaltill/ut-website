@@ -175,13 +175,16 @@ test("prices match ut-docs/reference/subscription-plans.md (UK and euro ladders)
 test("every price line says it excludes VAT, in every locale", () => {
   const dict = loadDict();
   const mark = { "en-gb": /excl\. VAT/, "de-de": /zzgl\. MwSt/, "tr-tr": /KDV hariç/, "zh-cn": /不含增值税/, "fa-ir": /بدون احتساب مالیات بر ارزش افزوده/ };
-  for (const loc of Object.keys(mark)) for (const k of ["wiz.price.month", "wiz.price.multi", "wiz.price.tse"]) expect(dict[loc][k], `${loc} ${k}`).toMatch(mark[loc]);
+  // Price lines are legal-tier: a locale without a human approval shows the English line.
+  for (const loc of Object.keys(dict)) for (const k of ["wiz.price.month", "wiz.price.multi", "wiz.price.tse"]) {
+    const want = translated(loc, k) ? mark[loc] : mark["en-gb"];
+    expect(want, `${loc}: add the VAT wording for this locale`).toBeTruthy();
+    expect(dict[loc][k], `${loc} ${k}`).toMatch(want);
+  }
 });
 
 test("every key the wizard can ask for exists in every locale, with placeholders intact", () => {
-  const src = fs.readFileSync(path.join(ROOT, "site/i18n.js"), "utf8");
-  const m = src.match(/const I18N = (\{[\s\S]*?\});\s*\n\s*\(function/);
-  const dict = (0, eval)("(" + m[1] + ")");
+  const dict = ALL_I18N;
   const keys = [...R.allKeys(), "wiz.step", "wiz.price.month", "wiz.price.tse", "wiz.price.multi", "wiz.price.annual", "wiz.price.free", "wiz.price.talk", "wiz.price.unpub", "wiz.price.pick"];
   for (const loc of Object.keys(dict)) {
     for (const k of keys) {
@@ -194,17 +197,10 @@ test("every key the wizard can ask for exists in every locale, with placeholders
   }
 });
 
-function loadDict() {
-  const src = fs.readFileSync(path.join(ROOT, "site/i18n.js"), "utf8");
-  const m = src.match(/const I18N = (\{[\s\S]*?\});\s*\n\s*\(function/);
-  return (0, eval)("(" + m[1] + ")");
-}
+import { I18N as ALL_I18N, translated } from "./helpers/locales.js";
+function loadDict() { return ALL_I18N; }
 
-function ctxName(plan) {
-  const src = fs.readFileSync(path.join(ROOT, "site/i18n.js"), "utf8");
-  const m = src.match(/const I18N = (\{[\s\S]*?\});\s*\n\s*\(function/);
-  return (0, eval)("(" + m[1] + ")")["en-gb"]["wiz.plan." + plan];
-}
+function ctxName(plan) { return ALL_I18N["en-gb"]["wiz.plan." + plan]; }
 
 // ut-docs#4193: the "Talk to us" mailto body carries the answers to support.
 test.describe("talkBody", () => {

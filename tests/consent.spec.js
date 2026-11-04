@@ -108,8 +108,12 @@ test("Astro pages carry the Cookie settings control too", async ({ page }) => {
   await expect(page.locator(".foot-legal [data-consent-open]")).toHaveCount(1);
 });
 
-for (const [locale, accept] of [["de-de", "Akzeptieren"], ["tr-tr", "Kabul et"], ["fa-ir", "پذیرفتن"], ["zh-cn", "接受"]]) {
-  test(`/${locale} banner is translated`, async ({ page }) => {
+// The banner text is legal-tier: a locale shows the visitor's language only once a human
+// approved it, and English (marked lang="en") until then. Either way it must be the list's text.
+import { I18N, LOCALES } from "./helpers/locales.js";
+for (const locale of LOCALES.filter((l) => l !== "en-gb")) {
+  const accept = I18N[locale]["consent.accept"];
+  test(`/${locale} banner shows the published text`, async ({ page }) => {
     await page.goto(`/${locale}`);
     await expect(page.locator("#consent-banner [data-consent=granted]")).toHaveText(accept);
     await expect(page.locator('#consent-banner a[href$="/legal/privacy/"]')).toHaveAttribute("href", `/${locale}/legal/privacy/`);

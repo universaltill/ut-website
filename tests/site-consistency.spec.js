@@ -13,7 +13,7 @@ import { expect, test } from "@playwright/test";
 import fs from "node:fs";
 
 const ASTRO_PAGES = ["/en-gb/blog", "/en-gb/plugins", "/en-gb/blog/whats-new-v0-2-70"];
-const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
+import { LOCALES, LOCALE_INFO, isLabelled } from "./helpers/locales.js";
 
 async function headerFingerprint(page, path) {
   await page.goto(path);
@@ -118,11 +118,16 @@ test.describe("language lives in the URL", () => {
     // Region-tagged and correctly cased, one per locale that has a real
     // translation, plus x-default. A locale without one serves the English
     // original, canonicalises to it, and is not declared (ut-docs#3811).
-    const BCP = { "en-gb": "en-GB", "tr-tr": "tr-TR", "zh-cn": "zh-CN", "fa-ir": "fa-IR", "de-de": "de-DE" };
-    const translatedIn = LOCALES.filter((l) =>
-      fs.existsSync(new URL(`../src/content/blog/${l}/whats-new-v0-2-70.mdx`, import.meta.url)),
-    );
-    expect(translatedIn).toContain("tr-tr");
+    const BCP = Object.fromEntries(LOCALE_INFO.map((l) => [l.url, l.bcp47]));
+    // A translation is declared only if search engines may index it: a machine
+    // translation in a locale with no recorded human review is noindex (ADR-0177).
+    const post = (l) => new URL(`../src/content/blog/${l}/whats-new-v0-2-70.mdx`, import.meta.url);
+    const translatedIn = LOCALES.filter((l) => {
+      if (!fs.existsSync(post(l))) return false;
+      const fm = fs.readFileSync(post(l), "utf8").split("---")[1];
+      return l === "en-gb" || !/^machineTranslated:\s*true/m.test(fm) || !isLabelled(l) || /^reviewed:\s*true/m.test(fm);
+    });
+    expect(translatedIn).toContain("en-gb");
     expect(alternates.map((a) => a.hreflang).sort()).toEqual(
       [...translatedIn.map((l) => BCP[l]), "x-default"].sort(),
     );
@@ -130,9 +135,9 @@ test.describe("language lives in the URL", () => {
     expect(alternates.find((a) => a.hreflang === "x-default").href).toBe(
       "https://www.universaltill.com/en-gb/blog/whats-new-v0-2-70/",
     );
-    expect(alternates.find((a) => a.hreflang === "tr-TR").href).toBe(
-      "https://www.universaltill.com/tr-tr/blog/whats-new-v0-2-70/",
-    );
+    for (const l of translatedIn) {
+      expect(alternates.find((a) => a.hreflang === BCP[l]).href).toBe(`https://www.universaltill.com/${l}/blog/whats-new-v0-2-70/`);
+    }
   });
 });
 
@@ -226,15 +231,15 @@ test.describe("posts are translated, not just the chrome", () => {
       expect(body).toContain("Universal Till");
       // And a machine translation says so, with a way back to the original.
       await expect(page.locator('[data-i18n="news.machine"]')).toBeVisible();
-      await expect(page.locator('a[href="/en-gb/blog/whats-new-v0-2-70/"]')).toBeVisible();
+      await expect(page.locator('[data-i18n="news.original"]')).toHaveAttribute("href", "/en-gb/blog/whats-new-v0-2-70/");
     });
   }
 
   test("every locale lists the same posts — never a shorter blog in one language", async ({ page }) => {
     const counts = {};
-    for (const locale of ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"]) {
+    for (const locale of LOCALES) {
       await page.goto(`/${locale}/blog`);
-      counts[locale] = await page.locator('a[href*="/blog/"]').count();
+      counts[locale] = await page.locator('main a[href*="/blog/"]').count();
     }
     const values = Object.values(counts);
     expect(new Set(values).size, `post counts differ per locale: ${JSON.stringify(counts)}`).toBe(1);

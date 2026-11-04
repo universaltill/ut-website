@@ -4,9 +4,9 @@
 // the visitor's locale, no broken links, nothing sent anywhere.
 import { expect, test } from "@playwright/test";
 
-const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
+import { LOCALES, translated, MY_SERVED } from "./helpers/locales.js";
 // my.universaltill.com has no zh-cn tree (ut-my-shop/src/i18n/i18n.ts): that locale links to en-gb.
-const MY_SERVED = ["en-gb", "en-us", "de-de", "es-es", "fr-fr", "it-it", "pt-pt", "tr-tr", "ar-sa", "fa-ir"];
+// Which locales my. serves comes from the published list (cloud.manage), not from here.
 const MY = (l) => `https://my.universaltill.com/${MY_SERVED.includes(l) ? l : "en-gb"}/`;
 
 async function answer(page, picks = {}) {
@@ -205,9 +205,15 @@ test("German view: the same ladder in EUR and the +EUR 12 TSE line, in German", 
   await page.goto("/de-de/find-your-setup");
   await answer(page, { country: "de", needs: ["fiscal"] });
   const t = (await page.locator(".wiz-price").innerText()).replace(/\u00a0/g, " ");
-  expect(t).toContain("29 € pro Monat zzgl. MwSt.");
-  expect(t).toContain("24,17 €");
-  expect(t).toContain("12 € pro Monat zzgl. MwSt. für jede Haupt-Kasse");
+  // The price lines are legal-tier: German once a human approves them, English until then.
+  if (translated("de-de", "wiz.price.month")) {
+    expect(t).toContain("29 € pro Monat zzgl. MwSt.");
+    expect(t).toContain("12 € pro Monat zzgl. MwSt. für jede Haupt-Kasse");
+  } else {
+    expect(t).toContain("29 € per month, excl. VAT");
+    expect(t).toContain("12 € per month, excl. VAT, for each main till");
+  }
+  expect(t).toContain("24,17 €"); // the number formatting follows the page locale either way
 });
 
 test("Multi-location shows 120 / 100.00 annual / extra 33 / 3 included / up to 10", async ({ page }) => {

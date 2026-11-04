@@ -5,7 +5,7 @@
 // is in the sitemap, and is linked from the home and download pages.
 import { expect, test } from "@playwright/test";
 
-const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
+import { LOCALES } from "./helpers/locales.js";
 // The search phrase each locale's <title> must carry (owner's terms, #4643).
 const PHRASE = {
   "en-gb": "Android till",
