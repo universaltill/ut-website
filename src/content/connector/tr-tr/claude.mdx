@@ -1,0 +1,120 @@
+---
+title: "Universal Till'i Claude'da kullanın"
+summary: "Mağazanızın Universal Till hesabını kendi Claude hesabınıza nasıl bağlarsınız, Claude neleri görebilir ve kontrol nasıl sizde kalır."
+updated: 2026-11-04
+---
+
+<h2 id="what">Nedir ve neye ihtiyacınız var</h2>
+
+Universal Till, uzak bir MCP bağlayıcısı üzerinden Claude'a bağlanır. Bağlayıcıyı kendi Claude hesabınıza eklediğinizde Claude mağazanızın bazı bölümlerini okuyabilir ve değişiklik önerebilir. Claude'un neleri görebileceğine siz karar verirsiniz ve siz onaylamadan hiçbir şey değişmez.
+
+Şunlara ihtiyacınız var:
+
+- my.universaltill.com üzerinde hesabı olan ve sahibi ya da yöneticisi olduğunuz bir Universal Till mağazası;
+- web adresiyle özel bağlayıcı eklemenize izin veren bir Claude hesabı;
+- değişiklikleri uygulamak istiyorsanız bulutta yönetilen kataloğa sahip bir mağaza. Diğer mağazalarda bağlantı salt okunurdur ve bunu size söyler.
+
+<h2 id="setup">Kurulum</h2>
+
+Bağlayıcıyı kendi hesabınızda kendiniz eklersiniz. Sizin için hiçbir şey kurulmaz ve hiçbir yere parola, anahtar ya da belirteç yapıştırmazsınız.
+
+1. <a href="https://my.universaltill.com">my.universaltill.com</a> adresinde oturum açın, **Bağlı asistanlar** bölümünü açın ve **Asistan bağla** seçeneğini seçin. Bağlantı böylece kendi hesabınızdan başlar.
+2. Kendi Claude hesabınızda özel bir bağlayıcı ekleyin ve şu adresi girin. Claude'daki menü adları değişebilir; ayarlarında özel bağlayıcıları arayın.
+
+   <code>https://mcp.universaltill.com</code>
+
+3. Claude tarayıcınızda bir Universal Till sayfası açar. Mağazayı, isteğin başladığı olarak gösterilen saati ve oturum açtığınız hesabı kontrol edin.
+4. Claude'un neler yapabileceğini seçin: **yalnızca okuma** ya da **okuma ve öneri**. Hangi veri türlerini görebileceğini seçin. Müşteri ve personel verileri kapalıdır ve yalnızca mağaza sahibi bunları açabilir.
+5. **İzin ver** seçeneğini seçin. Her yeni bağlantı için mağaza sahibine e-posta göndeririz.
+
+Mağaza sahibi bağlayıcıyı mağaza için açmadıysa bağlantı reddedilir. Anahtar varsayılan olarak kapalıdır.
+
+<h2 id="tools">Claude neleri görebilir ve yapabilir</h2>
+
+Claude sabit bir araç listesini kullanır. Serbest veritabanı sorguları çalıştıramaz.
+
+- **Mağaza profilini okuma.**
+- **Kataloğu okuma:** kategorileri listeleme, ürünleri listeleme, bir ürünü açma.
+- **Ayarları okuma:** görmesine izin verilen ayarları listeleme.
+- **Bir ürün için değişiklik önerme** (öneri başına en fazla 50 ürün).
+- **Bir ayar için değişiklik önerme.**
+- **Raporlar:** raporlar, rapor oluşturucu kullanıma girdikten sonra eklenir. O zamana kadar rapor araçları kullanılamadığını bildirir.
+
+Siz ne izin verirseniz verin Claude'un hiçbir zaman erişemeyeceği şeyler: vergi ve hukuki ayarlar, mali ayarlar, kimlik bilgileri ve anahtarlar, ödeme sağlayıcısı ayarları, roller ve PIN'ler, yapay zeka ayarları ve faturalamayla ilgili her şey. Bir asistan barkodu olmayan bir ürüne ilk barkodu ekleyebilir, ancak var olan bir barkodu asla değiştiremez ya da kaldıramaz.
+
+Claude en fazla sizin rolünüzün yetkilerini kullanabilir. Kasiyer bir asistan bağlayamaz.
+
+<h3 id="proposals">Değişiklikler, sizin onayladığınız önerilerdir</h3>
+
+Claude mağazanızı kendi başına değiştiremez. Bir şeyi değiştirmek istediğinde bir öneri oluşturur ve size my.universaltill.com'a giden bir bağlantı verir.
+
+1. Öneriyi my.universaltill.com'da açın. Universal Till'in kendi ifadesiyle yazılmış tam önceki ve sonraki hâli gösterilir. Bir asistanın yazdığı bir gerekçe gösterilmez.
+2. **Onayla** ya da **Reddet** seçeneğini seçin. Yalnızca sahip ve yöneticiler onaylayabilir. Fiyat değişikliklerinde ve 10'dan fazla satırlı önerilerde önce yeniden oturum açmanız istenir.
+3. Claude önerdikten sonra bir değer değiştiyse öneri reddedilir ve Claude'un yeniden önermesi gerekir.
+
+Bir öneri bir saat sonra geçerliliğini yitirir ve yalnızca bir kez kullanılabilir. Onayladığınız bir değişikliği my.universaltill.com'da 7 gün içinde geri alabilirsiniz; bu arada sizin değiştirdiğiniz değerlere dokunulmaz ve listelenir.
+
+my.universaltill.com'da mağaza sahibi fiyat değişikliklerini kapatabilir, alanları boşaltmayı açıp kapatabilir. Fiyat değişiklikleri varsayılan olarak açık, alanları boşaltma varsayılan olarak kapalıdır.
+
+<h2 id="activation">Etkinleştirme</h2>
+
+Bağlantının nasıl başlatıldığına bağlı olarak, siz my.universaltill.com'da etkinleştirene kadar etkin olmayabilir. Etkin olmadığı sürece hiçbir şey okunmaz.
+
+1. Claude 6 haneli bir kod gösterir, yalnızca sohbette. Kodu my.universaltill.com'da göstermeyiz ve e-postayla göndermeyiz.
+2. my.universaltill.com'da **Bağlı asistanlar** bölümünü açın, bekleyen bağlantıyı bulun ve kodu girin. Bunu, yeniden oturum açtıktan sonra mağaza sahibi ya da bağlantıyı kuran kişi yapabilir.
+3. Bağlantı etkinleşir.
+
+Kod 24 saat geçerlidir. 5 yanlış denemeden sonra bağlantı iptal edilir.
+
+Claude'da bir kod göremiyorsanız bağlantı size ait değildir. Aynı ekranda **Benim değil, iptal et** seçeneğini seçin. Size biri tarafından gönderilen bir kodu girmeyin.
+
+<h2 id="revoke">İptal etme veya bağlantıyı kesme</h2>
+
+- **my.universaltill.com'da:** **Bağlı asistanlar** bölümünü açın, bağlantıyı bulun ve **İptal et** seçeneğini seçin. Claude hemen durur.
+- **Claude'da:** Bağlayıcıyı Claude ayarlarınızdan kaldırın. Bağlantının bizim tarafımızda da bitmesi için ayrıca my.universaltill.com'da iptal edin.
+
+Bir bağlantı ayrıca en geç 90 gün sonra kendiliğinden biter; yeniden bağlanabilirsiniz. Bir mağazada en fazla 5 bağlantı olabilir.
+
+<h2 id="data">Mağazanızdan hangi veriler çıkar</h2>
+
+Claude mağazanızı okuduğunda bu veriler Claude'un arkasındaki şirket olan Anthropic'e gönderilir. Yalnızca onay sayfasında izin verdiğiniz veri türlerini göndeririz.
+
+- Müşteri ve personel verileri varsayılan olarak kapalıdır. Yalnızca mağaza sahibi bunları açabilir. Müşteri verileri açıksa yalnızca paylaşılabilir olarak işaretlenmiş alanları göndeririz.
+- Başka bir sunucu bölgesindeki bir mağazadan hiçbir şey gönderilmez.
+- Anthropic'in neyi sakladığı ya da kullandığı, Claude planınız için Anthropic'in kendi politikasına bağlıdır. Bu sayfa bunu açıklamaz. Planınız için Anthropic'in şartlarını okuyun.
+- Universal Till, Claude parolanızı ya da oturumunuzu saklamaz ve bir Universal Till yapay zeka hesabı kullanmaz.
+- Anthropic verileri Birleşik Krallık ve AB dışında işleyebilir. Müşteri ya da personel verilerini açarsanız, bunları paylaşmak için hukuki dayanağa sahip olmaktan ve ilgili kişileri bilgilendirmekten siz sorumlusunuz.
+
+<a href="/tr-tr/legal/privacy/">Gizlilik politikamıza</a> ve <a href="/tr-tr/legal/terms/">kullanım şartlarımıza</a> bakın.
+
+<h2 id="troubleshooting">Sorun giderme</h2>
+
+**"Not active yet. In my.universaltill.com → Connected assistants, enter the code ... to activate."**
+Bu mesaj Claude'da İngilizce görünür. Bağlantı etkinleştirme bekliyor. Etkinleştirme bölümündeki adımları izleyin. Kodun süresi 24 saat sonra dolar; ardından yeniden bağlanın.
+
+**Kodu girdikten sonra bağlantı iptal edildi.**
+5 yanlış denemeden sonra bağlantı iptal edilir. Yeniden bağlanın ve yeni kodu dikkatle girin.
+
+**Claude çok fazla istek yapıldığını söylüyor.**
+Her bağlantı dakikada 60 istek yapabilir. Bir dakika bekleyip yeniden deneyin.
+
+**Claude hizmetin geçici olarak kullanılamadığını söylüyor.**
+Biraz bekleyip yeniden deneyin. Mağazanızda bir değişiklik yapılmadı.
+
+**Bağlantı reddediliyor.**
+Mağaza sahibinin bağlayıcıyı mağaza için açması gerekir. Anahtar varsayılan olarak kapalıdır. Ayrıca sahip ya da yönetici olduğunuzu ve mağazada 5'ten az bağlantı bulunduğunu kontrol edin.
+
+**Claude okuyabiliyor ama değişiklik uygulayamıyor.**
+Değişiklik uygulama yalnızca bulutta yönetilen kataloğa sahip mağazalarda çalışır. Diğer mağazalarda değişikliği kasada yapın.
+
+**Bir öneri geçersiz oldu ya da reddedildi.**
+Öneriler bir saat geçerlidir ve bir değer değiştiyse reddedilir. Claude'dan yeniden önermesini isteyin.
+
+<h2 id="support">Yardım ve not</h2>
+
+Şirket bilgileri için <a href="/tr-tr/legal/impressum/">yasal bildirimimize</a> bakın. Bir güvenlik sorunu bildirmek için <a href="/.well-known/security.txt">güvenlik iletişim bilgimize</a> bakın.
+
+{/* claim-ok: disclaimer */}
+Universal Till, Anthropic ile hiçbir ortaklığı yoktur ve Anthropic tarafından onaylanmış ya da desteklenmiş değildir. Claude ve Anthropic, ilgili sahiplerinin ticari markalarıdır.
+
+Farklılık olması hâlinde geçerli olan İngilizce metindir.

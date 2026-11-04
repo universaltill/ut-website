@@ -1,0 +1,4 @@
+Contact: mailto:security@universaltill.com
+Expires: 2027-05-01T00:00:00.000Z
+Preferred-Languages: en, de, tr
+Canonical: https://www.universaltill.com/.well-known/security.txt

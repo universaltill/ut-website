@@ -1,0 +1,80 @@
+---
+import { render } from 'astro:content';
+import BaseLayout, { LANGS, SOURCE_LOCALE, t } from '../../layouts/BaseLayout.astro';
+import { getAllLocalizedConnectorPages, translatedLangsOf } from '../../lib/connectorPages';
+import { formatDate } from '../../lib/dates';
+
+// "Use Universal Till in Claude" (ut-docs#5318): one page per locale, same
+// fallback shape as legal/[slug].astro — the locale's own translation where
+// it exists (en/de/tr), the English original elsewhere (fa/zh), honestly
+// labelled, canonical pointing at en-gb. Copy is bound by ADR-0175 and
+// scripts/guard-claude-claims.sh.
+export async function getStaticPaths() {
+  const byLocale = await getAllLocalizedConnectorPages();
+  return LANGS.flatMap((lang) =>
+    (byLocale[lang] ?? []).map(({ page, slug, isFallback }) => ({
+      params: { lang },
+      props: { page, isFallback, translatedLangs: translatedLangsOf(byLocale, slug) },
+    })),
+  );
+}
+
+const { page, isFallback, translatedLangs } = Astro.props;
+const { lang } = Astro.params;
+const { Content } = await render(page);
+---
+
+<BaseLayout
+  title={page.data.title}
+  description={page.data.summary}
+  lang={lang}
+  path="/claude/"
+  isFallback={isFallback}
+  translatedLangs={translatedLangs}
+>
+  <article class="section claude-page" style="max-width:44rem">
+    <h1 dir={isFallback ? 'ltr' : undefined} lang={isFallback ? 'en' : undefined}>{page.data.title}</h1>
+
+    {/* dir/lang here too, not just the h1 and the body div below — blog/
+        [slug].astro's own history (ut-docs#353) is a reviewer catching the
+        first fix for exactly this class of miss: forcing ltr only on the
+        body left this kind of standalone line (a date, in that case a
+        title/byline) sitting under the surrounding rtl chrome. */}
+    <p
+      class="muted"
+      style="font-size:.85rem;margin:.2rem 0 1rem"
+      dir={isFallback ? 'ltr' : undefined}
+      lang={isFallback ? 'en' : undefined}
+    >
+      <bdi><time datetime={page.data.updated.toISOString().slice(0, 10)}>{formatDate(page.data.updated, isFallback ? SOURCE_LOCALE : lang)}</time></bdi>
+    </p>
+
+    {/* Reuses blog's existing "news.untranslated" key rather than minting a
+        new one: a fresh key would itself need translating into tr/zh/fa/de
+        before it could honestly appear on a non-English URL, which is
+        exactly the capability this fallback exists to work around. The
+        wording says "post" rather than "page", which is a little loose for
+        a page, but it's already translated in all five locales
+        and understating precision here is a smaller honesty cost than a
+        hardcoded English banner sitting on a de-de/tr-tr/zh-cn/fa-ir URL. */}
+    {isFallback && (
+      <p class="muted" style="font-size:.85rem;margin:.2rem 0 1rem" data-i18n="news.untranslated">
+        {t(lang, 'news.untranslated')}
+      </p>
+    )}
+
+    <div
+      style="line-height:1.7;color:var(--ink-soft)"
+      dir={isFallback ? 'ltr' : undefined}
+      lang={isFallback ? 'en' : undefined}
+    >
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  /* The connector address is one long unbreakable token; at 360px it must
+     wrap rather than force a horizontal scroll. */
+  .claude-page :global(code) { overflow-wrap: anywhere; }
+</style>
