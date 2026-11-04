@@ -455,5 +455,13 @@
   "android.faq.q4": {"description":"Android FAQ question 4: which tablets does it run on.","review":"standard"},
   "android.faq.a4": {"description":"Android FAQ answer 4: Android 7.0 or newer; a 64-bit version for most tablets, one for older 32-bit tablets, a universal one when unsure.","review":"standard"},
   "hw.androidlink": {"description":"Link in the Hardware section to the Android till page. The arrow is a visual cue.","review":"standard"},
-  "dl.android.about": {"description":"Link on the download page to the Android till page. The arrow is a visual cue.","review":"standard"}
+  "dl.android.about": {"description":"Link on the download page to the Android till page. The arrow is a visual cue.","review":"standard"},
+  "site.machine_label": {"description":"Short label (bold lead of a notice band, also an accessible name). Says the page text was translated by AI. Use the usual term for AI in the language, not 'automatic' or 'robot'.","review":"standard","core":true},
+  "site.machine_label_detail": {"description":"Second sentence of the translated-with-AI notice band: no person has reviewed the translation yet, and the English text is the reference if something reads wrongly. Calm, factual, no apology.","review":"standard","core":true},
+  "site.machine_label_link": {"description":"Link text in the notice band that opens the same page in English.","review":"standard","core":true},
+  "site.machine_label_report": {"description":"Link text (opens the visitor's email program) to report a wrong translation.","review":"standard","core":true},
+  "site.machine_label_badge": {"description":"Tiny badge next to a language in the language picker meaning 'translated with AI'. At most 12 characters; the local usual abbreviation (KI, YZ, IA) is fine.","review":"standard","core":true},
+  "site.fallback_note": {"description":"Note shown once under the header when a page still contains English text because a string is missing in this language.","review":"standard","core":true},
+  "site.legal_english_binding": {"description":"Notice at the top of a legal page (privacy, terms, legal notice) that has no approved translation: the page is the English text and English is the binding version.","review":"standard","core":true,"review_exception":"core UI notice that the English text is binding; it must show in the visitor's language on an AI-only locale, and it states no term, fee or data handling itself"},
+  "language.current": {"description":"Visible and spoken marker on the language picker card of the language the visitor is currently reading.","review":"standard","core":true}
 }
