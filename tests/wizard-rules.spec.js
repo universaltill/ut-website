@@ -91,14 +91,14 @@ test("Germany + Local Plus: own TSE, so NO managed TSE line; the law note says w
   const r = rec({ country: "de", needs: ["remote"] });
   expect(r.plan).toBe("plus");
   expect(r.price.tse).toBe(0);
-  expect(r.notes).toContain("wiz.n.detse");
+  expect(r.notes).toContain("wiz.n.detsemin");
 });
 
 test("Germany with no fiscal tick: a TSE is required by law, so no copy implies zero total cost", () => {
-  for (const needs of [[], ["remote"], ["tables"]]) expect(rec({ country: "de", needs }).notes, needs.join()).toContain("wiz.n.detse");
-  expect(rec({ country: "de", sites: "few" }).notes).toContain("wiz.n.detse");
-  expect(rec({ country: "uk" }).notes).not.toContain("wiz.n.detse");
-  expect(rec({ country: "de", needs: ["fiscal"] }).notes).not.toContain("wiz.n.detse");
+  for (const needs of [[], ["remote"], ["tables"]]) expect(rec({ country: "de", needs }).notes, needs.join()).toContain("wiz.n.detsemin");
+  expect(rec({ country: "de", sites: "few" }).notes).toContain("wiz.n.detsemin");
+  expect(rec({ country: "uk" }).notes).not.toContain("wiz.n.detsemin");
+  expect(rec({ country: "de", needs: ["fiscal"] }).notes).not.toContain("wiz.n.detsemin");
 });
 
 test("the 'stay on your own device' note shows only when the German fiscal need was the only reason", () => {
