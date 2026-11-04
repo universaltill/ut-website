@@ -248,15 +248,21 @@ The locale set is **data**: `i18n/published/locales.json` (the file
 strings, flat key → text) and `i18n/en.json` / `en.meta.json` (the English
 source and translator metadata, edited here). Nothing else lists a locale.
 
-- **Seed (today).** Weblate has no `website` component yet, so the files for the
-  five live locales were produced once by `scripts/seed-published-locales.mjs`
-  from the old hand dictionaries (every non-English locale is `machine_label`,
-  `legal_approved: false`, legal-tier keys omitted). The future
-  `sync-locales.yml` overwrites exactly these files from `ut-translations@main`
-  (`published/locales.json`, `published/website/<code>.json`). **ar, fr, ms, pt,
-  es and it are not translated here and are not faked:** they appear on the site
-  automatically (routes, pages, hreflang, sitemap, switcher, band) the day
-  ut-translations publishes them for the `website` surface and the files land.
+- **Seed + sync.** The five live locales were produced once by
+  `scripts/seed-published-locales.mjs` from the old hand dictionaries (every
+  non-English locale is `machine_label`, `legal_approved: false`, legal-tier keys
+  omitted). `sync-locales.yml` (every 6 h or by hand; public repo, GitHub-hosted
+  runner, no secrets) runs `scripts/sync-locales.mjs --from <ut-translations@main>`:
+  `published/locales.json` -> `i18n/published/locales.json`,
+  `published/website/<weblate code>.json` -> `i18n/<url-locale>.json`, then
+  `gen-locales.mjs`, and opens a PR (`sync-locales/auto`; never a direct push) and
+  dispatches `ci.yml` on it (a PR made with `GITHUB_TOKEN` starts no workflow by
+  itself). **A seeded locale is never regressed:** until ut-translations publishes it
+  for `website` its list entry and strings stay; once it does, published strings win
+  per key and keys the upstream omits keep their current text. **ar, fr, ms, pt, es,
+  it and el are not translated here and are not faked:** they appear on the site
+  (routes, pages, hreflang, sitemap, switcher, band) when their sync PR is merged
+  (the merge to main runs `deploy.yml`). Test: `node --test scripts/sync-locales_test.mjs`.
 - **Generator.** `node scripts/gen-locales.mjs` writes `site/i18n-data.js` (the
   dictionaries `i18n.js` runs on; `i18n.js` is logic only) and the locale part of
   `site/staticwebapp.config.json` (routes, short aliases `/de`, withdrawn-locale
