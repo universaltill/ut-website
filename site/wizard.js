@@ -193,6 +193,7 @@
       if (p.annual) lines.push(fill(t("wiz.price.annual"), { price: money(p.currency, p.annual) }));
       if (p.extraLocation) lines.push(fill(t("wiz.price.multi"), { price: money(p.currency, p.extraLocation), included: num(p.includedLocations), max: num(R.MAX_LOCATIONS) }));
       if (p.tse) lines.push(fill(t("wiz.price.tse"), { price: money(p.currency, p.tse) }));
+      if (p.tse && p.tseMinMonths) lines.push(fill(t("wiz.price.tsemin"), { months: num(p.tseMinMonths) }));
     }
     return lines;
   }

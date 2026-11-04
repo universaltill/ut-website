@@ -44,7 +44,7 @@
   var PRICES = {};
   Object.keys(SRC.markets).forEach(function (m) {
     var mk = SRC.markets[m];
-    var o = { currency: mk.currency, extraLocation: SRC.extraLocation.monthly, tsePerMainTill: mk.tsePerMainTill, annual: {} };
+    var o = { currency: mk.currency, extraLocation: SRC.extraLocation.monthly, tsePerMainTill: mk.tsePerMainTill, tseMinMonths: mk.tseMinMonths || 0, annual: {} };
     PLAN_ORDER.forEach(function (p) {
       var pl = mk.plans[p];
       if (pl && pl.monthly > 0) { o[p] = pl.monthly; o.annual[p] = pl.annualPerMonth; }
@@ -168,6 +168,7 @@
     else {
       // Local and Local Plus bring their own TSE: the managed-TSE line starts at TSE_FROM (Shop).
       price = { kind: "monthly", currency: priceInfo.currency, monthly: priceInfo[plan], annual: priceInfo.annual[plan], tse: rank(plan) >= rank(TSE_FROM) ? priceInfo.tsePerMainTill : 0 };
+      price.tseMinMonths = price.tse > 0 ? priceInfo.tseMinMonths : 0;
       if (plan === "multi") {
         price.extraLocation = priceInfo.extraLocation;
         price.includedLocations = INCLUDED_LOCATIONS;

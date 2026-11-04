@@ -134,7 +134,10 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   closing "Start free" CTA + support mailbox) last. Claims there are checked
   against shipped behaviour: "no minimum term" (not "no contract" - annual
   billing exists) and, in `de-de` only, the managed TSE exception to "never
-  charged per till". `tests/home-copy.spec.js`.
+  charged per till". The English `faq.a2` also names Germany's 12-month
+  minimum on the managed TSE line, pinned to `data/plan-prices.json`; the
+  wizard's `wiz.price.tsemin` line takes the number from the same file
+  (ut-docs#5473). `tests/home-copy.spec.js`.
 - **`/llms.txt` and `/llms-full.txt` (ut-docs#4319)** — the llmstxt.org
   summary of the site for AI assistants, plus the full English home copy and
   every en-gb blog post as Markdown. Generated at build by

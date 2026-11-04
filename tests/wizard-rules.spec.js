@@ -153,6 +153,18 @@ test("plan names are the current ones, never the retired Chain / Enterprise", ()
   expect(names).toEqual(["Local", "Local Plus", "Shop", "Pro", "Multi-location", "Enterprise and chains"]);
 });
 
+test("the German TSE minimum term comes from the price file, only for a priced TSE line", () => {
+  const file = JSON.parse(fs.readFileSync(path.join(ROOT, "data/plan-prices.json"), "utf8")).countries.de.tse_per_main_till.min_months_per_activated_till;
+  expect(file).toBeGreaterThanOrEqual(1);
+  expect(R.PRICES.de.tseMinMonths).toBe(file);
+  expect(R.PRICES.uk.tseMinMonths).toBe(0);
+  expect(R.PRICES.eu.tseMinMonths).toBe(0);
+  expect(rec({ country: "de", needs: ["fiscal"] }).price.tseMinMonths).toBe(file);
+  expect(rec({ country: "de", needs: ["remote"] }).price.tseMinMonths).toBe(0); // Local Plus: own TSE
+  expect(rec({ country: "uk", needs: ["remote"] }).price.tseMinMonths).toBe(0);
+  expect(rec({ country: "eu", needs: ["remote"] }).price.tseMinMonths).toBe(0);
+});
+
 test("tse is priced only from Shop up (Local and Local Plus bring their own)", () => {
   for (const [needs, sites, tse] of [[[], "one", 0], [["remote"], "one", 0], [["fiscal"], "one", 12], [[], "few", 12]]) {
     const r = rec({ country: "de", needs, sites });
@@ -185,7 +197,7 @@ test("every price line says it excludes VAT, in every locale", () => {
 
 test("every key the wizard can ask for exists in every locale, with placeholders intact", () => {
   const dict = ALL_I18N;
-  const keys = [...R.allKeys(), "wiz.step", "wiz.price.month", "wiz.price.tse", "wiz.price.multi", "wiz.price.annual", "wiz.price.free", "wiz.price.talk", "wiz.price.unpub", "wiz.price.pick"];
+  const keys = [...R.allKeys(), "wiz.step", "wiz.price.month", "wiz.price.tse", "wiz.price.tsemin", "wiz.price.multi", "wiz.price.annual", "wiz.price.free", "wiz.price.talk", "wiz.price.unpub", "wiz.price.pick"];
   for (const loc of Object.keys(dict)) {
     for (const k of keys) {
       expect(dict[loc][k], `${loc} ${k}`).toBeTruthy();

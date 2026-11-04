@@ -83,6 +83,9 @@ test("no dict value in any locale claims 'no contract'", () => {
 test("en-gb and de-de carry the monthly-billing wording; the German FAQ names the TSE", () => {
   const en = I18N["en-gb"];
   for (const k of ["faq.a2", "meta.home.desc", "start.lede"]) expect(en[k], k).toContain("no minimum term on monthly billing");
+  // Germany's managed-TSE minimum is told next to the plan's "no minimum term" (ut-docs#5473, legal review M1).
+  const tseMin = JSON.parse(fs.readFileSync(path.join(ROOT, "data/plan-prices.json"), "utf8")).countries.de.tse_per_main_till.min_months_per_activated_till;
+  expect(en["faq.a2"]).toContain(`in Germany, the managed TSE line (optional, from Shop) has a ${tseMin}-month minimum per activated main till`);
   // These German claims are legal-tier keys: they are checked whenever the German text is
   // published (a human approved it); until then the page shows the English text and the
   // English text is what the claims checks above already cover.

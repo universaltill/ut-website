@@ -31,6 +31,8 @@ for (const [docsKey, id] of Object.entries(MARKETS)) {
   if (c.tse_per_main_till) {
     m.tsePerMainTill = units(c.tse_per_main_till.monthly_minor);
     m.tseFromPlan = PLANS[c.tse_per_main_till.applies_to.map((p) => p).sort((a, b) => Object.values(PLANS).indexOf(PLANS[a]) - Object.values(PLANS).indexOf(PLANS[b]))[0]];
+    m.tseMinMonths = need(c.tse_per_main_till.min_months_per_activated_till, `${docsKey}.tse_per_main_till.min_months_per_activated_till`);
+    if (!Number.isInteger(m.tseMinMonths) || m.tseMinMonths < 1) throw new Error("tse_per_main_till.min_months_per_activated_till must be a positive integer");
     if (c.tse_per_main_till.discountable !== false) throw new Error("the TSE line must be non-discountable");
   }
   markets[id] = m;
