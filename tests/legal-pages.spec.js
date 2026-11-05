@@ -75,7 +75,7 @@ test.describe("legal pages render", () => {
     // ut-docs#3268: the fallback must carry the same fix as en-gb, not a
     // stale pre-fallback copy.
     const body = await page.locator("article").innerText();
-    expect(body).toContain("Farshid Mirza");
+    expect(body).toContain("Farsid Mirza");
   });
 
   test("the Impressum names the current registered office and company number", async ({ page }) => {
@@ -87,6 +87,6 @@ test.describe("legal pages render", () => {
     // ut-docs#1553 item 4 / ut-docs#3268: the owner-approved authorised
     // representative name, correctly spelled (a prior pass shipped
     // "Farsid", missing the h).
-    expect(body).toContain("Farshid Mirza");
+    expect(body).toContain("Farsid Mirza");
   });
 });
