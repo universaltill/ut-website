@@ -20,20 +20,25 @@
   // Ask again after a year: consent is not forever (ICO; EDPB/DSK expect a
   // refresh within 6–12 months).
   var MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000;
+  // Bump when the consent text or the privacy policy it points at changes.
+  var POLICY_VERSION = "v1";
   var loaded = false;
   var opener = null;
 
-  // Stored as "granted|<ms>" / "denied|<ms>". Anything else, or older than
+  // Stored as "granted|<ms>|<policy version>|<locale>" (older: "granted|<ms>").
+  // The policy version and locale are the evidence of WHAT was agreed to
+  // (ut-docs#5558 L10). Anything else, or older than
   // MAX_AGE_MS, counts as no choice and the banner asks again.
   function stored() {
     var raw;
     try { raw = localStorage.getItem(KEY); } catch (e) { return null; }
-    var m = /^(granted|denied)\|(\d+)$/.exec(raw || "");
-    if (!m || Date.now() - Number(m[2]) > MAX_AGE_MS) return null;
+    var m = /^(granted|denied)\|(\d+)(?:\|([^|]*)\|.*)?$/.exec(raw || "");
+    // A choice made under an older policy version (the two-part form is v1) asks again.
+    if (!m || (m[3] || "v1") !== POLICY_VERSION || Date.now() - Number(m[2]) > MAX_AGE_MS) return null;
     return m[1];
   }
   function store(v) {
-    try { localStorage.setItem(KEY, v + "|" + Date.now()); } catch (e) { /* private mode: ask again next page */ }
+    try { localStorage.setItem(KEY, v + "|" + Date.now() + "|" + POLICY_VERSION + "|" + locale()); } catch (e) { /* private mode: ask again next page */ }
   }
 
   window.dataLayer = window.dataLayer || [];
@@ -86,6 +91,20 @@
     return i ? i.pick() : "en-gb";
   }
 
+  // The consent strings are legal-flagged: a locale whose legal text is not
+  // approved shows them in English (dict._fb lists the fallback keys). A
+  // visitor who cannot read the banner cannot consent knowingly (GDPR Art
+  // 4(11), Recital 32; TDDDG s.25), so there the banner is not shown and
+  // analytics never loads, whatever was stored on another locale
+  // (ut-docs#5558). The locale starts asking when its consent text is approved.
+  function readable() {
+    var i = window.UT_I18N, dict = i && i.I18N && i.I18N[locale()];
+    if (!dict) return true; // no dictionary: the page is English
+    var fb = dict._fb || [];
+    return ["consent.text", "consent.accept", "consent.reject"].every(function (k) { return fb.indexOf(k) === -1; });
+  }
+  if (!readable()) return;
+
   var banner = document.createElement("section");
   banner.id = "consent-banner";
   banner.className = "consent";
@@ -103,6 +122,9 @@
   banner.addEventListener("click", function (e) {
     var b = e.target.closest("[data-consent]");
     if (!b) return;
+    // The language may have switched in-page since load: never record an
+    // Accept the visitor could not read.
+    if (!readable()) { banner.hidden = true; return; }
     var v = b.getAttribute("data-consent");
     store(v);
     banner.hidden = true;
@@ -121,6 +143,7 @@
     open.setAttribute("data-i18n", "foot.cookies");
     open.textContent = "Cookie settings";
     open.addEventListener("click", function () {
+      if (!readable()) return;
       opener = open;
       banner.hidden = false;
       banner.querySelector("[data-consent]").focus();

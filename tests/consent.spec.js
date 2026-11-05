@@ -111,7 +111,9 @@ test("Astro pages carry the Cookie settings control too", async ({ page }) => {
 // The banner text is legal-tier: a locale shows the visitor's language only once a human
 // approved it, and English (marked lang="en") until then. Either way it must be the list's text.
 import { I18N, LOCALES } from "./helpers/locales.js";
-for (const locale of LOCALES.filter((l) => l !== "en-gb")) {
+// Only locales whose consent text is approved (not an English fallback) show the banner at all;
+// the English-only locales are covered by the "English-only" describe below (ut-docs#5558).
+for (const locale of LOCALES.filter((l) => l !== "en-gb" && !(I18N[l]._fb || []).includes("consent.accept"))) {
   const accept = I18N[locale]["consent.accept"];
   test(`/${locale} banner shows the published text`, async ({ page }) => {
     await page.goto(`/${locale}`);
@@ -168,4 +170,32 @@ test("withdrawal on www.universaltill.com deletes GA's .universaltill.com cookie
   await page.locator(".foot-legal [data-consent-open]").click();
   await page.locator("#consent-banner [data-consent=denied]").click();
   expect((await context.cookies("https://www.universaltill.com")).filter((c) => c.name.startsWith("_ga"))).toEqual([]);
+});
+
+// ut-docs#5558 (legal L1): the consent strings are legal-flagged and stay
+// English on locales whose legal text is not approved. A visitor who cannot
+// read the banner cannot give informed consent (GDPR Art 4(11), Recital 32),
+// so on those locales there is no banner and Google is never contacted.
+test.describe("locales whose consent text is English-only", () => {
+  for (const lang of LOCALES.filter((l) => l !== "en-gb" && (I18N[l]._fb || []).includes("consent.accept"))) {
+    test(`/${lang} shows no banner, no cookie button, and contacts no Google host even after a stored Accept`, async ({ page, context }) => {
+      const hits = await trackGoogle(page);
+      await page.addInitScript(() => {
+        try { localStorage.setItem("ut_consent", "granted|" + Date.now()); } catch (e) { /* ignore */ }
+      });
+      await page.goto(`/${lang}`);
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator("#consent-banner")).toBeHidden();
+      await expect(page.locator("[data-consent-open]")).toHaveCount(0);
+      expect(hits).toEqual([]);
+      expect((await context.cookies()).filter((c) => c.name.startsWith("_ga"))).toEqual([]);
+    });
+  }
+});
+
+test("the stored choice records policy version and language", async ({ page }) => {
+  await page.goto("/en-gb");
+  await page.locator("#consent-banner [data-consent=denied]").click();
+  const raw = await page.evaluate(() => localStorage.getItem("ut_consent"));
+  expect(raw).toMatch(/^denied\|\d+\|v1\|en-gb$/);
 });

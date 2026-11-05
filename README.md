@@ -178,6 +178,11 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   in `scripts/generate-csp.js` (`GA_HOSTS`/`GA_SCRIPT`); the privacy policy
   describes it. `tests/consent.spec.js` checks no Google request before consent,
   the tag + Consent Mode signals after Accept, Reject, withdrawal, translations.
+  **Locales whose consent strings are still English fallbacks (legal-flagged,
+  not approved) get no banner and never load GA** (ut-docs#5558): the banner
+  appears on a locale the day its consent text is approved. The stored choice
+  is `granted|<ms>|<policy version>|<locale>` (bump `POLICY_VERSION` when the
+  consent text or privacy policy changes).
 - **Responsive screenshots (ut-docs#3493, #3516).** Each full-size screenshot
   `site/images/<name>.webp` has `<name>-{480,640,768,1024,1280}.webp`
   beside it, listed in the `<img srcset>` with a `sizes` that matches the real
