@@ -66,7 +66,7 @@ const T = (key: string) => t(current, key);
 // reader switches voice and the page can say so once.
 const fbKeys = new Set<string>(I18N[current]?._fb ?? []);
 const F = (key: string) => (fbKeys.has(key) ? `<span lang="en" dir="ltr" data-i18n-fallback>${esc(T(key))}</span>` : esc(T(key)));
-const CHROME_KEYS = ['nav.solutions', 'nav.tour', 'nav.why', 'nav.hardware', 'nav.plugins', 'nav.news', 'nav.about', 'nav.get', 'nav.menu', 'foot.tagline', 'foot.owner', 'foot.rights', 'foot.impressum', 'foot.privacy', 'foot.terms'];
+const CHROME_KEYS = ['nav.solutions', 'nav.tour', 'nav.why', 'nav.hardware', 'nav.plugins', 'nav.news', 'nav.help', 'nav.about', 'nav.get', 'nav.menu', 'foot.tagline', 'foot.owner', 'foot.rights', 'foot.impressum', 'foot.privacy', 'foot.terms'];
 const usedFallback = [...CHROME_KEYS, ...keys].some((k) => fbKeys.has(k));
 const labelled = isMachineLabelled(current);
 const pagePath = path === '/' ? '' : path;
@@ -141,6 +141,7 @@ const alternates = isFallback || noindex
     <a href={`${L('/')}#hardware`} data-i18n="nav.hardware" set:html={F('nav.hardware')}></a>
     <a href={L('/plugins/')} data-i18n="nav.plugins" set:html={F('nav.plugins')}></a>
     <a href={L('/blog/')} data-i18n="nav.news" set:html={F('nav.news')}></a>
+    <a href={L('/help/')} data-i18n="nav.help" set:html={F('nav.help')}></a>
     <a href={`${L('/')}#about`} data-i18n="nav.about" set:html={F('nav.about')}></a>
   </nav>
   <div class="nav-actions">
@@ -186,6 +187,7 @@ const alternates = isFallback || noindex
        this footer link-for-link (only .foot-tagline's presence), but no
        reason to let it drift anyway. -->
   <p class="foot-legal">
+    <a href={L('/help/')} data-i18n="nav.help" set:html={F('nav.help')}></a>{' · '}
     <a href={L('/legal/impressum/')} data-i18n="foot.impressum" set:html={F('foot.impressum')}></a>{' · '}
     <a href={L('/legal/privacy/')} data-i18n="foot.privacy" set:html={F('foot.privacy')}></a>{' · '}
     <a href={L('/legal/terms/')} data-i18n="foot.terms" set:html={F('foot.terms')}></a>

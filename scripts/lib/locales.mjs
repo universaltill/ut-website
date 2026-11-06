@@ -35,7 +35,7 @@ export const PAGES = [
 /** Locale-relative paths that 301 to the locale root (the store was removed). */
 export const REDIRECT_SUFFIXES = ["/store"];
 /** Astro-built sections whose index every locale has. */
-export const ASTRO_INDEXES = ["/blog/", "/plugins/", "/legal/impressum/", "/legal/privacy/", "/legal/terms/"];
+export const ASTRO_INDEXES = ["/blog/", "/plugins/", "/help/", "/legal/impressum/", "/legal/privacy/", "/legal/terms/"];
 
 export const i18nDir = () => process.env.UT_I18N_DIR ? path.resolve(process.env.UT_I18N_DIR) : path.join(ROOT, "i18n");
 

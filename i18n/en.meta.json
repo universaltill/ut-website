@@ -145,6 +145,7 @@
   "nav.hardware": {"description":"Top navigation link to the Hardware section. One word; tight space.","review":"standard","core":true},
   "nav.plugins": {"description":"Top navigation link to the Plugins section/page. One word; tight space.","review":"standard","core":true},
   "nav.news": {"description":"Top navigation link to the News (blog) section. One short word; tight space.","review":"standard","core":true},
+  "nav.help": {"description":"Top navigation and footer link to the public Help pages (the product manual). One short word; tight space.","review":"standard","core":true},
   "nav.menu": {"description":"Accessible label and text of the mobile menu (burger) button.","review":"standard","core":true},
   "nav.menu.close": {"description":"Accessible label of the mobile menu button while the menu is open.","review":"standard","core":true},
   "nav.language": {"description":"Accessible label of the language switcher link in the top navigation.","review":"standard","core":true},

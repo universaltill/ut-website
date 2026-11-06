@@ -86,8 +86,8 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   internal links/anchors/images resolve, no orphan image, no front-matter
   leakage, compliance denylist over the rendered text, sitemap vs canonicals;
   test: `node --test scripts/guard-help_test.mjs`) and
-  `tests/help-pages.spec.js`. Not yet done: a Help link in the nav/footer
-  (every header is compared by `site-consistency.spec.js`, so it is its own change).
+  `tests/help-pages.spec.js`. A **Help** link (`nav.help`) sits in the header, the footer and the home page's closing
+  section (ut-docs#5664; `BaseLayout.astro` + every `site/*.html`; `tests/help-link.spec.js`).
 - **Platform landing pages (ut-docs#4643)** — `site/android-till.html` →
   `/<locale>/android-till`, a marketing template like the others (routes in
   `staticwebapp.config.json`, keys in `site/i18n.js`). Each platform page is
