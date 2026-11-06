@@ -51,6 +51,9 @@ jobs:
       - run: bash scripts/guard-plan-prices_test.sh
       - run: bash scripts/guard-plan-prices.sh
       - run: bash scripts/download-redirects_test.sh
+      # ut-docs#5318: the Claude connector page may not over-claim (ADR-0175).
+      - run: bash scripts/guard-claude-claims.sh
+      - run: bash scripts/guard-claude-claims_test.sh
 
   # ut-docs#4405 (follow-up of #4229): only allow-listed @universaltill.com
   # addresses (real M365 aliases, send-only senders) may appear in tracked
@@ -91,6 +94,9 @@ jobs:
           node-version: "26"
       - run: node scripts/check-swa-config.js
       - run: bash scripts/check-swa-config_test.sh
+      # ut-docs#5318: RFC 9116 security.txt; fails <60 days before Expires.
+      - run: node scripts/check-security-txt.mjs
+      - run: node --test scripts/check-security-txt_test.mjs
 
   # translate-posts.js no longer generates translations (ut-docs#2293 retired
   # the Ollama-backed generator once ut-docs#2291 moved translation to the

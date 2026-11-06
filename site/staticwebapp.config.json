@@ -297,6 +297,11 @@
       "statusCode": 301
     },
     {
+      "route": "/claude",
+      "redirect": "/en-gb/claude/",
+      "statusCode": 301
+    },
+    {
       "route": "/blog/*",
       "redirect": "/en-gb/blog/",
       "statusCode": 301

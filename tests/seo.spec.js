@@ -163,7 +163,8 @@ test.describe("sitemap.xml", () => {
         2 /* blog index + plugins */ +
         PLUGIN_SLUGS.length /* one page per plugin, ut-docs#4645 */ +
         translated("blog", locale, EXPECTED_SLUGS).length +
-        translated("legal", locale, EXPECTED_LEGAL_SLUGS).length,
+        translated("legal", locale, EXPECTED_LEGAL_SLUGS).length +
+        translated("connector", locale, ["claude"]).length /* ut-docs#5318 */,
       0,
     );
     // Help pages (ut-docs#5355) come from the product repo at a pinned ref, so
