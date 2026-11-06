@@ -91,7 +91,7 @@ const textNode = (value: string) => ({ nodeName: '#text', value });
 
 // Sections built by Astro, whose canonical URLs end in "/" (build.format
 // "directory"); the slashless form answers 200 as a duplicate, so never link it.
-const ASTRO_SECTIONS = ['/blog', '/plugins', '/legal'];
+const ASTRO_SECTIONS = ['/blog', '/plugins', '/legal', '/help'];
 
 /**
  * The final URL of a same-site page link from a `locale` page — ut-docs#3798.
