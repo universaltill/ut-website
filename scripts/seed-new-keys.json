@@ -1,40 +1,20 @@
 {
   "tr-tr": {
-    "site.machine_label": "Yapay zekâ ile çevrildi",
-    "site.machine_label_detail": "Bu çeviri henüz bir kişi tarafından gözden geçirilmedi. Yanlış okunan bir yer varsa İngilizce sürüm doğrudur.",
-    "site.machine_label_link": "İngilizce sürümü okuyun",
-    "site.machine_label_report": "Çeviri hatası bildirin",
-    "site.machine_label_badge": "YZ",
     "site.fallback_note": "Bu sayfadaki bazı metinler henüz çevrilmedi ve İngilizce gösteriliyor.",
     "site.legal_english_binding": "Bu hukuki metin yalnızca İngilizce olarak sunulmaktadır. Bağlayıcı olan İngilizce sürümdür.",
     "language.current": "Geçerli"
   },
   "de-de": {
-    "site.machine_label": "Mit KI übersetzt",
-    "site.machine_label_detail": "Diese Übersetzung wurde noch nicht von einem Menschen geprüft. Wenn etwas falsch klingt, gilt die englische Fassung.",
-    "site.machine_label_link": "Englische Version lesen",
-    "site.machine_label_report": "Übersetzungsfehler melden",
-    "site.machine_label_badge": "KI",
     "site.fallback_note": "Einige Texte auf dieser Seite sind noch nicht übersetzt und werden auf Englisch angezeigt.",
     "site.legal_english_binding": "Dieser Rechtstext ist nur auf Englisch verfügbar. Maßgeblich ist die englische Fassung.",
     "language.current": "Aktuell"
   },
   "zh-cn": {
-    "site.machine_label": "由 AI 翻译",
-    "site.machine_label_detail": "此译文尚未经人工审阅。如有表述不当之处，请以英文版本为准。",
-    "site.machine_label_link": "阅读英文版",
-    "site.machine_label_report": "报告翻译错误",
-    "site.machine_label_badge": "AI",
     "site.fallback_note": "本页部分文字尚未翻译，暂以英文显示。",
     "site.legal_english_binding": "本法律文本仅提供英文版，以英文版本为准。",
     "language.current": "当前"
   },
   "fa-ir": {
-    "site.machine_label": "ترجمه‌شده با هوش مصنوعی",
-    "site.machine_label_detail": "این ترجمه هنوز توسط یک انسان بازبینی نشده است. اگر جایی نادرست به نظر می‌رسد، نسخهٔ انگلیسی معتبر است.",
-    "site.machine_label_link": "نسخهٔ انگلیسی را بخوانید",
-    "site.machine_label_report": "گزارش خطای ترجمه",
-    "site.machine_label_badge": "هوش مصنوعی",
     "site.fallback_note": "بخشی از متن این صفحه هنوز ترجمه نشده و به انگلیسی نمایش داده می‌شود.",
     "site.legal_english_binding": "این متن حقوقی فقط به زبان انگلیسی در دسترس است. نسخهٔ انگلیسی معتبر است.",
     "language.current": "فعلی"

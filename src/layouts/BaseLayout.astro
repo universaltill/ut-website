@@ -1,7 +1,7 @@
 ---
 import { I18N, langPillLabel, langPillText } from '../lib/marketingPages';
-import { LANGS, SOURCE_LOCALE, dirOf, infoOf, isMachineLabelled } from '../lib/locales';
-import { bandHtml, esc, fallbackNoteHtml, footerReportHtml } from '../lib/chrome';
+import { LANGS, SOURCE_LOCALE, dirOf, infoOf } from '../lib/locales';
+import { esc, fallbackNoteHtml } from '../lib/chrome';
 // No stylesheet import here on purpose. site/styles.css (linked below, served
 // straight from publicDir) is the ONLY stylesheet on this site — these pages
 // used to also load a Tailwind-based global.css that redeclared the same
@@ -68,7 +68,6 @@ const fbKeys = new Set<string>(I18N[current]?._fb ?? []);
 const F = (key: string) => (fbKeys.has(key) ? `<span lang="en" dir="ltr" data-i18n-fallback>${esc(T(key))}</span>` : esc(T(key)));
 const CHROME_KEYS = ['nav.solutions', 'nav.tour', 'nav.why', 'nav.hardware', 'nav.plugins', 'nav.news', 'nav.help', 'nav.about', 'nav.get', 'nav.menu', 'foot.tagline', 'foot.owner', 'foot.rights', 'foot.impressum', 'foot.privacy', 'foot.terms'];
 const usedFallback = [...CHROME_KEYS, ...keys].some((k) => fbKeys.has(k));
-const labelled = isMachineLabelled(current);
 const pagePath = path === '/' ? '' : path;
 
 // Prefix a site path with the current language, so navigating out of a
@@ -155,7 +154,6 @@ const alternates = isFallback || noindex
   </div>
 </header>
 
-{labelled && <Fragment set:html={bandHtml(current, pagePath, I18N[current])} />}
 {usedFallback && <Fragment set:html={fallbackNoteHtml(I18N[current])} />}
 {legalEnglish && <div class="mt-band mt-band--note" role="note" data-legal-english><p class="mt-band__text">{T('site.legal_english_binding')}</p></div>}
 
@@ -192,7 +190,6 @@ const alternates = isFallback || noindex
     <a href={L('/legal/privacy/')} data-i18n="foot.privacy" set:html={F('foot.privacy')}></a>{' · '}
     <a href={L('/legal/terms/')} data-i18n="foot.terms" set:html={F('foot.terms')}></a>
   </p>
-  {labelled && <Fragment set:html={footerReportHtml(current, pagePath, I18N[current])} />}
 </footer>
 
 </body>
