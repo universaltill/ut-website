@@ -70,5 +70,13 @@ test.describe("/pilot copy stays honest", () => {
         expect(text).toContain("shadow run");
       }
     });
+
+    test(`${locale}: pilot.get.i2 promises no hardware; Germany bullet names TSE`, async ({ page }) => {
+      await page.goto(`/${locale}/pilot`);
+      const get = await page.locator('[data-i18n="pilot.get.i2"]').innerText();
+      expect(get).not.toMatch(/hardware|donanım|硬件|سخت‌افزار/i);
+      const de = await page.locator('[data-i18n="pilot.where.de"]').innerText();
+      expect(de).toContain("TSE");
+    });
   }
 });

@@ -214,7 +214,7 @@
   "pilot.ask.i2": "A short shadow run alongside your current till before any go-live.",
   "pilot.where.t": "Germany and the UK",
   "pilot.where.de": "Germany: Universal Till is not yet certified for fiscal use in Germany (no TSE). Pilots there run as a shadow run next to your current till, which keeps your shop compliant.",
-  "pilot.where.uk": "UK: pilots can go live, after the short shadow run.",
+  "pilot.where.uk": "UK: pilots can go live after the short shadow run.",
   "dl.pilotlink": "Want us to set it up with you remotely? Join our free pilot →",
   "start.title": "Get started in minutes",
   "start.lede": "Pick a device, install one small app, and follow the setup wizard. If you can use a phone, you can run your till — no technical setup, and no minimum term on monthly billing, except Germany's managed TSE line.",

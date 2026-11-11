@@ -177,7 +177,7 @@
   "pilot.get.i4": "Donanım sağlanmaz — zaten sahip olduğunuz bir tablet, bilgisayar veya Raspberry Pi üzerinde çalışır.",
   "pilot.ask.t": "Sizden ricamız",
   "pilot.ask.i1": "Günlük kullanımda dürüst geri bildirim.",
-  "pilot.ask.i2": "Canlıya geçmeden önce mevcut kasanızla birlikte kısa bir deneme çalışması.",
+  "pilot.ask.i2": "Herhangi bir canlıya geçişten önce mevcut kasanızla birlikte kısa bir deneme çalışması.",
   "pilot.where.t": "Almanya ve Birleşik Krallık",
   "pilot.where.de": "Almanya: Universal Till, Almanya'da mali kullanım için henüz sertifikalı değildir (TSE yok). Bu nedenle oradaki pilotlar, dükkânınızı mevzuata uygun tutan mevcut kasanızın yanında deneme çalışması olarak yürütülür.",
   "pilot.where.uk": "Birleşik Krallık: pilotlar, kısa deneme çalışmasından sonra canlıya geçebilir.",
