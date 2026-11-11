@@ -117,4 +117,25 @@ test.describe("install instructions match the shipped packages (ut-docs#3803)", 
       expect(next).toContain("Raspberry Pi OS with Desktop");
     });
   }
+
+  // ut-docs#4127: the blog posts said "macOS may block an app downloaded outside
+  // the App Store → Open Anyway" about the Mac app, i.e. the notarized .dmg.
+  // Open Anyway belongs to the portable .tar.gz (run-unitill.command) only.
+  for (const lang of LOCALES) {
+    const dir = path.join(ROOT, "src/content/blog", lang);
+    if (!fs.existsSync(dir)) continue;
+    const label = OPEN_ANYWAY[lang] || OPEN_ANYWAY["en-gb"];
+    for (const f of fs.readdirSync(dir).filter((n) => /\.mdx?$/.test(n))) {
+      const paras = fs.readFileSync(path.join(dir, f), "utf8").split(/\n\s*\n/).map((p) => p.replace(/\s+/g, " ")).filter((p) => p.includes(label));
+      if (!paras.length) continue;
+      test(`${lang}/${f}: Open Anyway is the portable .tar.gz step, not the .dmg's`, () => {
+        for (const para of paras) {
+          const at = para.indexOf(label);
+          expect(para, "names the portable archive").toContain(".tar.gz");
+          const before = para.slice(0, at);
+          expect(before.lastIndexOf(".tar.gz"), "nearest file before the label is the .tar.gz").toBeGreaterThan(before.lastIndexOf(".dmg"));
+        }
+      });
+    }
+  }
 });
