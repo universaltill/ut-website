@@ -278,20 +278,19 @@ source and translator metadata, edited here). Nothing else lists a locale.
   code`, no handlers or script URLs, tag set and link targets equal to English).
 - **Build.** `src/lib/locales.ts` (via `scripts/lib/locales.mjs`, shared with the
   generator, guards and specs) gives the Astro pages and the marketing prerender
-  `LANGS`, direction, BCP-47, the AI label and the my. locales. `<html lang dir>`,
+  `LANGS`, direction, BCP-47, the my. locales. `<html lang dir>`,
   canonical, hreflang + `x-default`, the sitemap and the `/language` picker are
   all produced from it. `UT_I18N_DIR` / `UT_OUT_DIR` point a build at another
   list (the fixture builds).
 - **Per-key English fallback.** A key a locale does not ship renders the English
   text in `<span lang="en" dir="ltr" data-i18n-fallback>`; the page shows
   `site.fallback_note` once, under the header, only when such a span exists.
-- **"Translated with AI" (owner decision 2026-11-04).** Any locale whose list
-  entry has no recorded human review (`machine_label`) gets, prerendered on every
-  page: the notice band (`role="note"`, not dismissible, English link to the same
-  page, `mailto:` report link), the report link in the footer and an `AI` badge on
-  its `/language` card. When the list says `human_reviewed` they all disappear
-  with no code change. The branded 404 (one file for every locale) builds the band
-  in the browser. Copy and a11y: UX spec in ut-docs#5405; keys `site.machine_label*`.
+- **No AI / machine-translation labelling (owner, 2026-11-11).** Every page is
+  machine-translated, so no band, badge, footer report link or blog "translated
+  automatically" line says so; `tests/locale-label.spec.js`,
+  `scripts/check-locale-consistency.mjs` and `scripts/locale-fixtures_test.mjs`
+  fail if one reappears. `machine_label` / `human_reviewed` in the list now only
+  decide the blog `noindex` rule below. Supersedes ut-docs#5405's label spec.
 - **Legal pages** are the English text, canonical to `/en-gb/…`, outside hreflang
   and the sitemap, under the in-language `site.legal_english_binding` notice,
   unless `surfaces.website.legal.<doc>` (or `legal_approved`) is true for that
@@ -301,7 +300,7 @@ source and translator metadata, edited here). Nothing else lists a locale.
   locales (`check-locale-consistency` fails on a stray one). A post exists in a
   locale only where translated; elsewhere the English page is served with the
   "available in English" note, canonical to English. A machine-translated post
-  (`machineTranslated: true`) in a locale with the AI label is `noindex`, canonical
+  (`machineTranslated: true`) in a locale without a recorded human review is `noindex`, canonical
   to English and out of hreflang and the sitemap unless the post says
   `reviewed: true`. `llms.txt` stays English.
 - **Guards.** `scripts/check-locale-consistency.mjs` (after a build) fails when
@@ -324,8 +323,7 @@ source and translator metadata, edited here). Nothing else lists a locale.
   rather than on a model being up when someone builds (ut-docs#2291 retired
   the self-hosted Ollama endpoint this used to call for build-time
   translation; the in-product runtime translation paths are unaffected, see
-  that doc). Translations carry `machineTranslated: true` and say so on the
-  page, with a link to the English original. A missing translation is not an
+  that doc). Translations carry `machineTranslated: true` and link to the English original on the page. A missing translation is not an
   error: that locale falls back to English and tells the reader.
   `node scripts/translate-posts.js` is a pure, no-network checker (runs in CI
   — see `check-translate-posts` in `.github/workflows/ci.yml`) that flags a
@@ -418,7 +416,7 @@ scripts/guard-i18n-meta_test.mjs`). Anything that looks legal, privacy, terms,
 cookie-consent or pricing must be `review: "legal"` (only a human-reviewed
 translation is published; until then the English text shows) unless it carries a
 `review_exception` reason. `core: true` marks the keys every published page frame
-needs (the AI label, fallback note, legal notice, language picker); they must be
+needs (fallback note, legal notice, language picker); they must be
 `standard` and a locale is not published without them.
 
 ## Custom domain

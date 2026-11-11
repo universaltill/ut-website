@@ -229,8 +229,8 @@ test.describe("posts are translated, not just the chrome", () => {
       expect(body).toMatch(script);
       // The product name is never translated, in any locale.
       expect(body).toContain("Universal Till");
-      // And a machine translation says so, with a way back to the original.
-      await expect(page.locator('[data-i18n="news.machine"]')).toBeVisible();
+      // A way back to the original, and no machine-translation label.
+      await expect(page.locator('[data-i18n="news.machine"]')).toHaveCount(0);
       await expect(page.locator('[data-i18n="news.original"]')).toHaveAttribute("href", "/en-gb/blog/whats-new-v0-2-70/");
     });
   }

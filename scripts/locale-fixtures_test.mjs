@@ -2,7 +2,7 @@
 // Two real `astro build`s into temp folders, each from a modified copy of the
 // committed list:
 //   A  the list gains nl-nl and he-il (never written in code): both must appear
-//      everywhere, with the AI label, fallback note, English-only legal pages,
+//      everywhere, with fallback note, English-only legal pages,
 //      rtl for he, hreflang on the other locales, a switcher card, a sitemap line.
 //   B  the list loses fa-ir (and a stray fa-ir/he-il string file is left behind):
 //      no route, page, sitemap line, hreflang or switcher entry for it anywhere,
@@ -67,8 +67,7 @@ test("A: a new locale in the list appears everywhere, with no code change", () =
   for (const [url, bcp, dir] of [["nl-nl", "nl-NL", "ltr"], ["he-il", "he-IL", "rtl"]]) {
     const home = read(A.out, `${url}/index.html`);
     assert.match(home, new RegExp(`<html lang="${bcp}" dir="${dir}">`));
-    assert.equal((home.match(/data-mt-band/g) || []).length, 1, "one AI band");
-    assert.match(home, /\[(nl|he)\] Translated with AI/);
+    assert.doesNotMatch(home, /data-mt-band|mt-badge|foot-report|Translated with AI/, "no AI band");
     assert.match(home, /data-fallback-note/, "fallback note");
     assert.match(home, /<span lang="en" dir="ltr" data-i18n-fallback(="")?>/, "English text is marked lang=en");
     assert.match(read(A.out, "en-gb/index.html"), new RegExp(`hreflang="${bcp}" href="https://www.universaltill.com/${url}"`));
@@ -80,12 +79,10 @@ test("A: a new locale in the list appears everywhere, with no code change", () =
   assert.ok(routes.includes("/nl-nl/download") && routes.includes("/he-il") && routes.includes("/he"));
 });
 
-test("A: a human-reviewed locale loses the AI label, badge and report link by data alone", () => {
-  const tr = read(A.out, "tr-tr/index.html");
-  assert.doesNotMatch(tr, /data-mt-band|foot-report/);
-  const card = read(A.out, "en-gb/language.html").match(/<a class="locale-card[^"]*" href="[^"]*" hreflang="tr-TR".*?<\/a>/)[0];
-  assert.doesNotMatch(card, /mt-badge/);
-  assert.match(read(A.out, "en-gb/language.html").match(/hreflang="nl-NL".*?<\/a>/)[0], /mt-badge/);
+test("A: no locale, reviewed or not, carries an AI band, badge or report link", () => {
+  for (const f of ["tr-tr/index.html", "nl-nl/index.html", "he-il/index.html", "en-gb/language.html", "nl-nl/language.html"]) {
+    assert.doesNotMatch(read(A.out, f), /data-mt-band|mt-badge|foot-report|Translated with AI/, f);
+  }
   assert.deepEqual(check({ dist: A.out, listDir: A.dir, swa: false, content: false }), []);
 });
 

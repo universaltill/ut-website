@@ -62,7 +62,7 @@ export function syncLocales({ from, dir }) {
     const file = path.join(dir, `${inc.url}.json`);
     const strings = fs.existsSync(file) ? readJson(file) : {};
     const incomingStrings = readJson(src);
-    // Seed text fills the keys upstream omits only while the locale still carries the AI label.
+    // Seed text fills the keys upstream omits only while the locale has no recorded human review.
     const keepSeed = entry.machine_label !== false && entry.human_reviewed !== true;
     const merged = {};
     for (const k of Object.keys(english)) {
