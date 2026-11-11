@@ -50,3 +50,25 @@ test("fa-ir/pilot renders right-to-left", async ({ page }) => {
   const dir = await page.evaluate(() => document.documentElement.dir);
   expect(dir).toBe("rtl");
 });
+
+// Owner decision 2026-11-11: the pilot is remote setup on hardware the shop
+// already owns, and Germany is a shadow run (no TSE). The page must never
+// promise hardware, white-glove/on-site service, or vendor/AI claims again.
+test.describe("/pilot copy stays honest", () => {
+  for (const locale of LOCALES) {
+    test(`${locale}: no hardware promise, no vendor or AI claims`, async ({ page }) => {
+      await page.goto(`/${locale}/pilot`);
+      const items = await page.locator("main li").allTextContents();
+      expect(items.length).toBeGreaterThanOrEqual(7);
+      const text = (await page.locator("main").innerText()).toLowerCase();
+      expect(text).not.toMatch(/white-glove|on-site|fiskaly|\bai\b/);
+      if (locale === "en-gb") {
+        expect(text).not.toContain("catalogue, hardware and training");
+        expect(text).toContain("no hardware is supplied");
+        expect(text).toContain("remotely");
+        expect(text).toContain("not yet certified for fiscal use in germany");
+        expect(text).toContain("shadow run");
+      }
+    });
+  }
+});
