@@ -19,6 +19,7 @@ jobs:
       # Weblate (i18n/en.json is the source since the #5406 cutover).
       - run: node scripts/guard-i18n-meta.mjs
       - run: node --test scripts/sync-locales_test.mjs
+      - run: node --test scripts/required-locales_test.mjs
       - run: node --test scripts/guard-i18n-meta_test.mjs
       # ut-docs#5406: site/i18n-data.js and the locale routes of
       # site/staticwebapp.config.json are GENERATED from i18n/published/locales.json

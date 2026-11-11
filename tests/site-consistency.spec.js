@@ -13,7 +13,7 @@ import { expect, test } from "@playwright/test";
 import fs from "node:fs";
 
 const ASTRO_PAGES = ["/en-gb/blog", "/en-gb/plugins", "/en-gb/blog/whats-new-v0-2-70"];
-import { LOCALES, LOCALE_INFO, isLabelled } from "./helpers/locales.js";
+import { LOCALES, LOCALE_INFO, isLabelled, RTL } from "./helpers/locales.js";
 
 async function headerFingerprint(page, path) {
   await page.goto(path);
@@ -94,7 +94,7 @@ test.describe("language lives in the URL", () => {
       ]);
 
       expect(lang.toLowerCase()).toBe(locale);
-      expect(dir).toBe(locale === "fa-ir" ? "rtl" : "ltr");
+      expect(dir).toBe(RTL.includes(locale) ? "rtl" : "ltr");
       // Translated, not the English string sitting there untouched. English is
       // the one locale where "News" IS the right answer.
       if (locale === "en-gb") expect(news).toBe("News");

@@ -1,10 +1,10 @@
 // Fixture builds for the published-locale list (ADR-0177 section 6, ut-docs#5406).
 // Two real `astro build`s into temp folders, each from a modified copy of the
 // committed list:
-//   A  the list gains ms-my and ar-sa (never written in code): both must appear
+//   A  the list gains nl-nl and he-il (never written in code): both must appear
 //      everywhere, with the AI label, fallback note, English-only legal pages,
-//      rtl for ar, hreflang on the other locales, a switcher card, a sitemap line.
-//   B  the list loses fa-ir (and a stray fa-ir/ar-sa string file is left behind):
+//      rtl for he, hreflang on the other locales, a switcher card, a sitemap line.
+//   B  the list loses fa-ir (and a stray fa-ir/he-il string file is left behind):
 //      no route, page, sitemap line, hreflang or switcher entry for it anywhere,
 //      and a `withdrawn` fa-ir becomes a 301 rule and nothing else.
 // Run: node --test scripts/locale-fixtures_test.mjs   (about 30 s)
@@ -45,12 +45,12 @@ before(() => {
   A = fixture("a", (list, dir) => {
     // A recorded human review for tr-tr: its label, badge and report link must vanish with no code change.
     Object.assign(list.locales.find((l) => l.url === "tr-tr"), { human_reviewed: true, machine_label: false });
-    list.locales.push(entry("ms-my", "ms", "ms-MY", "ltr", "Bahasa Melayu", "Malay"));
-    list.locales.push(entry("ar-sa", "ar", "ar-SA", "rtl", "العربية", "Arabic"));
+    list.locales.push(entry("nl-nl", "nl", "nl-NL", "ltr", "Nederlands", "Dutch"));
+    list.locales.push(entry("he-il", "he", "he-IL", "rtl", "עברית", "Hebrew"));
     const meta = JSON.parse(fs.readFileSync(path.join(dir, "en.meta.json"), "utf8"));
     const en = JSON.parse(fs.readFileSync(path.join(dir, "en.json"), "utf8"));
     // Only the core keys + a few others are "translated"; every other key falls back to English.
-    for (const [url, tag] of [["ms-my", "ms"], ["ar-sa", "ar"]]) {
+    for (const [url, tag] of [["nl-nl", "nl"], ["he-il", "he"]]) {
       const s = {};
       for (const k of Object.keys(meta).filter((x) => meta[x].core)) s[k] = `[${tag}] ${en[k]}`;
       s["nav.news"] = `[${tag}] News`; s["nav.language"] = `[${tag}] Language`;
@@ -59,16 +59,16 @@ before(() => {
   });
   B = fixture("b", (list, dir) => {
     list.locales = list.locales.filter((l) => l.url !== "fa-ir");
-    fs.writeFileSync(path.join(dir, "ar-sa.json"), JSON.stringify({ "nav.news": "stray" })); // stray string, locale not in the list
+    fs.writeFileSync(path.join(dir, "he-il.json"), JSON.stringify({ "nav.news": "stray" })); // stray string, locale not in the list
   });
 });
 
 test("A: a new locale in the list appears everywhere, with no code change", () => {
-  for (const [url, bcp, dir] of [["ms-my", "ms-MY", "ltr"], ["ar-sa", "ar-SA", "rtl"]]) {
+  for (const [url, bcp, dir] of [["nl-nl", "nl-NL", "ltr"], ["he-il", "he-IL", "rtl"]]) {
     const home = read(A.out, `${url}/index.html`);
     assert.match(home, new RegExp(`<html lang="${bcp}" dir="${dir}">`));
     assert.equal((home.match(/data-mt-band/g) || []).length, 1, "one AI band");
-    assert.match(home, /\[(ms|ar)\] Translated with AI/);
+    assert.match(home, /\[(nl|he)\] Translated with AI/);
     assert.match(home, /data-fallback-note/, "fallback note");
     assert.match(home, /<span lang="en" dir="ltr" data-i18n-fallback(="")?>/, "English text is marked lang=en");
     assert.match(read(A.out, "en-gb/index.html"), new RegExp(`hreflang="${bcp}" href="https://www.universaltill.com/${url}"`));
@@ -77,7 +77,7 @@ test("A: a new locale in the list appears everywhere, with no code change", () =
   }
   assert.deepEqual(check({ dist: A.out, listDir: A.dir, swa: false, content: false }), []);
   const routes = localeRoutes(A.list).map((r) => r.route);
-  assert.ok(routes.includes("/ms-my/download") && routes.includes("/ar-sa") && routes.includes("/ar"));
+  assert.ok(routes.includes("/nl-nl/download") && routes.includes("/he-il") && routes.includes("/he"));
 });
 
 test("A: a human-reviewed locale loses the AI label, badge and report link by data alone", () => {
@@ -85,31 +85,31 @@ test("A: a human-reviewed locale loses the AI label, badge and report link by da
   assert.doesNotMatch(tr, /data-mt-band|foot-report/);
   const card = read(A.out, "en-gb/language.html").match(/<a class="locale-card[^"]*" href="[^"]*" hreflang="tr-TR".*?<\/a>/)[0];
   assert.doesNotMatch(card, /mt-badge/);
-  assert.match(read(A.out, "en-gb/language.html").match(/hreflang="ms-MY".*?<\/a>/)[0], /mt-badge/);
+  assert.match(read(A.out, "en-gb/language.html").match(/hreflang="nl-NL".*?<\/a>/)[0], /mt-badge/);
   assert.deepEqual(check({ dist: A.out, listDir: A.dir, swa: false, content: false }), []);
 });
 
 test("A: legal pages of an unapproved locale are the English text, canonical to en-gb, outside hreflang", () => {
-  const page = read(A.out, "ms-my/legal/privacy/index.html");
+  const page = read(A.out, "nl-nl/legal/privacy/index.html");
   assert.match(page, /data-legal-english/);
-  assert.match(page, /\[ms\] This legal text is available in English only/);
+  assert.match(page, /\[nl\] This legal text is available in English only/);
   assert.match(page, /rel="canonical" href="https:\/\/www\.universaltill\.com\/en-gb\/legal\/privacy\/"/);
   assert.doesNotMatch(page, /rel="alternate" hreflang=/);
-  assert.doesNotMatch(read(A.out, "sitemap.xml"), /ms-my\/legal/);
-  assert.doesNotMatch(read(A.out, "en-gb/legal/privacy/index.html"), /hreflang="ms-MY"/);
+  assert.doesNotMatch(read(A.out, "sitemap.xml"), /nl-nl\/legal/);
+  assert.doesNotMatch(read(A.out, "en-gb/legal/privacy/index.html"), /hreflang="nl-NL"/);
 });
 
 test("A: nothing for an unrelated absent locale", () => {
-  assert.deepEqual(check({ dist: A.out, listDir: A.dir, swa: false, content: false, absent: ["fr-fr", "it-it"] }), []);
+  assert.deepEqual(check({ dist: A.out, listDir: A.dir, swa: false, content: false, absent: ["ja-jp", "ko-kr"] }), []);
 });
 
 test("B: a locale missing from the list leaves no trace in the build", () => {
   assert.equal(fs.existsSync(path.join(B.out, "fa-ir")), false);
-  assert.equal(fs.existsSync(path.join(B.out, "ar-sa")), false);
-  const errors = check({ dist: B.out, listDir: B.dir, swa: false, content: false, absent: ["fa-ir", "ar-sa"] });
+  assert.equal(fs.existsSync(path.join(B.out, "he-il")), false);
+  const errors = check({ dist: B.out, listDir: B.dir, swa: false, content: false, absent: ["fa-ir", "he-il"] });
   assert.deepEqual(errors, []);
-  assert.doesNotMatch(read(B.out, "sitemap.xml"), /fa-ir|ar-sa/);
-  assert.doesNotMatch(read(B.out, "en-gb/index.html"), /fa-IR|ar-SA/);
+  assert.doesNotMatch(read(B.out, "sitemap.xml"), /fa-ir|he-il/);
+  assert.doesNotMatch(read(B.out, "en-gb/index.html"), /fa-IR|he-IL/);
 });
 
 test("B: the content guard flags the leftover blog directory of the removed locale", () => {
@@ -118,7 +118,7 @@ test("B: the content guard flags the leftover blog directory of the removed loca
 });
 
 test("B: the leak check catches a locale that is really in the build", () => {
-  const errors = check({ dist: A.out, listDir: A.dir, swa: false, content: false, absent: ["ms-my"] });
+  const errors = check({ dist: A.out, listDir: A.dir, swa: false, content: false, absent: ["nl-nl"] });
   assert.ok(errors.some((e) => /leak/.test(e)));
   const bad = check({ dist: A.out, listDir: B.dir, swa: false, content: false });
   assert.ok(bad.some((e) => /not a published website locale/.test(e)), "a tree for a locale outside the list fails");
