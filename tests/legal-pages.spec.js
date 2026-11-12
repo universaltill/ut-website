@@ -90,3 +90,40 @@ test.describe("legal pages render", () => {
     expect(body).toContain("Farsid Mirza");
   });
 });
+
+// ut-docs#6063: the live-payments legal pack (Fable 5.2 review record, section 6).
+test.describe("live-payments legal pages", () => {
+  test("/en-gb/legal/subscription-terms/ loads with the registered office and version", async ({ page }) => {
+    await page.goto("/en-gb/legal/subscription-terms/");
+    await expect(page.locator("h1")).toHaveText("Subscription Terms (United Kingdom)");
+    const body = await page.locator("article").innerText();
+    expect(body).toContain("Version 1.0");
+    expect(body).toContain("82 A James Carter Road");
+    expect(body).toContain("11442274");
+    expect(body).not.toContain("we email you a copy");
+    expect(body).not.toMatch(/\[(VERSION|DATE|REGISTERED OFFICE|OWNER DECISION)/);
+  });
+
+  test("/en-gb/legal/refunds/ loads, with no yearly-renewal refund window", async ({ page }) => {
+    await page.goto("/en-gb/legal/refunds/");
+    await expect(page.locator("h1")).toHaveText("Refund and Cancellation Policy (United Kingdom)");
+    await expect(page.locator("h2", { hasText: "14-day money-back on your first payment" })).toBeVisible();
+    const body = await page.locator("article").innerText();
+    expect(body).toMatch(/t refund renewals/);
+    expect(body).not.toMatch(/after (each|every) (yearly )?renewal/i);
+  });
+
+  test("the terms and privacy pages point at them, and privacy has the billing section", async ({ page }) => {
+    await page.goto("/en-gb/legal/terms/");
+    await expect(page.locator('article a[href="/en-gb/legal/subscription-terms/"]')).toHaveCount(1);
+    await expect(page.locator('article a[href="/en-gb/legal/refunds/"]')).toHaveCount(1);
+    await page.goto("/en-gb/legal/privacy/");
+    await expect(page.locator("h2", { hasText: "Billing and payments" })).toBeVisible();
+    expect(await page.locator("article").innerText()).toContain("IP address");
+  });
+
+  test("a non-English locale serves the English legal text, labelled", async ({ page }) => {
+    await page.goto("/de-de/legal/refunds/");
+    await expect(page.locator("[data-legal-english]")).toBeVisible();
+  });
+});
