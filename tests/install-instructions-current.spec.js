@@ -63,6 +63,13 @@ const OPEN_ANYWAY = {
   "tr-tr": "Yine de Aç",
   "zh-cn": "仍要打开",
   "fa-ir": "Open Anyway",
+  "ar-sa": "فتح على أي حال",
+  "fr-fr": "Ouvrir quand même",
+  "el-gr": "Άνοιγμα ούτως ή άλλως",
+  "it-it": "Apri comunque",
+  "ms-my": "Open Anyway",
+  "pt-pt": "Abrir Mesmo Assim",
+  "es-es": "Abrir de todos modos",
 };
 
 test.describe("install instructions match the shipped packages (ut-docs#3803)", () => {

@@ -113,9 +113,8 @@ test.describe("untranslated topics fall back honestly (ut-docs#3811)", () => {
     expect(await raw(request, "/sitemap.xml")).toContain(`${ORIGIN}/de-de/help/sell/</loc>`);
   });
 
-  test("the product's Arabic folder is not published", async ({ request }) => {
-    expect((await request.get("/ar/help/")).status()).toBe(404);
-    expect((await request.get("/ar-sa/help/")).status()).toBe(404);
+  test("ar-sa is a published site locale: its help renders (English text until LOCALE_FOLDER in src/lib/help.ts maps the product's web/help/ar folder; owner call)", async ({ request }) => {
+    expect((await request.get("/ar-sa/help/")).status()).toBe(200);
   });
 });
 

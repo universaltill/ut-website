@@ -86,7 +86,7 @@ export const bcp47Of = (l) => l.bcp47 || l.url.replace(/-([a-z]+)$/, (_, r) => "
 /**
  * Complete dictionary of one locale: every English key, the locale's approved
  * text where it has one, English otherwise. `_fb` lists the keys that fell
- * back. `_name`/`_english`/`_dir`/`_bcp47`/`_label` carry the list's facts.
+ * back. `_name`/`_english`/`_dir`/`_bcp47` carry the list's facts.
  */
 export function buildDict(l, english, strings) {
   const dict = {};
@@ -95,7 +95,7 @@ export function buildDict(l, english, strings) {
     if (l.url !== SOURCE && typeof strings[k] === "string" && strings[k] !== "") dict[k] = strings[k];
     else { dict[k] = en; if (l.url !== SOURCE) fb.push(k); }
   }
-  return { ...dict, _name: l.native_name, _english: l.english_name, _dir: l.dir, _bcp47: bcp47Of(l), _label: hasMachineLabel(l), _fb: fb };
+  return { ...dict, _name: l.native_name, _english: l.english_name, _dir: l.dir, _bcp47: bcp47Of(l), _fb: fb };
 }
 
 export function loadDicts(dir = i18nDir()) {
@@ -182,3 +182,14 @@ export function buildSwaConfig(existing, list) {
 }
 
 export const serializeSwa = (cfg) => JSON.stringify(cfg, null, 2) + "\n";
+
+/**
+ * Wording of the AI / machine-translation disclosures the owner retired
+ * (2026-11-11), every locale. No built page may contain any of them; a guard
+ * (check-locale-consistency, locale-label.spec) fails if one comes back.
+ */
+export const RETIRED_AI_PHRASES = [
+  "Translated with AI", "Translated automatically", "Mit KI übersetzt", "Automatisch übersetzt",
+  "ترجمه‌شده با هوش مصنوعی", "به‌صورت خودکار ترجمه شده است", "Yapay zekâ ile çevrildi",
+  "Otomatik olarak çevrildi", "由 AI 翻译", "本文为自动翻译", "Report a translation error", "Read the English version",
+];

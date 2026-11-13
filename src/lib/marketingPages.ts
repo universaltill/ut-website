@@ -20,8 +20,8 @@
 import { parse, parseFragment, serialize } from 'parse5';
 // @ts-ignore - plain ESM shared with the node scripts
 import { PAGES } from '../../scripts/lib/locales.mjs';
-import { I18N, LANGS, dirOf, infoOf, isMachineLabelled, myLocaleFor } from './locales';
-import { ORIGIN, bandHtml, fallbackNoteHtml, footerReportHtml, languageGridHtml } from './chrome';
+import { I18N, LANGS, dirOf, infoOf, myLocaleFor } from './locales';
+import { ORIGIN, fallbackNoteHtml, languageGridHtml } from './chrome';
 
 export { ORIGIN, I18N };
 export const LOCALES: string[] = LANGS;
@@ -234,22 +234,15 @@ export function renderMarketingPage(route: MarketingRoute, routes: MarketingRout
     grid.parentNode = n.parentNode;
   });
 
-  // The AI band (unreviewed locales only) and the once-per-page fallback note,
-  // directly under the header, plus the report link in the footer. Prerendered:
-  // no layout shift, and they exist with JavaScript off.
-  const labelled = isMachineLabelled(route.locale);
-  const notes = (labelled ? bandHtml(route.locale, route.suffix, dict) : '') + (usedFallback ? fallbackNoteHtml(dict) : '');
+  // The once-per-page fallback note, directly under the header. Prerendered:
+  // no layout shift, and it exists with JavaScript off.
+  const notes = usedFallback ? fallbackNoteHtml(dict) : '';
   walk(doc, (n) => {
     if (n.nodeName === 'header' && (attr(n, 'class') ?? '').split(/\s+/).includes('nav') && n.parentNode && notes) {
       const siblings = n.parentNode.childNodes;
       const frag = parseFragment(notes).childNodes;
       for (const f of frag) f.parentNode = n.parentNode;
       siblings.splice(siblings.indexOf(n) + 1, 0, ...frag);
-    }
-    if (n.nodeName === 'footer' && labelled) {
-      const frag = parseFragment(footerReportHtml(route.locale, route.suffix, dict)).childNodes;
-      for (const f of frag) f.parentNode = n;
-      n.childNodes.push(...frag);
     }
   });
 

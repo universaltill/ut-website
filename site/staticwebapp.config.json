@@ -40,6 +40,39 @@
       "statusCode": 301
     },
     {
+      "route": "/ar-sa",
+      "rewrite": "/ar-sa/index.html"
+    },
+    {
+      "route": "/ar-sa/download",
+      "rewrite": "/ar-sa/download.html"
+    },
+    {
+      "route": "/ar-sa/start",
+      "rewrite": "/ar-sa/start.html"
+    },
+    {
+      "route": "/ar-sa/find-your-setup",
+      "rewrite": "/ar-sa/find-your-setup.html"
+    },
+    {
+      "route": "/ar-sa/pilot",
+      "rewrite": "/ar-sa/pilot.html"
+    },
+    {
+      "route": "/ar-sa/android-till",
+      "rewrite": "/ar-sa/android-till.html"
+    },
+    {
+      "route": "/ar-sa/language",
+      "rewrite": "/ar-sa/language.html"
+    },
+    {
+      "route": "/ar-sa/store",
+      "redirect": "/ar-sa",
+      "statusCode": 301
+    },
+    {
       "route": "/zh-cn",
       "rewrite": "/zh-cn/index.html"
     },
@@ -70,6 +103,39 @@
     {
       "route": "/zh-cn/store",
       "redirect": "/zh-cn",
+      "statusCode": 301
+    },
+    {
+      "route": "/fr-fr",
+      "rewrite": "/fr-fr/index.html"
+    },
+    {
+      "route": "/fr-fr/download",
+      "rewrite": "/fr-fr/download.html"
+    },
+    {
+      "route": "/fr-fr/start",
+      "rewrite": "/fr-fr/start.html"
+    },
+    {
+      "route": "/fr-fr/find-your-setup",
+      "rewrite": "/fr-fr/find-your-setup.html"
+    },
+    {
+      "route": "/fr-fr/pilot",
+      "rewrite": "/fr-fr/pilot.html"
+    },
+    {
+      "route": "/fr-fr/android-till",
+      "rewrite": "/fr-fr/android-till.html"
+    },
+    {
+      "route": "/fr-fr/language",
+      "rewrite": "/fr-fr/language.html"
+    },
+    {
+      "route": "/fr-fr/store",
+      "redirect": "/fr-fr",
       "statusCode": 301
     },
     {
@@ -106,6 +172,105 @@
       "statusCode": 301
     },
     {
+      "route": "/el-gr",
+      "rewrite": "/el-gr/index.html"
+    },
+    {
+      "route": "/el-gr/download",
+      "rewrite": "/el-gr/download.html"
+    },
+    {
+      "route": "/el-gr/start",
+      "rewrite": "/el-gr/start.html"
+    },
+    {
+      "route": "/el-gr/find-your-setup",
+      "rewrite": "/el-gr/find-your-setup.html"
+    },
+    {
+      "route": "/el-gr/pilot",
+      "rewrite": "/el-gr/pilot.html"
+    },
+    {
+      "route": "/el-gr/android-till",
+      "rewrite": "/el-gr/android-till.html"
+    },
+    {
+      "route": "/el-gr/language",
+      "rewrite": "/el-gr/language.html"
+    },
+    {
+      "route": "/el-gr/store",
+      "redirect": "/el-gr",
+      "statusCode": 301
+    },
+    {
+      "route": "/it-it",
+      "rewrite": "/it-it/index.html"
+    },
+    {
+      "route": "/it-it/download",
+      "rewrite": "/it-it/download.html"
+    },
+    {
+      "route": "/it-it/start",
+      "rewrite": "/it-it/start.html"
+    },
+    {
+      "route": "/it-it/find-your-setup",
+      "rewrite": "/it-it/find-your-setup.html"
+    },
+    {
+      "route": "/it-it/pilot",
+      "rewrite": "/it-it/pilot.html"
+    },
+    {
+      "route": "/it-it/android-till",
+      "rewrite": "/it-it/android-till.html"
+    },
+    {
+      "route": "/it-it/language",
+      "rewrite": "/it-it/language.html"
+    },
+    {
+      "route": "/it-it/store",
+      "redirect": "/it-it",
+      "statusCode": 301
+    },
+    {
+      "route": "/ms-my",
+      "rewrite": "/ms-my/index.html"
+    },
+    {
+      "route": "/ms-my/download",
+      "rewrite": "/ms-my/download.html"
+    },
+    {
+      "route": "/ms-my/start",
+      "rewrite": "/ms-my/start.html"
+    },
+    {
+      "route": "/ms-my/find-your-setup",
+      "rewrite": "/ms-my/find-your-setup.html"
+    },
+    {
+      "route": "/ms-my/pilot",
+      "rewrite": "/ms-my/pilot.html"
+    },
+    {
+      "route": "/ms-my/android-till",
+      "rewrite": "/ms-my/android-till.html"
+    },
+    {
+      "route": "/ms-my/language",
+      "rewrite": "/ms-my/language.html"
+    },
+    {
+      "route": "/ms-my/store",
+      "redirect": "/ms-my",
+      "statusCode": 301
+    },
+    {
       "route": "/fa-ir",
       "rewrite": "/fa-ir/index.html"
     },
@@ -136,6 +301,72 @@
     {
       "route": "/fa-ir/store",
       "redirect": "/fa-ir",
+      "statusCode": 301
+    },
+    {
+      "route": "/pt-pt",
+      "rewrite": "/pt-pt/index.html"
+    },
+    {
+      "route": "/pt-pt/download",
+      "rewrite": "/pt-pt/download.html"
+    },
+    {
+      "route": "/pt-pt/start",
+      "rewrite": "/pt-pt/start.html"
+    },
+    {
+      "route": "/pt-pt/find-your-setup",
+      "rewrite": "/pt-pt/find-your-setup.html"
+    },
+    {
+      "route": "/pt-pt/pilot",
+      "rewrite": "/pt-pt/pilot.html"
+    },
+    {
+      "route": "/pt-pt/android-till",
+      "rewrite": "/pt-pt/android-till.html"
+    },
+    {
+      "route": "/pt-pt/language",
+      "rewrite": "/pt-pt/language.html"
+    },
+    {
+      "route": "/pt-pt/store",
+      "redirect": "/pt-pt",
+      "statusCode": 301
+    },
+    {
+      "route": "/es-es",
+      "rewrite": "/es-es/index.html"
+    },
+    {
+      "route": "/es-es/download",
+      "rewrite": "/es-es/download.html"
+    },
+    {
+      "route": "/es-es/start",
+      "rewrite": "/es-es/start.html"
+    },
+    {
+      "route": "/es-es/find-your-setup",
+      "rewrite": "/es-es/find-your-setup.html"
+    },
+    {
+      "route": "/es-es/pilot",
+      "rewrite": "/es-es/pilot.html"
+    },
+    {
+      "route": "/es-es/android-till",
+      "rewrite": "/es-es/android-till.html"
+    },
+    {
+      "route": "/es-es/language",
+      "rewrite": "/es-es/language.html"
+    },
+    {
+      "route": "/es-es/store",
+      "redirect": "/es-es",
       "statusCode": 301
     },
     {
@@ -172,8 +403,18 @@
       "statusCode": 301
     },
     {
+      "route": "/ar",
+      "redirect": "/ar-sa",
+      "statusCode": 301
+    },
+    {
       "route": "/zh",
       "redirect": "/zh-cn",
+      "statusCode": 301
+    },
+    {
+      "route": "/fr",
+      "redirect": "/fr-fr",
       "statusCode": 301
     },
     {
@@ -182,8 +423,33 @@
       "statusCode": 301
     },
     {
+      "route": "/el",
+      "redirect": "/el-gr",
+      "statusCode": 301
+    },
+    {
+      "route": "/it",
+      "redirect": "/it-it",
+      "statusCode": 301
+    },
+    {
+      "route": "/ms",
+      "redirect": "/ms-my",
+      "statusCode": 301
+    },
+    {
       "route": "/fa",
       "redirect": "/fa-ir",
+      "statusCode": 301
+    },
+    {
+      "route": "/pt",
+      "redirect": "/pt-pt",
+      "statusCode": 301
+    },
+    {
+      "route": "/es",
+      "redirect": "/es-es",
       "statusCode": 301
     },
     {

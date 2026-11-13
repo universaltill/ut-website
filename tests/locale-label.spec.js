@@ -1,13 +1,14 @@
-// The AI label, the per-key English fallback, the language switcher and the
+// The per-key English fallback, the language switcher and the
 // English-only legal pages, for every locale in the published list (ADR-0177,
 // UX spec 2026-11-04, ut-docs#5406). The expectations come from the list, so a
-// locale that gains a human review (the label goes away) or a new language
+// locale that gains a human review or a new language
 // (it gets tested) needs no edit here.
 import { expect, test } from "@playwright/test";
-import { I18N, LOCALES, LOCALE_INFO, SOURCE, isLabelled, infoOf } from "./helpers/locales.js";
+import { RETIRED_AI_PHRASES } from "../scripts/lib/locales.mjs";
+import { I18N, LOCALES, LOCALE_INFO, SOURCE, infoOf } from "./helpers/locales.js";
 
 const PAGES = ["", "/download", "/find-your-setup", "/language", "/blog/", "/legal/terms/"];
-const labelled = LOCALES.filter(isLabelled);
+// An AI badge/banner must never come back. Covers every published locale's wording.
 
 for (const locale of LOCALES) {
   const D = I18N[locale];
@@ -21,51 +22,13 @@ for (const locale of LOCALES) {
       }
     });
 
-    test(`AI band is present exactly when the list says the locale is unreviewed (${isLabelled(locale) ? "yes" : "no"})`, async ({ page }) => {
-      for (const p of PAGES) {
+    test(`no AI / machine-translation label anywhere: no band, badge or report link (owner, 2026-11-11)`, async ({ page }) => {
+      for (const p of [...PAGES, "/blog/whats-new-v0-2-70/", "/no-such-page"]) {
         await page.goto(`/${locale}${p}`);
-        const band = page.locator("[data-mt-band]");
-        await expect(band, p).toHaveCount(isLabelled(locale) ? 1 : 0);
-        if (!isLabelled(locale)) continue;
-        // Meaning is words, not colour: the label text and the detail are both in the page's language.
-        await expect(band).toContainText(D["site.machine_label"]);
-        await expect(band).toContainText(D["site.machine_label_detail"]);
-        await expect(band).toHaveAttribute("role", "note");
-        // Not an alert, not live, not a dialog; focus is not moved on load.
-        await expect(page.locator('.mt-band[role="alert"], .mt-band[role="status"], .mt-band[role="dialog"], .mt-band [aria-live], .mt-band[aria-live]')).toHaveCount(0);
-        if (p !== "/language") expect(await page.evaluate(() => document.activeElement === document.body)).toBe(true);
-        // First thing after the header, before main.
-        expect(await page.evaluate(() => document.querySelector("header.nav").nextElementSibling.hasAttribute("data-mt-band"))).toBe(true);
-        // The English link goes to the same page in en-gb and answers 200; the report link names the locale.
-        const en = band.locator('a[hreflang="en-GB"]');
-        const href = await en.getAttribute("href");
-        expect(href).toBe(`/${SOURCE}${p}`);
-        expect((await page.request.get(href)).status()).toBe(200);
-        const report = band.locator('a[href^="mailto:support@universaltill.com"]');
-        expect(decodeURIComponent(await report.getAttribute("href"))).toContain(`Translation error (${locale})`);
-        await expect(band.locator("bdi")).toHaveCount(2);
+        await expect(page.locator("[data-mt-band], .mt-badge, .foot-report"), p).toHaveCount(0);
+        const text = await page.locator("body").innerText();
+        for (const ph of RETIRED_AI_PHRASES) expect(text, `${p}: ${ph}`).not.toContain(ph);
       }
-    });
-
-    test(`the AI band is in the HTML with JavaScript off`, async ({ browser }) => {
-      test.skip(!isLabelled(locale));
-      const ctx = await browser.newContext({ javaScriptEnabled: false });
-      const page = await ctx.newPage();
-      await page.goto(`/${locale}/download`);
-      await expect(page.locator("[data-mt-band]")).toHaveCount(1);
-      await expect(page.locator(".foot-report a")).toHaveAttribute("href", /^mailto:support@universaltill\.com/);
-      // The pill's accessible name already contains its visible text before any script runs.
-      const pill = page.locator(".lang-link");
-      const visible = (await pill.textContent()).replace("🌐", "").trim();
-      expect((await pill.getAttribute("aria-label")).toLowerCase()).toContain(visible.toLowerCase());
-      await ctx.close();
-    });
-
-    test(`the branded 404 shows the band too (built in the browser: one page for every locale)`, async ({ page }) => {
-      test.skip(!isLabelled(locale));
-      await page.goto(`/${locale}/no-such-page`);
-      await expect(page.locator("[data-mt-band]")).toHaveCount(1);
-      await expect(page.locator("[data-mt-band] a[hreflang='en-GB']")).toHaveAttribute("href", `/${SOURCE}`);
     });
 
     test(`fallback: one note, in the page's language, only when English text is really shown`, async ({ page }) => {
@@ -128,9 +91,9 @@ test.describe("language switcher", () => {
         await expect(card.locator("bdi")).toHaveAttribute("lang", l.bcp47);
         await expect(card.locator("bdi")).toHaveText(l.native_name);
         await expect(card.locator('[lang="en"][dir="ltr"]')).toHaveText(l.english_name);
-        // Badge exactly on unreviewed locales; its long form is in the accessible name.
-        await expect(card.locator(".mt-badge"), l.url).toHaveCount(isLabelled(l.url) ? 1 : 0);
-        if (isLabelled(l.url)) await expect(card.locator(".sr-only")).toHaveText(I18N[locale]["site.machine_label"]);
+        await expect(card.locator(".mt-badge"), l.url).toHaveCount(0);
+        await expect(card.locator(".sr-only"), l.url).toHaveCount(0);
+        await expect(card.locator(".locale-name > span:not(.locale-current)"), l.url).toHaveCount(0);
       }
       // Focus starts on the current card on this page only.
       expect(await page.evaluate(() => document.activeElement?.getAttribute("data-code"))).toBe(locale);
@@ -143,16 +106,16 @@ test.describe("language switcher", () => {
     let checked = 0;
     for (const p of ["/de-de/language?from=%2Fdownload", "/de-de/download", "/fa-ir/blog/", "/zh-cn"]) {
       await page.goto(p);
-      for (const sel of [".locale-card", ".lang-link", ".mt-band a"]) {
+      for (const sel of [".locale-card", ".lang-link"]) {
         for (const el of await page.locator(sel).all()) {
           const box = await el.boundingBox();
           expect(box.height, `${p} ${sel}`).toBeGreaterThanOrEqual(43.5);
-          if (sel !== ".mt-band a") expect(box.width, `${p} ${sel}`).toBeGreaterThanOrEqual(43.5);
+          expect(box.width, `${p} ${sel}`).toBeGreaterThanOrEqual(43.5);
           checked++;
         }
       }
     }
-    expect(checked).toBeGreaterThan(15);
+    expect(checked).toBeGreaterThan(7);
     await page.goto("/de-de/language?from=%2Fdownload");
     const order = await page.locator(".locale-card").evaluateAll((as) => as.map((a) => a.getAttribute("data-code")));
     expect(order).toEqual(LOCALES);

@@ -182,9 +182,9 @@ test("core is only allowed on standard keys", () => {
   const m2 = okMeta(); m2["a.b"].core = "yes";
   assert.match(run(okEn, m2).join("\n"), /a\.b.*core/);
 });
-test("the AI-label and fallback keys are core and standard", () => {
+test("the fallback keys are core and standard", () => {
   const meta = JSON.parse(fs.readFileSync(path.join(repo, "i18n/en.meta.json"), "utf8"));
-  for (const k of ["site.machine_label", "site.machine_label_detail", "site.machine_label_link", "site.machine_label_report", "site.machine_label_badge", "site.fallback_note", "site.legal_english_binding", "language.current"]) {
+  for (const k of ["site.fallback_note", "site.legal_english_binding", "language.current"]) {
     assert.equal(meta[k].core, true, k); assert.equal(meta[k].review, "standard", k);
   }
 });

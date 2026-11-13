@@ -7,7 +7,7 @@ import { expect, test } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { LOCALES, translated, MY_SERVED } from "./helpers/locales.js";
+import { LOCALES, translated, MY_SERVED, RTL } from "./helpers/locales.js";
 // The German managed-TSE minimum term is read from the vendored price file, never typed twice.
 const TSE_MIN = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "data/plan-prices.json"), "utf8")).countries.de.tse_per_main_till.min_months_per_activated_till;
 // my.universaltill.com has no zh-cn tree (ut-my-shop/src/i18n/i18n.ts): that locale links to en-gb.
@@ -37,7 +37,7 @@ for (const locale of LOCALES) {
       await expect(page).toHaveURL(new RegExp(`/${locale}/find-your-setup$`));
       await expect(page.locator("h1")).toBeVisible();
       await expect(page.locator(".wiz-legend")).toBeVisible();
-      await expect(page.locator("html")).toHaveAttribute("dir", locale === "fa-ir" ? "rtl" : "ltr");
+      await expect(page.locator("html")).toHaveAttribute("dir", RTL.includes(locale) ? "rtl" : "ltr");
     });
 
     test("free-app outcome goes to the download page", async ({ page }) => {
