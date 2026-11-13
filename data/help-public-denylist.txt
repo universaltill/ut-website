@@ -1,0 +1,11 @@
+# Help topics that are NEVER published on the website (owner decision
+# 2026-11-04; universal-till#2498). This list WINS over a till topic's
+# `public: true` front-matter and over data/help-public-allowlist.txt, so a
+# till release that still flags one of these public cannot publish it.
+# One slug per line; `#` starts a comment.
+claim             # pairing / transfer / approval-key security internals
+support-partner   # partner consent flow (business decision)
+translate-mode    # Weblate / manager tooling, not for the public
+translations      # Weblate / manager tooling, not for the public
+fiscal-device     # Turkey; the market track is paused
+fiscal-register   # Germany; fiscal contract unsigned, compliance-claim risk
