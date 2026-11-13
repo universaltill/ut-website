@@ -297,6 +297,16 @@
       "statusCode": 301
     },
     {
+      "route": "/legal/subscription-terms",
+      "redirect": "/en-gb/legal/subscription-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/legal/refunds",
+      "redirect": "/en-gb/legal/refunds/",
+      "statusCode": 301
+    },
+    {
       "route": "/blog/*",
       "redirect": "/en-gb/blog/",
       "statusCode": 301
