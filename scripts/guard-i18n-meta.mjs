@@ -23,8 +23,8 @@ import { fileURLToPath } from "node:url";
 export const LEGAL_KEY = /^(consent\.|foot\.(privacy|terms|impressum|cookies|owner|rights)$|wiz\.privacy$|wiz\.res\.sent$|wiz\.talk\.note$|wiz\.price\.|wiz\.hw\.need$|pluginspage\.(desc|intro|free|perm\.)|wiz\.gap\.(tr|fiscalother)$|wiz\.n\.(detse|ukfiscal|deowndevice)$|wiz\.r\.defiscal$|about\.body$)/;
 export const LEGAL_TEXT = /(£|€|\$)\s?\d|\bprivacy\b|\bcookies?\b|\bGDPR\b|\bterms\b|\bTSE\b|\bfiscal\b|\bVAT\b|\bno (monthly )?fee\b|\bfree forever\b|\bcosts? (nothing|from)\b|\bnever take a cut\b|\bwe take no cut\b|\bMIT licen[cs]e\b|\bopen source under\b|per month|\bimpressum\b|\blegal\b|\bno minimum term\b|\bno tie-in\b|\bmeans free\b|\bfree\b|\bno cost\b|\bcharged\b|\blicensed\b|\bsends nothing\b|\bon Pro\b/i;
 
-// `core`: shown on every page frame (nav, footer, title/meta, the AI label and
-// fallback note); must be `standard` tier and approved before a locale publishes.
+// `core`: shown on every page frame (nav, footer, title/meta,
+// and fallback note); must be `standard` tier and approved before a locale publishes.
 const FIELDS = new Set(["description", "review", "placeholders", "max_length", "html", "review_exception", "core"]);
 const tokens = (s) => [...s.matchAll(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g)].map((m) => m[1]);
 

@@ -9,7 +9,7 @@
 //   hreflang   every indexable marketing page lists exactly the published set
 //              + x-default (en-gb)
 //   switcher   /language lists exactly the published locales, in list order,
-//              badge on machine-labelled ones only, one aria-current
+//              no AI badge or band anywhere, one aria-current
 //   my. link   data-my-link points at the page locale iff cloud.manage serves it
 //   content    src/content/<collection>/ holds no directory for an unpublished locale
 //   leak       with --absent a,b: no route, sitemap, hreflang or switcher entry
@@ -19,7 +19,7 @@
 //   node scripts/check-locale-consistency.mjs [--dist dist] [--list-dir i18n] [--absent ar-sa] [--no-swa] [--no-content]
 import fs from "node:fs";
 import path from "node:path";
-import { ROOT, PAGES, buildSwaConfig, hasMachineLabel, loadList, myLocales, serializeSwa, websiteLocales, withdrawnUrls, bcp47Of } from "./lib/locales.mjs";
+import { ROOT, PAGES, buildSwaConfig, RETIRED_AI_PHRASES, loadList, myLocales, serializeSwa, websiteLocales, withdrawnUrls, bcp47Of } from "./lib/locales.mjs";
 
 export function check({ dist, listDir, absent = [], swa = true, content = true }) {
   const errors = [];
@@ -37,6 +37,12 @@ export function check({ dist, listDir, absent = [], swa = true, content = true }
     if (have !== want) err("site/staticwebapp.config.json differs from the routes the published list implies (run node scripts/gen-locales.mjs)");
   }
 
+  // No page of any locale carries a retired AI / machine-translation disclosure, whatever its markup.
+  const walkHtml = (d) => fs.readdirSync(path.join(dist, d), { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walkHtml(`${d}/${e.name}`) : e.name.endsWith(".html") ? [`${d}/${e.name}`] : []);
+  for (const u of urls) for (const f of walkHtml(u)) {
+    const html = read(f);
+    for (const ph of RETIRED_AI_PHRASES) if (html.includes(ph)) err(`${f}: contains retired AI disclosure "${ph}"`);
+  }
   // pages
   const trees = fs.readdirSync(dist, { withFileTypes: true }).filter((d) => d.isDirectory() && /^[a-z]{2}-[a-z]{2}$/.test(d.name)).map((d) => d.name);
   for (const t of trees) if (!urls.includes(t)) err(`dist/${t}/ exists but ${t} is not a published website locale`);
@@ -47,8 +53,7 @@ export function check({ dist, listDir, absent = [], swa = true, content = true }
       const m = html.match(/<html\b[^>]*>/i)?.[0] ?? "";
       if (!m.includes(`lang="${bcp47Of(l)}"`)) err(`${l.url}/${p.file}: <html> lacks lang="${bcp47Of(l)}"`);
       if (!m.includes(`dir="${l.dir}"`)) err(`${l.url}/${p.file}: <html> lacks dir="${l.dir}"`);
-      const band = (html.match(/data-mt-band/g) || []).length;
-      if (band !== (hasMachineLabel(l) ? 1 : 0)) err(`${l.url}/${p.file}: expected ${hasMachineLabel(l) ? 1 : 0} AI band, found ${band}`);
+      if (/data-mt-band|mt-badge|foot-report/.test(html)) err(`${l.url}/${p.file}: carries an AI band, badge or report link (no AI labelling, owner 2026-11-11)`);
       // hreflang
       if (!/<meta\s+name="robots"\s+content="[^"]*noindex/i.test(html)) {
         const got = [...html.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)">/g)].map((x) => `${x[1]} ${x[2]}`).sort();
@@ -68,10 +73,6 @@ export function check({ dist, listDir, absent = [], swa = true, content = true }
     const cards = [...lang.matchAll(/<a class="locale-card[^"]*" href="[^"]*" hreflang="[^"]*" data-code="([^"]+)"([^>]*)>(.*?)<\/a>/g)];
     if (JSON.stringify(cards.map((c) => c[1])) !== JSON.stringify(urls)) err(`${l.url}/language.html: switcher lists [${cards.map((c) => c[1])}] but the published list is [${urls}]`);
     if (cards.filter((c) => c[2].includes('aria-current="true"')).length !== 1) err(`${l.url}/language.html: expected exactly one aria-current card`);
-    for (const c of cards) {
-      const target = locales.find((x) => x.url === c[1]);
-      if (target && c[3].includes("mt-badge") !== hasMachineLabel(target)) err(`${l.url}/language.html: AI badge on ${c[1]} disagrees with the list`);
-    }
   }
 
   // sitemap
