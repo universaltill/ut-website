@@ -44,7 +44,6 @@
   "wiz.o.needs.appointments": "Randevular ve rezervasyonlar",
   "wiz.o.needs.fiscal": "Mali (vergi) cihaz",
   "wiz.o.needs.remote": "Dükkânımı kasadan uzakta bir tarayıcıdan yönetmek",
-  "wiz.o.needs.team": "Muhasebeci erişimi, personel rolleri veya telefon desteği",
   "wiz.q.card": "Kart ödemelerini nasıl alıyorsunuz?",
   "wiz.o.card.sumup": "SumUp",
   "wiz.o.card.stripe": "Stripe",

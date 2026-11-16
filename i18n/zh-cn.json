@@ -44,7 +44,6 @@
   "wiz.o.needs.appointments": "预约和订位",
   "wiz.o.needs.fiscal": "税控设备",
   "wiz.o.needs.remote": "离开收银台后也能在浏览器中管理店铺",
-  "wiz.o.needs.team": "会计访问权限、员工角色或电话支持",
   "wiz.q.card": "你如何收取刷卡付款？",
   "wiz.o.card.sumup": "SumUp",
   "wiz.o.card.stripe": "Stripe",

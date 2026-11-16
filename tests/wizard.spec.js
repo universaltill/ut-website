@@ -16,7 +16,7 @@ const MY = (l) => `https://my.universaltill.com/${MY_SERVED.includes(l) ? l : "e
 
 async function answer(page, picks = {}) {
   // picks: { biz: "cafe", needs: ["remote"], ... }; unspecified questions are skipped.
-  for (const q of ["biz", "country", "sites", "needs", "card", "hardware"]) {
+  for (const q of ["biz", "country", "sites", "people", "needs", "card", "hardware"]) {
     await expect(page.locator(".wiz-fs input").first()).toBeVisible();
     const want = [].concat(picks[q] || []);
     for (const v of want) await page.locator(`#wiz-${q}-${v}`).check();
@@ -106,7 +106,7 @@ for (const locale of LOCALES) {
       await page.locator(".wiz-actions button[type=button]").click(); // Back
       await expect(page.locator("#wiz-biz-cafe")).toBeChecked(); // answer kept
       await page.locator(".wiz-actions button[type=submit]").click();
-      for (let i = 0; i < 5; i++) await page.locator(".wiz-actions button[type=submit]").click();
+      for (let i = 0; i < 6; i++) await page.locator(".wiz-actions button[type=submit]").click();
       await expect(page.locator(".wiz-result")).toBeVisible();
       await page.locator(".wiz-actions button[type=button]").nth(1).click(); // Start over
       await expect(page.locator("#wiz-biz-cafe")).not.toBeChecked();
@@ -165,7 +165,7 @@ test("each question's hint is tied to its fieldset and step changes are announce
   const live = page.locator('[aria-live="polite"]');
   await expect(live).toHaveText("");
   await page.locator(".wiz-actions button[type=submit]").click();
-  await expect(live).toContainText("Step 2 of 6");
+  await expect(live).toContainText("Step 2 of 7");
   await expect(page.locator(".wiz-legend")).toBeFocused();
 });
 
@@ -269,6 +269,7 @@ for (const [locale, bizLabel, ntLabel] of [["en-gb", "Café or takeaway", "Table
     await page.locator("#wiz-country-de").check();
     await page.locator(".wiz-actions button[type=submit]").click();
     await page.locator(".wiz-actions button[type=submit]").click(); // sites skipped
+    await page.locator(".wiz-actions button[type=submit]").click(); // people skipped
     const tables = (await page.locator("label[for=wiz-needs-tables]").innerText()).trim();
     const stock = (await page.locator("label[for=wiz-needs-stock]").innerText()).trim();
     await page.locator("#wiz-needs-tables").check();
@@ -306,16 +307,16 @@ for (const [locale, bizLabel, ntLabel] of [["en-gb", "Café or takeaway", "Table
   });
 }
 
-const ALL_NEEDS = ["tables", "stock", "online", "appointments", "fiscal", "remote", "team"];
+const ALL_NEEDS = ["tables", "stock", "fiscal", "away", "remote", "online", "appointments", "roles", "archive", "accountant", "phone"];
 
 test("fa-ir worst case: the Talk to us href stays within 1800 chars and keeps the ref line", async ({ page }) => {
   await page.goto("/fa-ir/find-your-setup");
-  await answer(page, { biz: "cafe", country: "de", sites: "one", needs: ALL_NEEDS, card: "sumup", hardware: "have" });
+  await answer(page, { biz: "cafe", country: "de", sites: "one", people: "upto5", needs: ALL_NEEDS, card: "sumup", hardware: "have" });
   const hrefs = await page.locator(".wiz-result a[href^='mailto:']").evaluateAll((as) => as.map((a) => a.getAttribute("href")));
   expect(hrefs.length).toBeGreaterThan(0);
   for (const h of hrefs) {
     expect(h.length).toBeLessThanOrEqual(1800);
-    expect(decodeURIComponent(h)).toContain("ref: biz=cafe; country=de; sites=one; needs=" + ALL_NEEDS.join(",") + "; card=sumup; hardware=have; plan=");
+    expect(decodeURIComponent(h)).toContain("ref: biz=cafe; country=de; sites=one; people=upto5; needs=" + ALL_NEEDS.join(",") + "; card=sumup; hardware=have; plan=");
   }
 });
 
@@ -340,9 +341,51 @@ test("editing an answer after a result updates the Talk to us body", async ({ pa
   expect(await bodyOf()).toContain("biz=cafe; country=uk; sites=one; plan=local");
   await page.locator(".wiz-actions button[type=button]").first().click(); // Edit answers
   await page.locator("#wiz-biz-salon").check();
-  for (let i = 0; i < 6; i++) await page.locator(".wiz-actions button[type=submit]").click();
+  for (let i = 0; i < 7; i++) await page.locator(".wiz-actions button[type=submit]").click();
   await expect(page.locator(".wiz-result")).toBeVisible();
   const b = await bodyOf();
   expect(b).toContain("biz=salon; country=uk; sites=one; plan=local");
   expect(b).not.toContain("biz=cafe");
+});
+
+// ut-docs#4962: the people question and the Pro / Shop outcomes, driven in every locale.
+for (const locale of LOCALES) {
+  test(`${locale}: 3 to 5 people besides the owner recommends Pro on the cloud`, async ({ page }) => {
+    await page.goto(`/${locale}/find-your-setup`);
+    await answer(page, { biz: "cafe", country: "uk", sites: "one", people: "upto5" });
+    const result = page.locator(".wiz-result");
+    await expect(result).toHaveAttribute("data-plan", "pro");
+    await expect(result).toHaveAttribute("data-route", "cloud");
+  });
+}
+
+test("people question: the hint says till staff do not count, and the prices are Shop / Pro in the UK", async ({ page }) => {
+  await page.goto("/en-gb/find-your-setup");
+  await page.locator(".wiz-actions button[type=submit]").click(); // biz
+  await page.locator(".wiz-actions button[type=submit]").click(); // country
+  await page.locator(".wiz-actions button[type=submit]").click(); // sites
+  await expect(page.locator("#wiz-people-upto2")).toBeVisible();
+  await expect(page.locator("#wiz-hint-people")).toBeVisible();
+  await expect(page.locator("#wiz-hint-people")).toContainText("free on every plan");
+
+  await page.goto("/en-gb/find-your-setup");
+  await answer(page, { country: "uk", people: "upto2" });
+  await expect(page.locator(".wiz-result")).toHaveAttribute("data-plan", "shop");
+  await expect(page.locator(".wiz-price-main")).toHaveText("£29 per month, excl. VAT");
+
+  await page.goto("/en-gb/find-your-setup");
+  await answer(page, { country: "uk", people: "upto5" });
+  await expect(page.locator(".wiz-price-main")).toHaveText("£49 per month, excl. VAT");
+});
+
+test("people question and the 11 needs fit a 360px phone without sideways scroll or small targets", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto("/de-de/find-your-setup");
+  for (const step of ["biz", "country", "sites"]) { await expect(page.locator(`#wiz-${step}-${step === "biz" ? "cafe" : step === "country" ? "uk" : "one"}`)).toBeVisible(); await page.locator(".wiz-actions button[type=submit]").click(); }
+  for (const id of ["people", "needs"]) {
+    await expect(page.locator(`#wiz-hint-${id}`)).toBeVisible();
+    for (const h of await page.locator(".wiz-opt").evaluateAll((es) => es.map((e) => e.getBoundingClientRect().height))) expect(h).toBeGreaterThanOrEqual(44);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.locator(".wiz-actions button[type=submit]").click();
+  }
 });

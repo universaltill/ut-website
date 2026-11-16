@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "decided_by": "product owner",
+  "decided_on": "2026-11-12",
+  "decision_source": "ut-docs#4962 (follow the feature ladder in reference/subscription-plans.md: Shop for fiscal/TSE, Pro for multi-user or advanced reporting; publish the mapping as data next to plan-prices.json)",
+  "applies_to": "the universaltill.com Find your setup wizard (ut-website site/wizard-rules.js, ut-docs#4193)",
+  "plans": ["local", "local_plus", "shop", "pro", "multi_location", "enterprise"],
+  "rule_semantics": "A rule's if is an AND over wizard answers (question id -> option ids). A one-choice answer matches when it is in the list; needs matches when ANY listed option is ticked. A string value names a top-level list of this file. The recommended plan is the highest plan of all matching rules with built true (local when none match). A rule with built false is a ladder row that is not built yet: it never raises the plan or the price; it is shown as a not-yet line.",
+  "managed_fiscal_markets": ["de"],
+  "plan_rules": [
+    { "id": "huge", "if": { "sites": ["huge"] }, "plan": "enterprise", "ladder_row": "Locations", "built": true },
+    { "id": "multi", "if": { "sites": ["few", "many"] }, "plan": "multi_location", "ladder_row": "Locations", "built": true },
+    { "id": "managed-fiscal", "if": { "needs": ["fiscal"], "country": "managed_fiscal_markets" }, "plan": "shop", "ladder_row": "Fiscal device and audit export (where the market requires one)", "built": true },
+    { "id": "members-2", "if": { "people": ["upto2"] }, "plan": "shop", "ladder_row": "Team members on my., besides the owner", "built": true },
+    { "id": "members-5", "if": { "people": ["upto5"] }, "plan": "pro", "ladder_row": "Team members on my., besides the owner", "built": true },
+    { "id": "members-50", "if": { "people": ["more"] }, "plan": "multi_location", "ladder_row": "Team members on my., besides the owner", "built": true },
+    { "id": "roles", "if": { "needs": ["roles"] }, "plan": "pro", "ladder_row": "Custom staff roles, edited in my.", "built": true },
+    { "id": "archive", "if": { "needs": ["archive"] }, "plan": "pro", "ladder_row": "Cloud archive of receipts and reports", "built": true },
+    { "id": "remote", "if": { "needs": ["remote"] }, "plan": "local_plus", "ladder_row": "Cloud sync and manage from a browser (my.)", "built": true },
+    { "id": "tables", "if": { "needs": ["tables"] }, "plan": "local", "ladder_row": "Table plan, kitchen display, self-order kiosk", "built": true },
+    { "id": "stock", "if": { "needs": ["stock"] }, "plan": "local", "ladder_row": "Stock tracking, goods-in", "built": true },
+    { "id": "away", "if": { "needs": ["away"] }, "plan": "pro", "ladder_row": "Mobile tills sync with the main till over the internet", "built": false, "tracked_by": "ut-docs#4196" },
+    { "id": "accountant", "if": { "needs": ["accountant"] }, "plan": "pro", "ladder_row": "Accountant login and read-only accountant role", "built": false, "tracked_by": "subscription-plans.md Implementation status (Coming soon)" },
+    { "id": "phone", "if": { "needs": ["phone"] }, "plan": "pro", "ladder_row": "Phone", "built": false, "tracked_by": "ut-docs#4190" }
+  ],
+  "notes": [
+    "Tills: unlimited tills in one shop, synced over the shop's own network, are on every plan and the software is never metered per till (ladder row 'Unlimited tills in one shop'). So the wizard asks no till-count question: several tills on one network never change the plan. A till away from the shop's network is the 'away' rule (Pro once ut-docs#4196 ships). In Germany the managed TSE line is priced per main till in plan-prices.json.",
+    "Team members are the people who sign in to my. besides the owner (ut-cloud subscription.MemberLimit: Shop 2, Pro 5, Multi-location 50, Enterprise and chains no plan cap; ut-docs#4115). Till staff accounts, fixed roles and shifts are on every plan and are not team members.",
+    "More than 5 team members lands on Multi-location even with one location: it is the cheapest plan with more than 5 (50). More than 50 is Enterprise and chains (talk to us); the wizard does not ask for it separately.",
+    "managed_fiscal_markets lists the wizard country ids where we provide a managed fiscal device from Shop (today Germany's TSE). A market joins when its managed device exists (subscription-plans.md, Fiscal markets); the website's reason text for that rule names Germany and needs a new key when a second market joins.",
+    "built false = Coming soon in subscription-plans.md Implementation status. Flip it to true the day the row ships; the website then refuses to load until it gives that rule a reason line and drops its not-yet line."
+  ]
+}

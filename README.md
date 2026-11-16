@@ -100,14 +100,20 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `tests/android-till-page.spec.js`.
 - **"Find your setup" wizard (ut-docs#4193)** — `site/find-your-setup.html` →
   `/<locale>/find-your-setup`, linked from the home hero and the main nav (home,
-  every `site/*.html` page and `BaseLayout.astro`) in every locale. Six optional
-  questions (business type, country, locations, needs, card provider, hardware)
+  every `site/*.html` page and `BaseLayout.astro`) in every locale. Seven optional
+  questions (business type, country, locations, people who sign in to my., needs,
+  card provider, hardware)
   → a recommended plan with its real price, hardware, plugins, "good to know"
   notes, an honest **Not yet** list, and a next step: the free **Local** plan
   goes to `/<locale>/download`, any cloud plan to
   `https://my.universaltill.com/<locale>/`, Enterprise and chains to the
-  support mailbox. **All decisions are one data table in
-  `site/wizard-rules.js`** (`PLAN_RULES`, `GAPS`, `NOTES`, `PLUGINS`, `PRICES`);
+  support mailbox. **Plan placement is data (ut-docs#4962):**
+  `data/plan-wizard-rules.json` (a byte-identical copy of ut-docs
+  `reference/plan-wizard-rules.json`) → `node scripts/gen-plan-wizard-rules.mjs` →
+  committed `site/plan-wizard-rules.js`; `site/wizard-rules.js` keeps the reason
+  keys, `GAPS`, `NOTES`, `PLUGINS` and `PRICES`. A `built:false` rule never raises
+  the plan; the page refuses to load if a rule lacks its reason or not-yet line.
+  There is no till-count question: tills are never metered.
   `site/wizard.js` only draws questions and the answer, reading every string
   from the `wiz.*` keys in `i18n/en.json` (every published locale; plan names stay
   untranslated). Prices come from `data/plan-prices.json` (below) for
@@ -116,14 +122,16 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   no analytics (lead capture with consent is ut-docs#2550). With JS off the page
   still shows the two plain links; `a[data-my-link]` gets the page's locale at
   build time (`marketingPages.ts`) and in the browser. To change a
-  recommendation, edit the table and `tests/wizard-rules.spec.js`;
+  recommendation, change the rule in ut-docs first, then copy it here and update
+  `tests/wizard-rules.spec.js`;
   `tests/wizard.spec.js` drives every locale in Chromium.
   **Prices have one source (2026-10-24):** `data/plan-prices.json` is a byte-identical
   copy of `ut-docs/reference/plan-prices.json` (minor units); `node scripts/gen-plan-prices.mjs`
   turns it into `site/plan-prices.js` (committed, CI-checked), which `wizard-rules.js`
   reads - no plan amount is typed in site/ or src/. `scripts/guard-plan-prices.sh` fails
   on a retired price (Shop 42, Pro 59, Multi-location 127, 35.00/49.17/105.83) and on a
-  stale generated file; run with `PLAN_PRICES_UPSTREAM=<ut-docs main file>` it also
+  stale generated file; run with `PLAN_PRICES_UPSTREAM=<ut-docs main file>` (and
+  `PLAN_WIZARD_RULES_UPSTREAM=<ut-docs main rules file>`) it also
   checks the copy is identical to ut-docs main. ut-docs is private and this repo is
   public, so CI here holds no ut-docs token: the equality check runs on the ut-docs
   side. Every "Get started" button (header, hero, every page and locale) opens the
