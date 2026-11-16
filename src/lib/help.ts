@@ -159,8 +159,10 @@ export function parseAllowlist(text: string): string[] {
     .filter(Boolean);
 }
 
-/** Explicit `public: false` always wins; then `public: true`; then the list. */
-export function isPublic(publicFlag: boolean | undefined | 'invalid', slug: string, allow: ReadonlySet<string>): boolean {
+/** The deny list wins over everything; then explicit `public: false`; then
+ *  `public: true`; then the allow-list. */
+export function isPublic(publicFlag: boolean | undefined | 'invalid', slug: string, allow: ReadonlySet<string>, deny: ReadonlySet<string> = new Set()): boolean {
+  if (deny.has(slug)) return false;
   if (publicFlag === false || publicFlag === 'invalid') return false;
   if (publicFlag === true) return true;
   return allow.has(slug);
@@ -365,13 +367,19 @@ function readAllowlist(): string {
   return fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : '';
 }
 
+function readDenylist(): string {
+  const f = path.resolve(process.cwd(), 'data/help-public-denylist.txt');
+  return fs.existsSync(f) ? fs.readFileSync(f, 'utf8') : '';
+}
+
 /** `{k}` -> value, with the value inserted literally (no `$&` patterns). */
 export function fillTemplate(template: string, vars: Record<string, string>): string {
   return Object.entries(vars).reduce((s, [k, v]) => s.replace(`{${k}}`, () => v), template);
 }
 
 /** Build the help centre from a source directory laid out like web/help. */
-export async function buildHelp(dir: string, ref: string, allowText: string | null = readAllowlist()): Promise<HelpCentre> {
+export async function buildHelp(dir: string, ref: string, allowText: string | null = readAllowlist(), denyText: string | null = readDenylist()): Promise<HelpCentre> {
+  const deny = new Set(parseAllowlist(denyText ?? ''));
   const allowList = parseAllowlist(allowText ?? '');
   const skipped = new Map<string, string>();
   const allow = new Set(allowList);
@@ -386,7 +394,7 @@ export async function buildHelp(dir: string, ref: string, allowText: string | nu
   for (const t of enTopics.values()) {
     if (t.publicFlag === 'invalid') console.warn(`[help] WARNING: ${SOURCE_FOLDER}/${t.slug}.md has a "public" value that is not exactly true or false; treated as NOT public`);
   }
-  const publicSlugs = new Set([...enTopics.values()].filter((t) => isPublic(t.publicFlag, t.slug, allow)).map((t) => t.slug));
+  const publicSlugs = new Set([...enTopics.values()].filter((t) => isPublic(t.publicFlag, t.slug, allow, deny)).map((t) => t.slug));
   const byLocaleRaw: Record<string, Map<string, Topic>> = {};
   for (const [locale, folder] of Object.entries(LOCALE_FOLDER)) {
     if (folder && folder !== SOURCE_FOLDER) byLocaleRaw[locale] = readFolder(dir, folder, locale, skipped);

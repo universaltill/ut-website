@@ -69,6 +69,24 @@ test("public flag, allow-list and public:false precedence", () => {
   assert.deepEqual(H.parseAllowlist("# c\nsell  # trailing\n\n  tables\n# x\n"), ["sell", "tables"]);
 });
 
+test("deny list beats public:true and the allow-list", () => {
+  const allow = new Set(["listed"]);
+  const deny = new Set(["claim", "listed"]);
+  assert.equal(H.isPublic(true, "claim", allow, deny), false);
+  assert.equal(H.isPublic(undefined, "listed", allow, deny), false);
+  assert.equal(H.isPublic(true, "other", allow, deny), true);
+  assert.equal(H.isPublic(true, "claim", allow), true, "no deny list = old behaviour");
+});
+
+test("buildHelp never publishes a denied topic even when public: true", async () => {
+  const dir = fixture({
+    "en/claim.md": topic({ id: "claim", title: "Claim", order: 1, extra: "public: true\n" }),
+    "en/sell.md": topic({ id: "sell", title: "Sell", order: 2, extra: "public: true\n" }),
+  });
+  const help = await H.buildHelp(dir, "t", "", "# c\nclaim # owner\n");
+  assert.deepEqual(help.entries.map((e) => e.slug), ["sell"]);
+});
+
 test("link rewriting: public slug, non-public slug, till route, external, helpLink", async () => {
   const dir = fixture({
     "en/a.md": topic({

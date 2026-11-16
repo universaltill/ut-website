@@ -5,10 +5,13 @@
 # is the vendored copy; site/plan-prices.js is generated from the copy.
 #   1. no retired price (Shop 42, Pro 59, Multi-location 127 and their annual
 #      per-month figures 35.00 / 49.17 / 105.83) appears in site/ or src/;
-#   2. site/plan-prices.js is up to date with data/plan-prices.json;
+#   2. site/plan-prices.js is up to date with data/plan-prices.json, and
+#      site/plan-wizard-rules.js with data/plan-wizard-rules.json (ut-docs#4962);
 #   3. optional: data/plan-prices.json is byte-identical to ut-docs main's file when
-#      PLAN_PRICES_UPSTREAM points at it (a local run in the ecosystem folder:
+#      PLAN_PRICES_UPSTREAM points at it, and data/plan-wizard-rules.json likewise
+#      with PLAN_WIZARD_RULES_UPSTREAM (a local run in the ecosystem folder:
 #        git -C ../ut-docs show origin/main:reference/plan-prices.json > /tmp/up.json
+#        git -C ../ut-docs show origin/main:reference/plan-wizard-rules.json > /tmp/up-rules.json
 #      ). CI does NOT hold a token for ut-docs: it is private and this repo is
 #      public (no private-repo credential in a public repo). The CI direction is
 #      reversed instead: a ut-docs workflow compares its file with this repo's
@@ -38,6 +41,7 @@ fi
 # --- 2. generated script in sync ----------------------------------------------
 if [ -z "$SCAN" ]; then
   node "$ROOT/scripts/gen-plan-prices.mjs" --check || failed=1
+  node "$ROOT/scripts/gen-plan-wizard-rules.mjs" --check || failed=1
 fi
 
 # --- 3. identical to ut-docs main ---------------------------------------------
@@ -45,6 +49,15 @@ if [ -n "$UPSTREAM" ]; then
   [ -f "$UPSTREAM" ] || { echo "❌ plan-prices guard: upstream file $UPSTREAM not found" >&2; exit 1; }
   if ! cmp -s "$DATA" "$UPSTREAM"; then
     echo "❌ plan-prices guard: data/plan-prices.json differs from ut-docs main reference/plan-prices.json. Copy it, run node scripts/gen-plan-prices.mjs." >&2
+    failed=1
+  fi
+fi
+
+RULES_UPSTREAM="${PLAN_WIZARD_RULES_UPSTREAM:-}"
+if [ -n "$RULES_UPSTREAM" ]; then
+  [ -f "$RULES_UPSTREAM" ] || { echo "❌ plan-prices guard: upstream file $RULES_UPSTREAM not found" >&2; exit 1; }
+  if ! cmp -s "$ROOT/data/plan-wizard-rules.json" "$RULES_UPSTREAM"; then
+    echo "❌ plan-prices guard: data/plan-wizard-rules.json differs from ut-docs main reference/plan-wizard-rules.json. Copy it, run node scripts/gen-plan-wizard-rules.mjs." >&2
     failed=1
   fi
 fi

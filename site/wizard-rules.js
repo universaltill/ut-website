@@ -11,6 +11,14 @@
 // app, and nothing is sent unless they send that email (the
 // lead-capture-with-consent slice is ut-docs#2550).
 //
+// Where each answer puts the shop on the plan ladder is DATA, not code:
+// data/plan-wizard-rules.json (a byte-identical copy of ut-docs
+// reference/plan-wizard-rules.json, ut-docs#4962), shipped to the page as
+// site/plan-wizard-rules.js. This file keeps what is the site's own: the
+// question list, the i18n key of each reason, the "not yet" lines, notes and
+// plugins. Only rows with built:true raise the plan; a not-built row never
+// does. Tills are never metered, so there is no till-count question.
+//
 // Plan names and prices: ut-docs/reference/subscription-plans.md ("Prices by
 // country"). Names are the CURRENT ones — Local, Local Plus, Shop, Pro,
 // Multi-location, Enterprise and chains (never the retired Chain / Enterprise).
@@ -26,7 +34,10 @@
     { id: "biz", type: "one", options: ["cafe", "restaurant", "retail", "salon", "stall", "other"] },
     { id: "country", type: "one", options: ["uk", "de", "eu", "tr", "other"] },
     { id: "sites", type: "one", options: ["one", "few", "many", "huge"] },
-    { id: "needs", type: "many", options: ["tables", "stock", "online", "appointments", "fiscal", "remote", "team"] },
+    // People who sign in to my. besides the owner (not till staff): ut-docs#4962.
+    { id: "people", type: "one", options: ["none", "upto2", "upto5", "more"] },
+    // Grouped by topic: till, then online, then support (UX, ut-docs#4962).
+    { id: "needs", type: "many", options: ["tables", "stock", "fiscal", "away", "remote", "online", "appointments", "roles", "archive", "accountant", "phone"] },
     { id: "card", type: "one", options: ["sumup", "stripe", "other", "none"] },
     { id: "hardware", type: "one", options: ["have", "need"] },
   ];
@@ -61,41 +72,88 @@
   };
 
   // A rule's `if` is an AND over its keys. Scalar answers (biz, country, sites,
-  // card, hardware) match when the answer is in the list; `needs` matches when
-  // ANY listed need was ticked; `plan` matches the final plan (notes only).
+  // people, card, hardware) match when the answer is in the list; `needs`
+  // matches when ANY listed need was ticked; `plan` matches the final plan and
+  // `onlyBy` the rules that put them there (notes only).
   //
   // The plan follows features that EXIST. Online ordering, booking-platform sync
-  // (Booksy), accountant access and phone support are "Coming soon" in
-  // subscription-plans.md: they appear in GAPS and never raise the plan or the
-  // price. (Fixed staff roles are free; only custom roles are Pro.)
-  //
-  // PLAN_RULES: each says "this answer needs at least <plan>" and why. With no
-  // rule matching, the plan stays Local (the free app).
-  var PLAN_RULES = [
-    { id: "huge", plan: "enterprise", if: { sites: ["huge"] }, reason: "wiz.r.huge" },
-    { id: "multi", plan: "multi", if: { sites: ["few", "many"] }, reason: "wiz.r.multi" },
-    { id: "de-fiscal", plan: "shop", if: { country: ["de"], needs: ["fiscal"] }, reason: "wiz.r.defiscal" },
-    { id: "remote", plan: "plus", if: { needs: ["remote"] }, reason: "wiz.r.remote" },
-    { id: "tables", plan: "local", if: { needs: ["tables"] }, reason: "wiz.r.tables" },
-    { id: "stock", plan: "local", if: { needs: ["stock"] }, reason: "wiz.r.stock" },
-  ];
+  // (Booksy), accountant access, phone support and tills syncing away from the
+  // shop are "Coming soon" in subscription-plans.md: they appear in GAPS and
+  // never raise the plan or the price (built:false in the data). Fixed staff
+  // roles are free; only custom roles are Pro.
+  var WR = root.UT_PLAN_WIZARD_RULES;
+  if (!WR) throw new Error("wizard-rules: plan-wizard-rules.js must load first");
 
-  // Honest "we don't do this yet" lines. Never promise a date.
+  function fail(msg) { throw new Error("wizard-rules: " + msg); }
+
+  // i18n reason line per BUILT data rule (key ids are this site's, not ut-docs').
+  var REASON_OF_RULE = {
+    huge: "wiz.r.huge", multi: "wiz.r.multi", "managed-fiscal": "wiz.r.defiscal",
+    "members-2": "wiz.r.members2", "members-5": "wiz.r.members5", "members-50": "wiz.r.members50",
+    roles: "wiz.r.roles", archive: "wiz.r.archive", remote: "wiz.r.remote",
+    tables: "wiz.r.tables", stock: "wiz.r.stock",
+  };
+
+  // Honest "we don't do this yet" lines. Never promise a date. An entry with
+  // `rule` takes its condition from that built:false data rule, so the line
+  // appears exactly when the not-yet feature was asked for.
   var GAPS = [
     { id: "appointments", if: { needs: ["appointments"] }, text: "wiz.gap.appointments" },
     { id: "online", if: { needs: ["online"] }, text: "wiz.gap.online" },
-    { id: "team", if: { needs: ["team"] }, text: "wiz.gap.team" },
+    { id: "away", rule: "away", text: "wiz.gap.mobilesync" },
+    { id: "accountant", rule: "accountant", text: "wiz.gap.accountant" },
+    { id: "phone", rule: "phone", text: "wiz.gap.phone" },
     { id: "tr", if: { country: ["tr"] }, text: "wiz.gap.tr" },
     { id: "fiscal-other", if: { country: ["eu", "other"], needs: ["fiscal"] }, text: "wiz.gap.fiscalother" },
     { id: "card-other", if: { card: ["other"] }, text: "wiz.gap.cardother" },
   ];
+
+  // Load-time checks: the data and this file must agree, or the page refuses to
+  // load (so flipping `built` in ut-docs forces the matching copy change here).
+  var ruleById = {};
+  WR.rules.forEach(function (r) {
+    ruleById[r.id] = r;
+    if (PLAN_ORDER.indexOf(r.plan) === -1) fail("rule " + r.id + ": unknown plan " + r.plan);
+    Object.keys(r.if).forEach(function (k) {
+      var q = null;
+      for (var i = 0; i < QUESTIONS.length; i++) if (QUESTIONS[i].id === k) q = QUESTIONS[i];
+      if (!q) fail("rule " + r.id + ": unknown question " + k);
+      r.if[k].forEach(function (o) {
+        if (q.options.indexOf(o) === -1) fail("rule " + r.id + ": unknown option " + k + "=" + o);
+      });
+    });
+    if (r.built === true && !REASON_OF_RULE[r.id]) fail("rule " + r.id + " is built but has no reason line");
+    if (r.built !== true && REASON_OF_RULE[r.id]) fail("rule " + r.id + " is not built but has a reason line");
+  });
+  Object.keys(REASON_OF_RULE).forEach(function (id) {
+    if (!ruleById[id]) fail("reason line for unknown rule " + id);
+  });
+  GAPS.forEach(function (g) {
+    if (!g.rule) return;
+    var r = ruleById[g.rule];
+    if (!r) fail("not-yet line " + g.id + " names unknown rule " + g.rule);
+    if (r.built === true) fail("not-yet line " + g.id + " names rule " + g.rule + ", which is built");
+    g.if = r.if;
+  });
+  WR.rules.forEach(function (r) {
+    if (r.built === true) return;
+    var n = GAPS.filter(function (g) { return g.rule === r.id; }).length;
+    if (n !== 1) fail("rule " + r.id + " is not built and needs exactly one not-yet line (has " + n + ")");
+  });
+
+  // PLAN_RULES: each says "this answer needs at least <plan>" and why; ONLY
+  // built rules. With no rule matching, the plan stays Local (the free app).
+  var PLAN_RULES = WR.rules.filter(function (r) { return r.built === true; }).map(function (r) {
+    return { id: r.id, plan: r.plan, if: r.if, reason: REASON_OF_RULE[r.id] };
+  });
+  var COMING_RULES = WR.rules.filter(function (r) { return r.built !== true; });
+  var MANAGED_FISCAL_MARKETS = WR.managedFiscalMarkets;
 
   // Plugin pages on this site (/<locale>/plugins/<slug>/): only plugins that
   // are published today.
   var PLUGINS = [
     { slug: "payment-sumup", if: { card: ["sumup"] } },
     { slug: "payment-stripe", if: { card: ["stripe"] } },
-    { slug: "language-de", if: { country: ["de"] } },
   ];
 
   // Short extra lines: what the answer means for this shop.
@@ -109,13 +167,14 @@
     // Germany: a TSE is required by law whatever the till. Shown whenever the
     // visitor did not tick the fiscal need (the fiscal tick has its own notes).
     { id: "de-tse-law", if: { country: ["de"], noNeeds: ["fiscal"] }, text: "wiz.n.detsemin" },
-    // Only when the German fiscal need ALONE put them on Shop. With sites
-    // pushing the plan to Multi-location or beyond, Local would not fit anyway.
-    { id: "de-own-device", if: { country: ["de"], needs: ["fiscal"], plan: ["shop"] }, text: "wiz.n.deowndevice" },
+    // Only when the German fiscal need ALONE put them on Shop (onlyBy): with
+    // locations, people or roles pushing the plan up, Local would not fit anyway.
+    { id: "de-own-device", if: { country: ["de"], needs: ["fiscal"], onlyBy: ["managed-fiscal"] }, text: "wiz.n.deowndevice" },
     { id: "card-none", if: { card: ["none"] }, text: "wiz.n.cardnone" },
   ];
 
-  function matches(cond, a, plan) {
+  // drivers = ids of the rules that put the answers on the final plan.
+  function matches(cond, a, plan, drivers) {
     for (var k in cond) {
       var want = cond[k];
       if (k === "needs") {
@@ -128,6 +187,10 @@
         for (var j = 0; j < want.length; j++) if (have.indexOf(want[j]) !== -1) return false;
       } else if (k === "plan") {
         if (want.indexOf(plan) === -1) return false;
+      } else if (k === "onlyBy") {
+        var ds = drivers || [];
+        if (!ds.length) return false;
+        for (var m = 0; m < ds.length; m++) if (want.indexOf(ds[m]) === -1) return false;
       } else if (want.indexOf(a[k]) === -1) return false;
     }
     return true;
@@ -145,17 +208,21 @@
       var r = PLAN_RULES[i];
       if (matches(r.if, a, plan) && rank(r.plan) > rank(plan)) plan = r.plan;
     }
+    var drivers = [];
+    for (i = 0; i < PLAN_RULES.length; i++) {
+      if (PLAN_RULES[i].plan === plan && matches(PLAN_RULES[i].if, a, plan)) drivers.push(PLAN_RULES[i].id);
+    }
     var reasons = [];
     for (i = 0; i < PLAN_RULES.length; i++) {
       var p = PLAN_RULES[i];
-      if (matches(p.if, a, plan)) reasons.push(p.reason);
+      if (matches(p.if, a, plan, drivers)) reasons.push(p.reason);
     }
     // The free local app: always say why it is enough, then any need it covers.
     if (plan === "local") reasons.unshift("wiz.r.local");
 
     function pick(table, field) {
       var out = [];
-      for (var j = 0; j < table.length; j++) if (matches(table[j].if, a, plan)) out.push(table[j][field]);
+      for (var j = 0; j < table.length; j++) if (matches(table[j].if, a, plan, drivers)) out.push(table[j][field]);
       return out;
     }
 
@@ -248,7 +315,7 @@
 
   root.UT_WIZARD_RULES = {
     QUESTIONS: QUESTIONS, PLAN_ORDER: PLAN_ORDER, PRICES: PRICES, MAX_LOCATIONS: SRC.extraLocation.maxLocations, ROUTE_OF_PLAN: ROUTE_OF_PLAN,
-    PLAN_RULES: PLAN_RULES, GAPS: GAPS, PLUGINS: PLUGINS, NOTES: NOTES,
+    PLAN_RULES: PLAN_RULES, COMING_RULES: COMING_RULES, MANAGED_FISCAL_MARKETS: MANAGED_FISCAL_MARKETS, REASON_OF_RULE: REASON_OF_RULE, GAPS: GAPS, PLUGINS: PLUGINS, NOTES: NOTES,
     recommend: recommend, talkBody: talkBody, talkHref: talkHref, TALK_MAX: TALK_MAX, allKeys: allKeys,
   };
 })(typeof window !== "undefined" ? window : globalThis);

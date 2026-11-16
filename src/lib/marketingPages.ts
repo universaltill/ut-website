@@ -21,6 +21,7 @@ import { parse, parseFragment, serialize } from 'parse5';
 // @ts-ignore - plain ESM shared with the node scripts
 import { PAGES } from '../../scripts/lib/locales.mjs';
 import { I18N, LANGS, dirOf, infoOf, myLocaleFor } from './locales';
+import { pricingHtml, defaultMarket } from './pricing';
 import { ORIGIN, fallbackNoteHtml, languageGridHtml } from './chrome';
 
 export { ORIGIN, I18N };
@@ -232,6 +233,21 @@ export function renderMarketingPage(route: MarketingRoute, routes: MarketingRout
     const siblings = n.parentNode.childNodes;
     siblings[siblings.indexOf(n)] = grid;
     grid.parentNode = n.parentNode;
+  });
+
+  // The pricing body is data too (ut-docs#4963): built from site/plan-prices.js,
+  // with the plan links localized like any other link of the page.
+  walk(doc, (n) => {
+    if (route.file !== 'pricing.html' || attr(n, 'id') !== 'pricing-root') return;
+    const built = pricingHtml(route.locale, bcp47(route.locale), dict);
+    const frag = parseFragment(built.html);
+    walk(frag, (a) => {
+      const h = a.nodeName === 'a' ? attr(a, 'href') : undefined;
+      if (h) setAttr(a, 'href', localizedHref(h, route.locale, suffixes));
+    });
+    setChildren(n, frag.childNodes);
+    setAttr(n, 'data-default-market', defaultMarket(route.locale));
+    if (built.usedFallback) usedFallback = true;
   });
 
   // The once-per-page fallback note, directly under the header. Prerendered:
