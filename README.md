@@ -333,10 +333,10 @@ source and translator metadata, edited here). Nothing else lists a locale.
 - **Blog.** Locale directories under `src/content/blog/` must be published
   locales (`check-locale-consistency` fails on a stray one). A post exists in a
   locale only where translated; elsewhere the English page is served with the
-  "available in English" note, canonical to English. A machine-translated post
-  (`machineTranslated: true`) in a locale without a recorded human review is `noindex`, canonical
-  to English and out of hreflang and the sitemap unless the post says
-  `reviewed: true`. `llms.txt` stays English.
+  "available in English" note, canonical to English. Every translated post
+  is a normal indexable page (owner 2026-11-16: no AI label, no noindex for
+  machine translation; flip `isIndexableTranslation` in `src/lib/blogPosts.ts`
+  to restore the rule). Only the English fallback is canonical to English. `llms.txt` stays English.
 - **Guards.** `scripts/check-locale-consistency.mjs` (after a build) fails when
   routes, pages, hreflang, canonical, sitemap, switcher, band/badge, my. links or
   content directories disagree with the list, or an `--absent` locale leaks.
