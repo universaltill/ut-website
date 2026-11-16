@@ -27,6 +27,14 @@
       "rewrite": "/en-gb/pilot.html"
     },
     {
+      "route": "/en-gb/pricing",
+      "rewrite": "/en-gb/pricing.html"
+    },
+    {
+      "route": "/en-gb/contact",
+      "rewrite": "/en-gb/contact.html"
+    },
+    {
       "route": "/en-gb/android-till",
       "rewrite": "/en-gb/android-till.html"
     },
@@ -37,6 +45,11 @@
     {
       "route": "/en-gb/store",
       "redirect": "/en-gb",
+      "statusCode": 301
+    },
+    {
+      "route": "/en-gb/support",
+      "redirect": "/en-gb/contact",
       "statusCode": 301
     },
     {
@@ -60,6 +73,14 @@
       "rewrite": "/ar-sa/pilot.html"
     },
     {
+      "route": "/ar-sa/pricing",
+      "rewrite": "/ar-sa/pricing.html"
+    },
+    {
+      "route": "/ar-sa/contact",
+      "rewrite": "/ar-sa/contact.html"
+    },
+    {
       "route": "/ar-sa/android-till",
       "rewrite": "/ar-sa/android-till.html"
     },
@@ -70,6 +91,11 @@
     {
       "route": "/ar-sa/store",
       "redirect": "/ar-sa",
+      "statusCode": 301
+    },
+    {
+      "route": "/ar-sa/support",
+      "redirect": "/ar-sa/contact",
       "statusCode": 301
     },
     {
@@ -93,6 +119,14 @@
       "rewrite": "/zh-cn/pilot.html"
     },
     {
+      "route": "/zh-cn/pricing",
+      "rewrite": "/zh-cn/pricing.html"
+    },
+    {
+      "route": "/zh-cn/contact",
+      "rewrite": "/zh-cn/contact.html"
+    },
+    {
       "route": "/zh-cn/android-till",
       "rewrite": "/zh-cn/android-till.html"
     },
@@ -103,6 +137,11 @@
     {
       "route": "/zh-cn/store",
       "redirect": "/zh-cn",
+      "statusCode": 301
+    },
+    {
+      "route": "/zh-cn/support",
+      "redirect": "/zh-cn/contact",
       "statusCode": 301
     },
     {
@@ -126,6 +165,14 @@
       "rewrite": "/fr-fr/pilot.html"
     },
     {
+      "route": "/fr-fr/pricing",
+      "rewrite": "/fr-fr/pricing.html"
+    },
+    {
+      "route": "/fr-fr/contact",
+      "rewrite": "/fr-fr/contact.html"
+    },
+    {
       "route": "/fr-fr/android-till",
       "rewrite": "/fr-fr/android-till.html"
     },
@@ -136,6 +183,11 @@
     {
       "route": "/fr-fr/store",
       "redirect": "/fr-fr",
+      "statusCode": 301
+    },
+    {
+      "route": "/fr-fr/support",
+      "redirect": "/fr-fr/contact",
       "statusCode": 301
     },
     {
@@ -159,6 +211,14 @@
       "rewrite": "/de-de/pilot.html"
     },
     {
+      "route": "/de-de/pricing",
+      "rewrite": "/de-de/pricing.html"
+    },
+    {
+      "route": "/de-de/contact",
+      "rewrite": "/de-de/contact.html"
+    },
+    {
       "route": "/de-de/android-till",
       "rewrite": "/de-de/android-till.html"
     },
@@ -169,6 +229,11 @@
     {
       "route": "/de-de/store",
       "redirect": "/de-de",
+      "statusCode": 301
+    },
+    {
+      "route": "/de-de/support",
+      "redirect": "/de-de/contact",
       "statusCode": 301
     },
     {
@@ -192,6 +257,14 @@
       "rewrite": "/el-gr/pilot.html"
     },
     {
+      "route": "/el-gr/pricing",
+      "rewrite": "/el-gr/pricing.html"
+    },
+    {
+      "route": "/el-gr/contact",
+      "rewrite": "/el-gr/contact.html"
+    },
+    {
       "route": "/el-gr/android-till",
       "rewrite": "/el-gr/android-till.html"
     },
@@ -202,6 +275,11 @@
     {
       "route": "/el-gr/store",
       "redirect": "/el-gr",
+      "statusCode": 301
+    },
+    {
+      "route": "/el-gr/support",
+      "redirect": "/el-gr/contact",
       "statusCode": 301
     },
     {
@@ -225,6 +303,14 @@
       "rewrite": "/it-it/pilot.html"
     },
     {
+      "route": "/it-it/pricing",
+      "rewrite": "/it-it/pricing.html"
+    },
+    {
+      "route": "/it-it/contact",
+      "rewrite": "/it-it/contact.html"
+    },
+    {
       "route": "/it-it/android-till",
       "rewrite": "/it-it/android-till.html"
     },
@@ -235,6 +321,11 @@
     {
       "route": "/it-it/store",
       "redirect": "/it-it",
+      "statusCode": 301
+    },
+    {
+      "route": "/it-it/support",
+      "redirect": "/it-it/contact",
       "statusCode": 301
     },
     {
@@ -258,6 +349,14 @@
       "rewrite": "/ms-my/pilot.html"
     },
     {
+      "route": "/ms-my/pricing",
+      "rewrite": "/ms-my/pricing.html"
+    },
+    {
+      "route": "/ms-my/contact",
+      "rewrite": "/ms-my/contact.html"
+    },
+    {
       "route": "/ms-my/android-till",
       "rewrite": "/ms-my/android-till.html"
     },
@@ -268,6 +367,11 @@
     {
       "route": "/ms-my/store",
       "redirect": "/ms-my",
+      "statusCode": 301
+    },
+    {
+      "route": "/ms-my/support",
+      "redirect": "/ms-my/contact",
       "statusCode": 301
     },
     {
@@ -291,6 +395,14 @@
       "rewrite": "/fa-ir/pilot.html"
     },
     {
+      "route": "/fa-ir/pricing",
+      "rewrite": "/fa-ir/pricing.html"
+    },
+    {
+      "route": "/fa-ir/contact",
+      "rewrite": "/fa-ir/contact.html"
+    },
+    {
       "route": "/fa-ir/android-till",
       "rewrite": "/fa-ir/android-till.html"
     },
@@ -301,6 +413,11 @@
     {
       "route": "/fa-ir/store",
       "redirect": "/fa-ir",
+      "statusCode": 301
+    },
+    {
+      "route": "/fa-ir/support",
+      "redirect": "/fa-ir/contact",
       "statusCode": 301
     },
     {
@@ -324,6 +441,14 @@
       "rewrite": "/pt-pt/pilot.html"
     },
     {
+      "route": "/pt-pt/pricing",
+      "rewrite": "/pt-pt/pricing.html"
+    },
+    {
+      "route": "/pt-pt/contact",
+      "rewrite": "/pt-pt/contact.html"
+    },
+    {
       "route": "/pt-pt/android-till",
       "rewrite": "/pt-pt/android-till.html"
     },
@@ -334,6 +459,11 @@
     {
       "route": "/pt-pt/store",
       "redirect": "/pt-pt",
+      "statusCode": 301
+    },
+    {
+      "route": "/pt-pt/support",
+      "redirect": "/pt-pt/contact",
       "statusCode": 301
     },
     {
@@ -357,6 +487,14 @@
       "rewrite": "/es-es/pilot.html"
     },
     {
+      "route": "/es-es/pricing",
+      "rewrite": "/es-es/pricing.html"
+    },
+    {
+      "route": "/es-es/contact",
+      "rewrite": "/es-es/contact.html"
+    },
+    {
       "route": "/es-es/android-till",
       "rewrite": "/es-es/android-till.html"
     },
@@ -367,6 +505,11 @@
     {
       "route": "/es-es/store",
       "redirect": "/es-es",
+      "statusCode": 301
+    },
+    {
+      "route": "/es-es/support",
+      "redirect": "/es-es/contact",
       "statusCode": 301
     },
     {
@@ -390,6 +533,14 @@
       "rewrite": "/tr-tr/pilot.html"
     },
     {
+      "route": "/tr-tr/pricing",
+      "rewrite": "/tr-tr/pricing.html"
+    },
+    {
+      "route": "/tr-tr/contact",
+      "rewrite": "/tr-tr/contact.html"
+    },
+    {
       "route": "/tr-tr/android-till",
       "rewrite": "/tr-tr/android-till.html"
     },
@@ -400,6 +551,11 @@
     {
       "route": "/tr-tr/store",
       "redirect": "/tr-tr",
+      "statusCode": 301
+    },
+    {
+      "route": "/tr-tr/support",
+      "redirect": "/tr-tr/contact",
       "statusCode": 301
     },
     {
@@ -528,6 +684,31 @@
       "statusCode": 301
     },
     {
+      "route": "/pricing",
+      "redirect": "/en-gb/pricing",
+      "statusCode": 301
+    },
+    {
+      "route": "/pricing.html",
+      "redirect": "/en-gb/pricing",
+      "statusCode": 301
+    },
+    {
+      "route": "/contact",
+      "redirect": "/en-gb/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/contact.html",
+      "redirect": "/en-gb/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/support",
+      "redirect": "/en-gb/contact",
+      "statusCode": 301
+    },
+    {
       "route": "/android-till.html",
       "redirect": "/en-gb/android-till",
       "statusCode": 301
@@ -560,6 +741,16 @@
     {
       "route": "/legal/terms",
       "redirect": "/en-gb/legal/terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/legal/subscription-terms",
+      "redirect": "/en-gb/legal/subscription-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/legal/refunds",
+      "redirect": "/en-gb/legal/refunds/",
       "statusCode": 301
     },
     {

@@ -7,9 +7,19 @@ import vm from "node:vm";
 import { expect, test } from "@playwright/test";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
+const read = (f) => fs.readFileSync(path.join(ROOT, f), "utf8");
 const ctx = {};
-for (const f of ["site/plan-prices.js", "site/wizard-rules.js"]) vm.runInNewContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx);
+for (const f of ["site/plan-prices.js", "site/plan-wizard-rules.js", "site/wizard-rules.js"]) vm.runInNewContext(read(f), ctx);
 const R = ctx.UT_WIZARD_RULES;
+const DATA = JSON.parse(read("data/plan-wizard-rules.json"));
+// A fresh page with the rules data mutated before wizard-rules.js reads it (the load-time checks).
+function loadWith(mutate) {
+  const c = {};
+  for (const f of ["site/plan-prices.js", "site/plan-wizard-rules.js"]) vm.runInNewContext(read(f), c);
+  mutate(c.UT_PLAN_WIZARD_RULES);
+  vm.runInNewContext(read("site/wizard-rules.js"), c);
+  return c.UT_WIZARD_RULES;
+}
 
 const base = { biz: "cafe", country: "uk", sites: "one", needs: [], card: "none", hardware: "have" };
 const rec = (over) => R.recommend({ ...base, ...over });
@@ -41,25 +51,29 @@ test("cloud needs route to my.universaltill.com with the right plan and real UK 
 });
 
 test("features that do not exist yet never raise the plan or the price; they are listed as coming", () => {
-  for (const need of ["appointments", "online", "team"]) {
+  const NOT_YET = [["appointments", "wiz.gap.appointments"], ["online", "wiz.gap.online"], ["accountant", "wiz.gap.accountant"], ["phone", "wiz.gap.phone"], ["away", "wiz.gap.mobilesync"]];
+  for (const [need, gap] of NOT_YET) {
     const r = rec({ needs: [need] });
     expect(r.plan, need).toBe("local");
     expect(r.price, need).toEqual({ kind: "free" });
     expect(r.reasons, need).toEqual(["wiz.r.local"]);
-    expect(r.gaps, need).toContain("wiz.gap." + need);
+    expect(r.gaps, need).toContain(gap);
   }
-  const all = rec({ biz: "salon", needs: ["appointments", "online", "team"] });
+  const all = rec({ biz: "salon", needs: NOT_YET.map((x) => x[0]) });
   expect(all.plan).toBe("local");
   // a real cloud need still decides the plan; the gaps just ride along
-  const mixed = rec({ needs: ["remote", "online", "team"] });
+  const mixed = rec({ needs: ["remote", "online", "accountant"] });
   expect(mixed.plan).toBe("plus");
-  expect(mixed.gaps).toEqual(expect.arrayContaining(["wiz.gap.online", "wiz.gap.team"]));
+  expect(mixed.gaps).toEqual(expect.arrayContaining(["wiz.gap.online", "wiz.gap.accountant"]));
   expect(rec({ needs: ["online"], sites: "few" }).plan).toBe("multi");
 });
 
 test("no reason text claims a feature that is only a gap", () => {
   const reasons = R.PLAN_RULES.map((r) => r.id);
-  for (const gone of ["team", "online", "appointments"]) expect(reasons).not.toContain(gone);
+  for (const gone of ["team", "online", "appointments", "away", "accountant", "phone"]) expect(reasons).not.toContain(gone);
+  const built = new Set(DATA.plan_rules.filter((r) => r.built === true).map((r) => r.id));
+  for (const id of reasons) expect(built.has(id), id).toBe(true);
+  for (const r of DATA.plan_rules.filter((x) => x.built === false)) expect(R.GAPS.filter((g) => g.rule === r.id), r.id).toHaveLength(1);
 });
 
 test("several locations: Multi-location, 3 included, extra locations priced", () => {
@@ -80,7 +94,7 @@ test("Germany: a fiscal need means Shop with the per-main-till fiscal line; euro
   const r = rec({ country: "de", needs: ["fiscal"] });
   expect(r).toMatchObject({ plan: "shop", route: "cloud" });
   expect(r.price).toMatchObject({ currency: "EUR", monthly: 29, annual: 24.17, tse: 12 });
-  expect(r.plugins).toContain("language-de");
+  expect(r.plugins).not.toContain("language-de");
   expect(r.notes).toContain("wiz.n.deowndevice");
   // other euro countries and the UK carry no fiscal line
   expect(rec({ country: "eu", needs: ["remote"] }).price).toMatchObject({ currency: "EUR", tse: 0 });
@@ -137,6 +151,134 @@ test("honest gaps: appointments, online shop and unknown card providers say 'not
   expect(rec({ needs: ["online"] }).gaps).toContain("wiz.gap.online");
   expect(rec({ card: "other" }).gaps).toContain("wiz.gap.cardother");
   expect(rec({}).gaps).toEqual([]);
+});
+
+// ---- ut-docs#4962: people who sign in to my., Pro-only needs, built:false never raises ----
+
+test("people: the ladder is pinned independently of the data file (typed, like the prices)", () => {
+  // subscription-plans.md "Team members on my., besides the owner": owner only / 2 / 5 / 50.
+  const want = { none: "local", upto2: "shop", upto5: "pro", more: "multi" };
+  for (const [people, plan] of Object.entries(want)) expect(rec({ people }).plan, people).toBe(plan);
+  expect(rec({ needs: ["roles"] }).plan).toBe("pro");
+  expect(rec({ needs: ["archive"] }).plan).toBe("pro");
+  expect(rec({}).plan).toBe("local");
+});
+
+test("AC1: UK, 1 or 2 people besides the owner is Shop on the cloud, with its reason", () => {
+  const r = rec({ people: "upto2" });
+  expect(r).toMatchObject({ plan: "shop", route: "cloud" });
+  expect(r.price).toEqual({ kind: "monthly", currency: "GBP", monthly: 29, annual: 24.17, tse: 0, tseMinMonths: 0 });
+  expect(r.reasons).toContain("wiz.r.members2");
+});
+
+test("AC2: euro countries and Germany, 1 or 2 people: Shop; the TSE line is German only", () => {
+  expect(rec({ country: "eu", people: "upto2" }).price).toMatchObject({ currency: "EUR", monthly: 29, tse: 0 });
+  const de = rec({ country: "de", people: "upto2" });
+  expect(de.plan).toBe("shop");
+  expect(de.price).toMatchObject({ currency: "EUR", monthly: 29, tse: 12, tseMinMonths: R.PRICES.de.tseMinMonths });
+  expect(de.notes).toContain("wiz.n.detsemin");
+  expect(de.notes).not.toContain("wiz.n.deowndevice");
+});
+
+test("AC3: 3 to 5 people, custom roles or the cloud archive are Pro (49 / 40.83), in every priced market", () => {
+  for (const country of ["uk", "eu", "de"]) {
+    for (const [over, reason] of [[{ people: "upto5" }, "wiz.r.members5"], [{ needs: ["roles"] }, "wiz.r.roles"], [{ needs: ["archive"] }, "wiz.r.archive"]]) {
+      const r = rec({ country, ...over });
+      const label = country + " " + JSON.stringify(over);
+      expect(r.plan, label).toBe("pro");
+      expect(r.price, label).toMatchObject({ kind: "monthly", monthly: 49, annual: 40.83, tse: country === "de" ? 12 : 0 });
+      expect(r.reasons, label).toContain(reason);
+    }
+  }
+});
+
+test("AC4: more than 5 people is Multi-location even with one location, and says why", () => {
+  const r = rec({ people: "more", sites: "one" });
+  expect(r).toMatchObject({ plan: "multi", route: "cloud" });
+  expect(r.reasons).toContain("wiz.r.members50");
+  expect(r.reasons).not.toContain("wiz.r.multi");
+  expect(r.price.extra).toBe(false);
+  expect(rec({ people: "none" })).toMatchObject({ plan: "local", reasons: ["wiz.r.local"] });
+});
+
+test("a reason that names a plan starts with 'From' so it stays true under a higher plan", () => {
+  const en = ALL_I18N["en-gb"];
+  const r = rec({ people: "upto2", needs: ["roles", "archive"] });
+  expect(r.plan).toBe("pro");
+  expect(r.reasons).toEqual(expect.arrayContaining(["wiz.r.members2", "wiz.r.roles", "wiz.r.archive"]));
+  for (const k of ["wiz.r.members2", "wiz.r.members5", "wiz.r.roles", "wiz.r.archive"]) expect(en[k], k).toMatch(/^From (Shop|Pro),/);
+  for (const k of ["wiz.r.members2", "wiz.r.members5", "wiz.r.members50", "wiz.r.roles", "wiz.r.archive", "wiz.gap.mobilesync", "wiz.gap.accountant", "wiz.gap.phone"]) {
+    expect(en[k], k).not.toMatch(/legal|compliant|audit|certified|revisionssicher/i);
+    expect(en[k], k).not.toMatch(/\b20\d\d\b/); // no date promised
+  }
+  for (const k of ["wiz.gap.mobilesync", "wiz.gap.accountant", "wiz.gap.phone"]) expect(en[k], k).toContain("we cannot give a date");
+});
+
+test("AC5: no till-count question; several tills on one network never change the plan", () => {
+  expect(R.QUESTIONS.map((q) => q.id).filter((id) => /till/i.test(id))).toEqual([]);
+  for (const r of DATA.plan_rules) expect(Object.keys(r.if).filter((k) => /till/i.test(k)), r.id).toEqual([]);
+  expect(DATA.notes.join(" ")).toContain("never metered per till");
+});
+
+test("AC8: a built:false rule never raises the plan or the price, whatever else is answered", () => {
+  expect(R.COMING_RULES.map((r) => r.id).sort()).toEqual(["accountant", "away", "phone"]);
+  const opts = (id) => R.QUESTIONS.find((q) => q.id === id).options;
+  const needsPool = opts("needs");
+  const subsets = (pool) => { const out = [[]]; for (const a of pool) out.push([a]); for (let i = 0; i < pool.length; i++) for (let j = i + 1; j < pool.length; j++) out.push([pool[i], pool[j]]); return out; };
+  for (const rule of R.COMING_RULES) {
+    const opt = Object.values(rule.if)[0][0];
+    const others = needsPool.filter((o) => o !== opt);
+    for (const country of opts("country")) for (const sites of opts("sites")) for (const people of [undefined, ...opts("people")]) for (const needs of subsets(others)) {
+      const a = { country, sites, people, needs };
+      const without = R.recommend(a);
+      const withIt = R.recommend({ ...a, needs: [...needs, opt] });
+      expect(withIt.plan, rule.id + " " + JSON.stringify(a)).toBe(without.plan);
+      expect(withIt.price, rule.id + " " + JSON.stringify(a)).toEqual(without.price);
+    }
+  }
+});
+
+test("the page refuses to load when the data and the reason / not-yet lines disagree", () => {
+  const flip = (id, built) => (d) => { d.rules.find((r) => r.id === id).built = built; };
+  expect(() => loadWith(() => {})).not.toThrow();
+  expect(() => loadWith(flip("roles", false)), "built rule turned off: its gap line is missing").toThrow(/wizard-rules: /);
+  expect(() => loadWith(flip("away", true)), "not-yet rule turned on: no reason key").toThrow(/wizard-rules: /);
+  expect(() => loadWith((d) => d.rules.push({ id: "tills", plan: "pro", built: true, if: { tills: ["several"] } }))).toThrow(/wizard-rules: .*tills/);
+  expect(() => loadWith((d) => { d.rules.find((r) => r.id === "members-5").if.people = ["six"]; })).toThrow(/wizard-rules: .*six/);
+  expect(() => loadWith((d) => d.rules.push({ id: "extra", plan: "pro", built: false, if: { needs: ["phone"] } })), "not-yet rule without a gap line").toThrow(/wizard-rules: /);
+  expect(() => loadWith((d) => { d.rules.find((r) => r.id === "stock").plan = "gold"; })).toThrow(/wizard-rules: /);
+});
+
+test("the German fiscal list comes from the data (a second market needs a market-neutral reason key)", () => {
+  expect(R.MANAGED_FISCAL_MARKETS).toEqual(["de"]);
+});
+
+test("AC10: every plan is reachable in every priced market", () => {
+  const subsets = (pool) => [[], ...pool.map((x) => [x])];
+  const needsPool = R.QUESTIONS.find((q) => q.id === "needs").options;
+  for (const country of ["uk", "de", "eu"]) {
+    const seen = new Set();
+    for (const sites of ["one", "few", "huge"]) for (const people of [undefined, "none", "upto2", "upto5", "more"]) for (const needs of subsets(needsPool)) seen.add(R.recommend({ country, sites, people, needs }).plan);
+    expect([...seen].sort(), country).toEqual([...R.PLAN_ORDER].sort());
+  }
+});
+
+test("data provenance: schema 1, the owner's decision of 2026-11-12, the card named", () => {
+  expect(DATA.schema_version).toBe(1);
+  expect(DATA.decided_on).toBe("2026-11-12");
+  expect(DATA.decision_source).toContain("ut-docs#4962");
+});
+
+test("the needs list order groups by topic, and people comes right after sites", () => {
+  expect(R.QUESTIONS.map((q) => q.id)).toEqual(["biz", "country", "sites", "people", "needs", "card", "hardware"]);
+  expect(R.QUESTIONS.find((q) => q.id === "needs").options).toEqual(["tables", "stock", "fiscal", "away", "remote", "online", "appointments", "roles", "archive", "accountant", "phone"]);
+  expect(R.QUESTIONS.find((q) => q.id === "people").options).toEqual(["none", "upto2", "upto5", "more"]);
+});
+
+test("the 'stay on your own device' note is dropped when the member count also puts them on Shop", () => {
+  expect(rec({ country: "de", needs: ["fiscal"], people: "upto2" }).notes).not.toContain("wiz.n.deowndevice");
+  expect(rec({ country: "de", needs: ["fiscal"], people: "none" }).notes).toContain("wiz.n.deowndevice");
+  expect(rec({ country: "de", needs: ["fiscal"], people: "upto5" }).notes).not.toContain("wiz.n.deowndevice");
 });
 
 test("plugins follow the card provider; hardware follows the last answer", () => {
@@ -277,6 +419,17 @@ test.describe("talkBody", () => {
     expect(lines[lines.length - 1]).toMatch(/^[\x20-\x7e]+$/);
   });
 
+  test("the people answer follows the sites line and is in the ref line (ut-docs#4962)", () => {
+    const t = en();
+    const a = { ...full, people: "upto5" };
+    const r = R.recommend(a);
+    const lines = R.talkBody(a, r, t).split("\r\n");
+    expect(lines[3]).toBe(`${t("wiz.q.sites")}: ${t("wiz.o.sites.one")}`);
+    expect(lines[4]).toBe(`${t("wiz.q.people")}: ${t("wiz.o.people.upto5")}`);
+    expect(lines[lines.length - 1]).toBe("ref: biz=cafe; country=de; sites=one; people=upto5; needs=tables,stock; card=sumup; hardware=have; plan=pro");
+    expect(lines[lines.length - 1]).toMatch(/^[\x20-\x7e]+$/);
+  });
+
   test("the new keys are in allKeys()", () => {
     expect(R.allKeys()).toEqual(expect.arrayContaining(["wiz.talk.intro", "wiz.talk.plan", "wiz.talk.note"]));
   });
@@ -285,7 +438,8 @@ test.describe("talkBody", () => {
 test.describe("talkHref", () => {
   const dictOf = (loc) => { const d = loadDict()[loc]; return (k) => (d[k] != null ? d[k] : k); };
   const BASE = "mailto:support@universaltill.com?subject=x";
-  const all = { biz: "cafe", country: "de", sites: "one", needs: ["tables", "stock", "online", "appointments", "fiscal", "remote", "team"], card: "sumup", hardware: "have" };
+  const NEEDS11 = ["tables", "stock", "fiscal", "away", "remote", "online", "appointments", "roles", "archive", "accountant", "phone"];
+  const all = { biz: "cafe", country: "de", sites: "one", people: "upto5", needs: NEEDS11, card: "sumup", hardware: "have" };
 
   test("a short en case keeps the full body", () => {
     const t = dictOf("en-gb");
@@ -307,7 +461,7 @@ test.describe("talkHref", () => {
     expect(body[0]).toBe(t("wiz.talk.intro"));
     expect(body[1]).toBe(`${t("wiz.talk.plan")}: ${t("wiz.plan." + r.plan)}`);
     expect(body[2]).toBe("");
-    expect(body[3]).toBe(`ref: biz=cafe; country=de; sites=one; needs=tables,stock,online,appointments,fiscal,remote,team; card=sumup; hardware=have; plan=${r.plan}`);
+    expect(body[3]).toBe(`ref: biz=cafe; country=de; sites=one; people=upto5; needs=${NEEDS11.join(",")}; card=sumup; hardware=have; plan=${r.plan}`);
   });
 
   test("talkBody: needs follow the options order, no duplicates, unknown values dropped", () => {

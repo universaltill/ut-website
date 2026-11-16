@@ -13,7 +13,7 @@ import { expect, test } from "@playwright/test";
 import fs from "node:fs";
 
 const ASTRO_PAGES = ["/en-gb/blog", "/en-gb/plugins", "/en-gb/blog/whats-new-v0-2-70"];
-import { LOCALES, LOCALE_INFO, isLabelled, RTL } from "./helpers/locales.js";
+import { LOCALES, LOCALE_INFO, RTL } from "./helpers/locales.js";
 
 async function headerFingerprint(page, path) {
   await page.goto(path);
@@ -124,8 +124,7 @@ test.describe("language lives in the URL", () => {
     const post = (l) => new URL(`../src/content/blog/${l}/whats-new-v0-2-70.mdx`, import.meta.url);
     const translatedIn = LOCALES.filter((l) => {
       if (!fs.existsSync(post(l))) return false;
-      const fm = fs.readFileSync(post(l), "utf8").split("---")[1];
-      return l === "en-gb" || !/^machineTranslated:\s*true/m.test(fm) || !isLabelled(l) || /^reviewed:\s*true/m.test(fm);
+      return true; // every existing translation is indexable (owner 2026-11-16)
     });
     expect(translatedIn).toContain("en-gb");
     expect(alternates.map((a) => a.hreflang).sort()).toEqual(

@@ -25,7 +25,7 @@ for (const [docsKey, id] of Object.entries(MARKETS)) {
   for (const [dk, pid] of Object.entries(PLANS)) {
     m.plans[pid] = { monthly: units(need(c.monthly_minor[dk], `${docsKey}.monthly_minor.${dk}`)), annualPerMonth: units(need(c.annual_per_month_minor[dk], `${docsKey}.annual.${dk}`)) };
   }
-  const x = { monthly: units(c.extra_location.monthly_minor), maxLocations: c.extra_location.max_locations };
+  const x = { monthly: units(c.extra_location.monthly_minor), annualPerMonth: units(need(c.extra_location.annual_per_month_minor, `${docsKey}.extra_location.annual_per_month_minor`)), maxLocations: c.extra_location.max_locations };
   if (extraLocation && JSON.stringify(extraLocation) !== JSON.stringify(x)) throw new Error("extra_location differs between markets; the wizard assumes one value");
   extraLocation = x;
   if (c.tse_per_main_till) {
