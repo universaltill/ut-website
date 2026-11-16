@@ -116,7 +116,6 @@
   "wiz.res.plugins.all": {"description":"Link text to the full plugin list.","review":"standard"},
   "wiz.plugin.payment-sumup": {"description":"Name of the SumUp card payment plugin in the recommended-plugins list. 'SumUp' is a brand name.","review":"standard"},
   "wiz.plugin.payment-stripe": {"description":"Name of the Stripe card payment plugin in the recommended-plugins list. 'Stripe' is a brand name.","review":"standard"},
-  "wiz.plugin.language-de": {"description":"Name of the German language pack plugin in the recommended-plugins list.","review":"standard"},
   "wiz.res.gaps": {"description":"Subheading of the block listing capabilities the visitor asked for that do not exist yet. Short, honest tone.","review":"standard"},
   "wiz.gap.appointments": {"description":"Honesty note: two-way sync with booking platforms (such as Booksy) is coming but not available, it depends on partner access we do not have yet. Do not soften into a promise.","review":"standard"},
   "wiz.gap.online": {"description":"Honesty note: online ordering and web-shop sync are coming but not available, no date can be given; invites the visitor to tell us what they need.","review":"standard"},
