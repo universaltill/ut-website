@@ -307,6 +307,36 @@
       "statusCode": 301
     },
     {
+      "route": "/legal/merchant-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/legal/dpa",
+      "redirect": "/en-gb/legal/dpa/",
+      "statusCode": 301
+    },
+    {
+      "route": "/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/en-gb/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/de-de/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/tr-tr/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
       "route": "/blog/*",
       "redirect": "/en-gb/blog/",
       "statusCode": 301
