@@ -137,6 +137,32 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   side. Every "Get started" button (header, hero, every page and locale) opens the
   wizard at `/<locale>/find-your-setup` (`tests/cta-wizard.spec.js`); the wizard's
   last step is the only link on to my.universaltill.com.
+- **`/<locale>/pricing` and `/<locale>/contact` (ut-docs#4963, #1434).** Two marketing
+  templates (`site/pricing.html`, `site/contact.html`) like the others, linked from the
+  header (Pricing) and every footer (Pricing, Contact) on `site/*.html` and
+  `BaseLayout.astro`; `site/pilot.html` is not linked yet (a separate PR edits it).
+  **Pricing:** the body is built at build time by `src/lib/pricing.ts` (called from
+  `marketingPages.ts`) from `site/plan-prices.js`, i.e. `data/plan-prices.json`, so no amount
+  is typed in HTML or `en.json` and the raw HTML carries every price (no JS needed). One panel
+  per market (UK, Germany, eurozone outside Germany); with JS off all three show, with JS
+  `site/pricing.js` shows the locale's one (`-de` opens Germany, everything else the UK) and
+  adds a picker. Annual billing first (per-month equivalent, ten months billed up front, "two
+  months free"), monthly as the alternative, everything "excl. VAT". Germany adds the TSE line
+  and its 12-month minimum from the wizard's own keys (`wiz.price.tse`, `wiz.price.tsemin`,
+  `wiz.n.detsemin`); other countries say "not published yet". Free Local goes to `/download`,
+  paid plans to the wizard (its last step stays the only link on to my.universaltill.com),
+  Enterprise and chains to a `hello@` mailto. Feature lines say only what is live today and
+  reuse the wizard's "Not yet" lines; no competitor names, no off-site backup claim. Every
+  `pricing.*` key is `review: "legal"`; other locales show the English text (per-key
+  fallback) until Weblate delivers an approved translation. The "effective from" date is the
+  data's. **Contact:** plain `mailto:` links (support@, hello@, partners@, security@; the
+  allow-list in `guard-mail-addresses.sh`), no form, no third-party service, nothing stored;
+  the reply-time line is the pilot page's own. **`/<locale>/support` 301s to
+  `/<locale>/contact`** (`PAGE_REDIRECTS` in `scripts/lib/locales.mjs`, emitted into
+  `staticwebapp.config.json` by `gen-locales.mjs`; `/support`, `/pricing`, `/contact` and
+  their `.html` forms are hand-kept 301s to en-gb). `scripts/gen-plan-prices.mjs` now also
+  carries the extra-location annual price. Tests: `tests/pricing-page.spec.js`,
+  `tests/contact-page.spec.js`.
 - **Home page copy (ut-docs#4203).** `site/index.html` order: hero, `#why`
   (4 cards), `#free`, `#switch`, then the older sections, with `#close` (the
   closing "Start free" CTA + support mailbox) last. Claims there are checked
