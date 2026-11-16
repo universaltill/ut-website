@@ -8,8 +8,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
-const i18nSrc = fs.readFileSync(path.join(ROOT, "site/i18n.js"), "utf8");
-const I18N = (0, eval)("(" + i18nSrc.match(/const I18N = (\{[\s\S]*?\});\s*\n\s*\(function/)[1] + ")");
+import { I18N, translated } from "./helpers/locales.js";
 const LOCALES = Object.keys(I18N);
 const ORDER = ["hero", "why", "free", "switch", "solutions", "tour", "manage", "hardware", "plugins", "get-started", "about", "faq", "close"];
 const decode = (s) => s.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
@@ -57,7 +56,7 @@ for (const locale of LOCALES) {
     }
     await expect(page.locator('#close a[href="mailto:support@universaltill.com"]')).toHaveCount(1);
     await expect(page.locator("#close .btn.primary.big")).toHaveCount(1);
-    if (locale === "de-de") {
+    if (locale === "de-de" && translated(locale, "why.hardware.d")) {
       const why = await page.locator("#why").innerText();
       expect(why).toContain("TSE");
       // The German TSE figures are read from the vendored price file, never typed twice (plan-prices.md mirror rule).
@@ -84,12 +83,34 @@ test("no dict value in any locale claims 'no contract'", () => {
 test("en-gb and de-de carry the monthly-billing wording; the German FAQ names the TSE", () => {
   const en = I18N["en-gb"];
   for (const k of ["faq.a2", "meta.home.desc", "start.lede"]) expect(en[k], k).toContain("no minimum term on monthly billing");
-  expect(I18N["de-de"]["faq.a2"]).toContain("TSE");
-  // The German managed-TSE minimum term comes from the vendored price file, never typed twice (#4203 M1).
+  // Germany's managed-TSE minimum is told next to the plan's "no minimum term" (ut-docs#5473, legal review M1).
+  const tseMin = JSON.parse(fs.readFileSync(path.join(ROOT, "data/plan-prices.json"), "utf8")).countries.de.tse_per_main_till.min_months_per_activated_till;
+  expect(en["faq.a2"]).toContain(`in Germany, the managed TSE line (optional, from Shop) has a ${tseMin}-month minimum per activated main till`);
+  // These German claims are legal-tier keys: they are checked whenever the German text is
+  // published (a human approved it); until then the page shows the English text and the
+  // English text is what the claims checks above already cover.
   const tse = JSON.parse(fs.readFileSync(path.join(ROOT, "data/plan-prices.json"), "utf8")).countries.de.tse_per_main_till;
-  expect(I18N["de-de"]["faq.a2"]).toContain(`${tse.min_months_per_activated_till} Monate Mindestlaufzeit`);
+  if (translated("de-de", "faq.a2")) {
+    expect(I18N["de-de"]["faq.a2"]).toContain("TSE");
+    // The German managed-TSE minimum term comes from the vendored price file, never typed twice (#4203 M1).
+    expect(I18N["de-de"]["faq.a2"]).toContain(`${tse.min_months_per_activated_till} Monate Mindestlaufzeit`);
+  }
   // /start shows no why.exit.d caveat, so its German "keine Mindestlaufzeit" must carry the TSE exception itself.
-  expect(I18N["de-de"]["start.lede"]).toContain("TSE");
+  if (translated("de-de", "start.lede")) expect(I18N["de-de"]["start.lede"]).toContain("TSE");
+});
+
+// ut-docs#5485 — every headline "no minimum term" claim carries Germany's managed-TSE exception in the same sentence.
+test("headline 'no minimum term' claims carry the Germany managed-TSE exception (en-gb)", () => {
+  const en = I18N["en-gb"];
+  const tseMin = JSON.parse(fs.readFileSync(path.join(ROOT, "data/plan-prices.json"), "utf8")).countries.de.tse_per_main_till.min_months_per_activated_till;
+  expect(en["hero.lede"]).toContain("No minimum term on monthly billing, except Germany's managed TSE line.");
+  expect(en["start.lede"]).toContain("no minimum term on monthly billing, except Germany's managed TSE line.");
+  expect(en["meta.home.desc"]).toContain("no minimum term on monthly billing (Germany's managed TSE line excepted)");
+  expect(en["why.exit.d"]).toContain("No minimum term on monthly billing:");
+  expect(en["why.exit.d"]).toContain(`The one exception is Germany's managed TSE line, which has a ${tseMin}-month minimum per activated main till.`);
+  for (const k of ["hero.lede", "why.exit.d", "start.lede", "meta.home.desc"]) expect(en[k], k).not.toMatch(/certified|compliant/i);
+  // Legal M1 (ut-docs#5485): the card heading must not deny the tie-in its own body names.
+  expect(en["why.exit.t"]).toBe("No tie-in on your plan.");
 });
 
 test("the English fallback text in index.html and start.html equals the en-gb dict", () => {
@@ -97,6 +118,9 @@ test("the English fallback text in index.html and start.html equals the en-gb di
   const index = fs.readFileSync(path.join(ROOT, "site/index.html"), "utf8");
   const start = fs.readFileSync(path.join(ROOT, "site/start.html"), "utf8");
   expect(decode(index.match(/<meta name="description"[^>]*content="([^"]*)"/)[1])).toBe(en["meta.home.desc"]);
+  expect(decode(index.match(/data-i18n="hero\.lede">([\s\S]*?)<\/p>/)[1])).toBe(en["hero.lede"]);
+  expect(decode(index.match(/data-i18n="why\.exit\.t">([\s\S]*?)<\/h3>/)[1])).toBe(en["why.exit.t"]);
+  expect(decode(index.match(/data-i18n="why\.exit\.d">([\s\S]*?)<\/p>/)[1])).toBe(en["why.exit.d"]);
   expect(decode(index.match(/data-i18n="faq\.a2">([\s\S]*?)<\/p>/)[1])).toBe(en["faq.a2"]);
   expect(decode(start.match(/data-i18n="start\.lede">([\s\S]*?)<\/p>/)[1])).toBe(en["start.lede"]);
 });

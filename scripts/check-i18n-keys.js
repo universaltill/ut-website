@@ -14,9 +14,13 @@
 // only there was previously invisible to this guard entirely — not just for
 // data-i18n-aria-label, the same blind spot already existed for plain
 // data-i18n/data-i18n-html in .astro files before this fix.
-// Fails non-zero if any data-i18n key used in site/*.html or src/**/*.astro
-// is missing from any language dict, or if the language dicts don't share
-// the same key set.
+// Since the ADR-0177 cutover (ut-docs#5406) the English source is
+// i18n/en.json and each locale ships only its approved keys; a locale that
+// lacks a key shows the English text by design (per-key fallback). So this
+// guard now checks the one thing that can still fail silently: a key used in
+// a page that is missing from en.json (it would render the template's
+// hard-coded text in every locale and have nothing for translators to
+// translate), and a string file with a key en.json does not have.
 // ESM, not CommonJS: package.json declares "type": "module" (required by the
 // Astro build), so `require`/`__dirname` are not defined in this scope. This
 // file kept its .js extension and was converted rather than renamed to .cjs,
@@ -28,14 +32,8 @@ import { fileURLToPath } from "node:url";
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const siteDir = path.join(scriptDir, "..", "site");
 const srcDir = path.join(scriptDir, "..", "src");
-const i18nSrc = fs.readFileSync(path.join(siteDir, "i18n.js"), "utf8");
-const match = i18nSrc.match(/const I18N = (\{[\s\S]*?\});\s*\n\s*\(function/);
-if (!match) {
-  console.error("check-i18n-keys: could not locate the I18N object literal in i18n.js");
-  process.exit(1);
-}
-const I18N = (0, eval)("(" + match[1] + ")");
-const langs = Object.keys(I18N);
+const i18nDir = process.env.UT_I18N_DIR || path.join(scriptDir, "..", "i18n");
+const en = JSON.parse(fs.readFileSync(path.join(i18nDir, "en.json"), "utf8"));
 
 const htmlFiles = fs.readdirSync(siteDir).filter((f) => f.endsWith(".html"));
 const astroFiles = fs.readdirSync(srcDir, { recursive: true })
@@ -54,31 +52,20 @@ if (used.size === 0) {
 }
 
 let failed = false;
-
-for (const lang of langs) {
-  const missing = [...used].filter((k) => !Object.hasOwn(I18N[lang], k)).sort();
-  if (missing.length) {
-    failed = true;
-    console.error(`[${lang}] missing ${missing.length} key(s) used in HTML: ${missing.join(", ")}`);
-  }
+const missing = [...used].filter((k) => !Object.hasOwn(en, k)).sort();
+if (missing.length) {
+  failed = true;
+  console.error(`missing ${missing.length} key(s) used in HTML from i18n/en.json: ${missing.join(", ")}`);
 }
-
-const keySets = langs.map((l) => new Set(Object.keys(I18N[l]).filter((k) => !k.startsWith("_"))));
-const base = keySets[0];
-langs.forEach((lang, i) => {
-  if (i === 0) return;
-  const ks = keySets[i];
-  const missing = [...base].filter((k) => !ks.has(k)).sort();
-  const extra = [...ks].filter((k) => !base.has(k)).sort();
-  if (missing.length || extra.length) {
-    failed = true;
-    if (missing.length) console.error(`[${lang}] missing vs ${langs[0]}: ${missing.join(", ")}`);
-    if (extra.length) console.error(`[${lang}] extra vs ${langs[0]}: ${extra.join(", ")}`);
-  }
-});
+const stringFiles = fs.readdirSync(i18nDir).filter((f) => /^[a-z]{2}-[a-z]{2}\.json$/.test(f));
+for (const f of stringFiles) {
+  const strings = JSON.parse(fs.readFileSync(path.join(i18nDir, f), "utf8"));
+  const extra = Object.keys(strings).filter((k) => !Object.hasOwn(en, k)).sort();
+  if (extra.length) { failed = true; console.error(`[${f}] keys that are not in en.json: ${extra.join(", ")}`); }
+}
 
 if (failed) {
   console.error("check-i18n-keys: FAILED");
   process.exit(1);
 }
-console.log(`check-i18n-keys: OK (${langs.length} locales, ${used.size} keys used across ${scannedFiles.length} pages)`);
+console.log(`check-i18n-keys: OK (${stringFiles.length} string files, ${used.size} keys used across ${scannedFiles.length} pages)`);

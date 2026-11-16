@@ -1,12 +1,25 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { LANGS, SOURCE_LOCALE } from '../layouts/BaseLayout.astro';
+import { LANGS, SOURCE_LOCALE } from './locales';
 
 export interface LocalizedPost {
   post: CollectionEntry<'blog'>;
   slug: string;
   /** True when this locale has no translation yet and English is standing in. */
   isFallback: boolean;
+  /** A real translation search engines may index. A machine translation in a
+   *  locale with no recorded human review is noindex with the canonical on the
+   *  English original unless the post itself is marked `reviewed` (ADR-0177 s7). */
+  indexable: boolean;
 }
+
+/**
+ * Whether a (translated) post of `lang` may be indexed. Owner decision
+ * 2026-11-16: every translation that exists is a normal indexable page (the
+ * English is AI-assisted too, so no AI/machine label and no noindex for it).
+ * The technical safeguard stays elsewhere: a post that does NOT exist in the
+ * locale is the English fallback, canonical to English (`isFallback`).
+ */
+export const isIndexableTranslation = (_post: CollectionEntry<'blog'>, _lang: string): boolean => true;
 
 const slugOf = (entry: CollectionEntry<'blog'>) => entry.id.split('/').slice(1).join('/');
 
@@ -28,7 +41,7 @@ export async function getAllLocalizedPosts(): Promise<Record<string, LocalizedPo
         const translated = all.find((p) => p.id === `${lang}/${slug}`);
         const source = all.find((p) => p.id === `${SOURCE_LOCALE}/${slug}`);
         const post = translated ?? source;
-        return post && { post, slug, isFallback: !translated && lang !== SOURCE_LOCALE };
+        return post && { post, slug, isFallback: !translated && lang !== SOURCE_LOCALE, indexable: !translated || isIndexableTranslation(translated, lang) };
       })
       .filter((x): x is LocalizedPost => Boolean(x))
       .sort((a, b) => b.post.data.date.getTime() - a.post.data.date.getTime());
@@ -43,7 +56,7 @@ export async function getAllLocalizedPosts(): Promise<Record<string, LocalizedPo
  * points at the English original.
  */
 export function translatedLangsOf(byLocale: Record<string, LocalizedPost[]>, slug: string): string[] {
-  return LANGS.filter((lang) => (byLocale[lang] ?? []).some((p) => p.slug === slug && !p.isFallback));
+  return LANGS.filter((lang) => (byLocale[lang] ?? []).some((p) => p.slug === slug && !p.isFallback && p.indexable));
 }
 
 /** Posts for a single locale, English-fallback applied, newest first. */

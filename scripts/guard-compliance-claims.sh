@@ -18,9 +18,9 @@
 # Scans this repo's actual content surfaces (it has no per-locale JSON files
 # or web/help,web/ui dirs the way universal-till does — see this repo's own
 # README for the real layout):
-#   - site/i18n.js               — every locale's UI copy in one file (all
-#                                   launch-market languages as keyed
-#                                   objects — see the file's own header)
+#   - i18n/*.json                — every locale's UI copy (English source plus
+#                                   one approved-strings file per published
+#                                   locale, ADR-0177)
 #   - src/content/blog/**/*.mdx  — blog post content, per locale, the
 #                                   CMS-editable surface most likely to
 #                                   accumulate a claim over time
@@ -71,7 +71,12 @@ set -euo pipefail
 export LC_ALL=C.UTF-8
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-LOCALES_FILE="${ROOT_DIR}/site/i18n.js"
+# Since the ADR-0177 cutover the UI copy lives in i18n/en.json plus one
+# i18n/<locale>.json per published locale (site/i18n.js is logic only). The
+# default scans all of them; the explicit-args form scans just the one file.
+LOCALES_FILE="${ROOT_DIR}/i18n/en.json"
+EXTRA_LOCALE_FILES=()
+while IFS= read -r f; do EXTRA_LOCALE_FILES+=("$f"); done < <(find "${ROOT_DIR}/i18n" -maxdepth 1 -name '??-??.json' | sort)
 BLOG_DIR="${ROOT_DIR}/src/content/blog"
 HTML_DIR="${ROOT_DIR}/site"
 ASTRO_DIR="${ROOT_DIR}/src"
@@ -81,7 +86,7 @@ ASTRO_DIR="${ROOT_DIR}/src"
 # riding along inside ASTRO_DIR (which only globs *.astro, never *.mdx).
 LEGAL_DIR="${ROOT_DIR}/src/content/legal"
 
-if [ "$#" -ge 1 ]; then LOCALES_FILE="$1"; fi
+if [ "$#" -ge 1 ]; then LOCALES_FILE="$1"; EXTRA_LOCALE_FILES=(); fi
 if [ "$#" -ge 2 ]; then BLOG_DIR="$2"; fi
 if [ "$#" -ge 3 ]; then HTML_DIR="$3"; fi
 if [ "$#" -ge 4 ]; then ASTRO_DIR="$4"; fi
@@ -161,6 +166,7 @@ scan_file() {
 }
 
 scan_file "$LOCALES_FILE" 0
+for f in "${EXTRA_LOCALE_FILES[@]+"${EXTRA_LOCALE_FILES[@]}"}"; do scan_file "$f" 0; done
 
 # Fail closed PER SURFACE (mirrors universal-till's guard, ut-docs#681
 # review finding): one surface going empty (renamed extension, moved tree)

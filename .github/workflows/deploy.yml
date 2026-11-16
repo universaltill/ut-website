@@ -55,6 +55,8 @@ jobs:
     needs: check
     if: needs.check.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v7
       # Installers are served straight from GitHub releases (ut-docs#2489):
@@ -88,6 +90,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build (Astro — site/ is publicDir, copied through unchanged)
+        # The help pages read the product repo's web/help at its latest release
+        # tag (src/lib/helpSource.ts, ut-docs#5355); the token only lifts the
+        # GitHub API rate limit, the repo itself is public.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run build
       # Fail here, with the reason, rather than at Azure's opaque BadRequest
       # (ut-docs#2486): the free SWA plan rejects content over 262144000 bytes.

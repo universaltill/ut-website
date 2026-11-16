@@ -5,7 +5,7 @@
 // is in the sitemap, and is linked from the home and download pages.
 import { expect, test } from "@playwright/test";
 
-const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
+import { LOCALES } from "./helpers/locales.js";
 // The search phrase each locale's <title> must carry (owner's terms, #4643).
 const PHRASE = {
   "en-gb": "Android till",
@@ -13,6 +13,24 @@ const PHRASE = {
   "zh-cn": "Android 收银系统",
   "fa-ir": "صندوق فروش اندروید",
   "de-de": "Kassensystem für Android",
+  "ar-sa": "نقطة بيع Android",
+  "fr-fr": "Caisse Android",
+  "el-gr": "Ταμείο Android",
+  "it-it": "Cassa Android",
+  "ms-my": "Daftar tunai Android",
+  "pt-pt": "Caixa Android",
+  "es-es": "TPV para Android",
+};
+
+// The h1 keeps the longer wording; the title is shortened to fit 60 characters.
+const H1_PHRASE = {
+  "ar-sa": "تطبيق نقطة البيع لـ Android",
+  "fr-fr": "Application de caisse Android",
+  "el-gr": "Εφαρμογή ταμείου Android",
+  "it-it": "App cassa per Android",
+  "ms-my": "Aplikasi daftar tunai Android",
+  "pt-pt": "Aplicação de caixa Android",
+  "es-es": "Aplicación de TPV para Android",
 };
 
 function ldBlocks(html) {
@@ -64,7 +82,7 @@ test.describe("/android-till in every locale", () => {
       );
       const faq = ld.find((b) => b["@type"] === "FAQPage");
       expect(faq.mainEntity.map((q) => q.name)).toEqual(visible.map((t) => t.trim()));
-      await expect(page.locator("h1")).toContainText(PHRASE[locale]);
+      await expect(page.locator("h1")).toContainText(H1_PHRASE[locale] ?? PHRASE[locale]);
     });
 
     test(`${locale}: linked from the home and download pages`, async ({ request }) => {

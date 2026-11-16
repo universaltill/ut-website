@@ -2,7 +2,7 @@
 
 Public website for Universal Till — a product of **Task Runner Technology LTD**.
 
-- `site/` — the plain-HTML marketing site (en/tr/zh/fa/de). Deliberately **not**
+- `site/` — the plain-HTML marketing site (every locale in the published list). Deliberately **not**
   rewritten into Astro components: it is proven and multilingual, and
   re-transcribing ~500 translated strings by hand would risk silently
   introducing translation bugs. `astro.config.mjs` sets `publicDir: 'site'`,
@@ -54,6 +54,47 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   drops that plugin or picture with a warning, never the build.
   `src/lib/plugins_test.mjs` (`node --test`, fetch stubbed) and
   `tests/plugin-pages.spec.js`.
+- **Public help pages (ut-docs#5355, part of #4504)** - `/<locale>/help/` (index
+  grouped by section, with a filter) and `/<locale>/help/<topic>/` in every
+  locale. The text is NOT in this repo: it is the product manual,
+  `web/help/<folder>/*.md` + `web/help/img/<folder>/<id>.png` in the public
+  `universaltill/universal-till` repo (folders `en de tr fa`; `zh-cn` has none,
+  so English stands in; the product's `ar` folder is deliberately not published
+  and has no site locale). `src/lib/helpSource.ts` makes a sparse, shallow
+  clone into `.help-src/` (git-ignored) at **`HELP_REF`** (a tag or branch name, not a SHA), else the product's
+  latest release tag (GitHub API, then the highest `vX.Y.Z` from `git ls-remote`),
+  else - local builds only, with a warning - `main`; with `CI`/`GITHUB_ACTIONS`
+  set and no ref found the build **fails**. It logs the ref
+  (`[help] source: ... @ v0.35.3`). `HELP_SRC_DIR=<a web/help dir>` skips the
+  clone (tests, offline work). If the source cannot be had the **build fails**
+  - there is no committed copy to go stale; every entry point
+  (`npx astro build`, `npm run build`, the Playwright web server) does this
+  itself. `src/lib/help.ts` strips front-matter, renders Markdown with
+  `@astrojs/markdown-remark`, rewrites `/help/<slug>` links to
+  `/<locale>/help/<slug>/` (plain text when the topic is not public), turns
+  any other till route into plain text, adds `rel="noopener"` to external links
+  and wraps tables so they scroll. **Which topics are public:** front-matter
+  `public: true`, or a slug in `data/help-public-allowlist.txt` (temporary,
+  delete it once the product repo carries the flag, the build and guard work
+  without the file). `public` must be exactly unquoted `true`/`false`, anything
+  else is NOT public; `public: false` always wins. The allow-list is advisory:
+  a listed slug that is missing upstream or `public: false` only WARNS, a topic
+  with an unsafe slug or unparseable front-matter is skipped with a warning, a
+  bad screenshot (not PNG / too big) is dropped with a warning, so a product
+  release cannot break the deploy. The build writes what it published to
+  `.help-build/manifest.json` (git-ignored); the guard and the Playwright spec
+  read that, not the allow-list. Screenshots are
+  copied to `/help-img/` (PNG magic bytes, <= 1MB) so CSP `img-src` stays
+  `'self'`. A locale without a translation shows the English text with a notice,
+  canonical to en-gb, no hreflang, out of the sitemap (#3811). The filter is
+  `site/help.js` (external, deferred; with JS off the list is complete and the
+  form stays hidden). Checks: `node --test src/lib/help_test.mjs`,
+  `scripts/guard-help.mjs` after `astro build` (every topic in every locale,
+  internal links/anchors/images resolve, no orphan image, no front-matter
+  leakage, compliance denylist over the rendered text, sitemap vs canonicals;
+  test: `node --test scripts/guard-help_test.mjs`) and
+  `tests/help-pages.spec.js`. A **Help** link (`nav.help`) sits in the header, the footer and the home page's closing
+  section (ut-docs#5664; `BaseLayout.astro` + every `site/*.html`; `tests/help-link.spec.js`).
 - **Platform landing pages (ut-docs#4643)** — `site/android-till.html` →
   `/<locale>/android-till`, a marketing template like the others (routes in
   `staticwebapp.config.json`, keys in `site/i18n.js`). Each platform page is
@@ -66,41 +107,80 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `tests/android-till-page.spec.js`.
 - **"Find your setup" wizard (ut-docs#4193)** — `site/find-your-setup.html` →
   `/<locale>/find-your-setup`, linked from the home hero and the main nav (home,
-  every `site/*.html` page and `BaseLayout.astro`) in every locale. Six optional
-  questions (business type, country, locations, needs, card provider, hardware)
+  every `site/*.html` page and `BaseLayout.astro`) in every locale. Seven optional
+  questions (business type, country, locations, people who sign in to my., needs,
+  card provider, hardware)
   → a recommended plan with its real price, hardware, plugins, "good to know"
   notes, an honest **Not yet** list, and a next step: the free **Local** plan
   goes to `/<locale>/download`, any cloud plan to
   `https://my.universaltill.com/<locale>/`, Enterprise and chains to the
-  support mailbox. **All decisions are one data table in
-  `site/wizard-rules.js`** (`PLAN_RULES`, `GAPS`, `NOTES`, `PLUGINS`, `PRICES`);
+  support mailbox. **Plan placement is data (ut-docs#4962):**
+  `data/plan-wizard-rules.json` (a byte-identical copy of ut-docs
+  `reference/plan-wizard-rules.json`) → `node scripts/gen-plan-wizard-rules.mjs` →
+  committed `site/plan-wizard-rules.js`; `site/wizard-rules.js` keeps the reason
+  keys, `GAPS`, `NOTES`, `PLUGINS` and `PRICES`. A `built:false` rule never raises
+  the plan; the page refuses to load if a rule lacks its reason or not-yet line.
+  There is no till-count question: tills are never metered.
   `site/wizard.js` only draws questions and the answer, reading every string
-  from the `wiz.*` keys in `site/i18n.js` (all five locales; plan names stay
+  from the `wiz.*` keys in `i18n/en.json` (every published locale; plan names stay
   untranslated). Prices come from `data/plan-prices.json` (below) for
   the UK, Germany and the eurozone only; any other country shows "not published
   yet", never a guess. The answers live in memory only: no storage, no request,
   no analytics (lead capture with consent is ut-docs#2550). With JS off the page
   still shows the two plain links; `a[data-my-link]` gets the page's locale at
   build time (`marketingPages.ts`) and in the browser. To change a
-  recommendation, edit the table and `tests/wizard-rules.spec.js`;
+  recommendation, change the rule in ut-docs first, then copy it here and update
+  `tests/wizard-rules.spec.js`;
   `tests/wizard.spec.js` drives every locale in Chromium.
   **Prices have one source (2026-10-24):** `data/plan-prices.json` is a byte-identical
   copy of `ut-docs/reference/plan-prices.json` (minor units); `node scripts/gen-plan-prices.mjs`
   turns it into `site/plan-prices.js` (committed, CI-checked), which `wizard-rules.js`
   reads - no plan amount is typed in site/ or src/. `scripts/guard-plan-prices.sh` fails
   on a retired price (Shop 42, Pro 59, Multi-location 127, 35.00/49.17/105.83) and on a
-  stale generated file; run with `PLAN_PRICES_UPSTREAM=<ut-docs main file>` it also
+  stale generated file; run with `PLAN_PRICES_UPSTREAM=<ut-docs main file>` (and
+  `PLAN_WIZARD_RULES_UPSTREAM=<ut-docs main rules file>`) it also
   checks the copy is identical to ut-docs main. ut-docs is private and this repo is
   public, so CI here holds no ut-docs token: the equality check runs on the ut-docs
   side. Every "Get started" button (header, hero, every page and locale) opens the
   wizard at `/<locale>/find-your-setup` (`tests/cta-wizard.spec.js`); the wizard's
   last step is the only link on to my.universaltill.com.
+- **`/<locale>/pricing` and `/<locale>/contact` (ut-docs#4963, #1434).** Two marketing
+  templates (`site/pricing.html`, `site/contact.html`) like the others, linked from the
+  header (Pricing) and every footer (Pricing, Contact) on `site/*.html` and
+  `BaseLayout.astro`; `site/pilot.html` is not linked yet (a separate PR edits it).
+  **Pricing:** the body is built at build time by `src/lib/pricing.ts` (called from
+  `marketingPages.ts`) from `site/plan-prices.js`, i.e. `data/plan-prices.json`, so no amount
+  is typed in HTML or `en.json` and the raw HTML carries every price (no JS needed). One panel
+  per market (UK, Germany, eurozone outside Germany); with JS off all three show, with JS
+  `site/pricing.js` shows the locale's one (`-de` opens Germany, everything else the UK) and
+  adds a picker. Annual billing first (per-month equivalent, ten months billed up front, "two
+  months free"), monthly as the alternative, everything "excl. VAT". Germany adds the TSE line
+  and its 12-month minimum from the wizard's own keys (`wiz.price.tse`, `wiz.price.tsemin`,
+  `wiz.n.detsemin`); other countries say "not published yet". Free Local goes to `/download`,
+  paid plans to the wizard (its last step stays the only link on to my.universaltill.com),
+  Enterprise and chains to a `hello@` mailto. Feature lines say only what is live today and
+  reuse the wizard's "Not yet" lines; no competitor names, no off-site backup claim. Every
+  `pricing.*` key is `review: "legal"`; other locales show the English text (per-key
+  fallback) until Weblate delivers an approved translation. The "effective from" date is the
+  data's. **Contact:** plain `mailto:` links (support@, hello@, partners@, security@; the
+  allow-list in `guard-mail-addresses.sh`), no form, no third-party service, nothing stored;
+  the reply-time line is the pilot page's own. **`/<locale>/support` 301s to
+  `/<locale>/contact`** (`PAGE_REDIRECTS` in `scripts/lib/locales.mjs`, emitted into
+  `staticwebapp.config.json` by `gen-locales.mjs`; `/support`, `/pricing`, `/contact` and
+  their `.html` forms are hand-kept 301s to en-gb). `scripts/gen-plan-prices.mjs` now also
+  carries the extra-location annual price. Tests: `tests/pricing-page.spec.js`,
+  `tests/contact-page.spec.js`.
 - **Home page copy (ut-docs#4203).** `site/index.html` order: hero, `#why`
   (4 cards), `#free`, `#switch`, then the older sections, with `#close` (the
   closing "Start free" CTA + support mailbox) last. Claims there are checked
   against shipped behaviour: "no minimum term" (not "no contract" - annual
   billing exists) and, in `de-de` only, the managed TSE exception to "never
-  charged per till". `tests/home-copy.spec.js`.
+  charged per till". Every English headline "no minimum term" claim
+  (`hero.lede`, `why.exit.d`, `start.lede`, `meta.home.desc`) carries
+  Germany's managed-TSE exception in the same sentence (ut-docs#5485);
+  `why.exit.d`, `faq.a2` and the wizard's `wiz.n.detsemin` / `wiz.price.tsemin`
+  lines name the 12-month minimum, pinned to `data/plan-prices.json`
+  (ut-docs#5473). `tests/home-copy.spec.js`.
 - **`/llms.txt` and `/llms-full.txt` (ut-docs#4319)** — the llmstxt.org
   summary of the site for AI assistants, plus the full English home copy and
   every en-gb blog post as Markdown. Generated at build by
@@ -139,6 +219,11 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   in `scripts/generate-csp.js` (`GA_HOSTS`/`GA_SCRIPT`); the privacy policy
   describes it. `tests/consent.spec.js` checks no Google request before consent,
   the tag + Consent Mode signals after Accept, Reject, withdrawal, translations.
+  **Locales whose consent strings are still English fallbacks (legal-flagged,
+  not approved) get no banner and never load GA** (ut-docs#5558): the banner
+  appears on a locale the day its consent text is approved. The stored choice
+  is `granted|<ms>|<policy version>|<locale>` (bump `POLICY_VERSION` when the
+  consent text or privacy policy changes).
 - **Responsive screenshots (ut-docs#3493, #3516).** Each full-size screenshot
   `site/images/<name>.webp` has `<name>-{480,640,768,1024,1280}.webp`
   beside it, listed in the `<img srcset>` with a `sizes` that matches the real
@@ -148,11 +233,6 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   if a variant is missing, lies about its width, or the browser would pick a
   blurry or more than 1.4× oversized one at phone, tablet and desktop widths,
   including PageSpeed's own emulation (412px × 1.75, 1350px × 1).
-- **Legal pages currently ship English-only** in `tr-tr`/`zh-cn`/`fa-ir`/
-  `de-de` (an honest "not yet translated" fallback banner, not a 404) —
-  `scripts/translate-posts.js` only checks `src/content/blog/` today and
-  would need extending to cover `src/content/legal/` before that can
-  change; see `src/content.config.ts`'s comment on the `legal` collection.
 - **An untranslated page points search engines at its English original
   (ut-docs#3811).** A legal page or post that a locale serves as the English
   fallback carries a canonical to the `/en-gb/…` URL, is left out of
@@ -196,29 +276,95 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   edit the readable sources in `site/` and never hand-edit `dist/`.
   `tests/build-assets.spec.js` fails if a page links `/styles.css` again or a
   script ships unminified.
-- **Every page has a URL per locale, English included**: `/en-gb/…`,
-  `/tr-tr/…`, `/zh-cn/…`, `/fa-ir/…`, `/de-de/…`. Region-tagged because VAT, receipt law
-  and payment rails differ by country, not by language — and prefixed even for
-  the default, because an unprefixed URL states no language, so "switch back to
-  English" would land on a URL that still renders Turkish from the stored
-  preference. `site/i18n.js` derives the locale (and RTL) from the first path
+- **Every page has a URL per locale, English included**: `/en-gb/…`, `/de-de/…`
+  and so on for every locale in the **published list** (below). Region-tagged
+  because VAT, receipt law and payment rails differ by country, not by
+  language — and prefixed even for the default, because an unprefixed URL
+  states no language. `site/i18n.js` derives the locale from the first path
   segment, path beating any stored choice; the Astro pages build one file per
-  locale; `staticwebapp.config.json` maps the prefixed pretty-URLs and 301s
-  every older URL (`/`, `/blog`, `/download`, `/tr`, …). The globe carries the
-  current page (`/language?from=…`) so choosing a language returns you where
-  you were, not to the homepage.
+  locale; the generated `staticwebapp.config.json` maps the prefixed
+  pretty-URLs and 301s every older URL (`/`, `/blog`, `/download`, `/tr`, …).
+  The globe carries the current page (`/language?from=…`) so choosing a
+  language returns you where you were.
+
+## Published locales (ADR-0177, ut-docs#5406) — no locale is named in code
+
+The locale set is **data**: `i18n/published/locales.json` (the file
+`ut-translations` publishes; schema 1) plus `i18n/<url-locale>.json` (approved
+strings, flat key → text) and `i18n/en.json` / `en.meta.json` (the English
+source and translator metadata, edited here). Nothing else lists a locale.
+
+- **Seed + sync.** The five live locales were produced once by
+  `scripts/seed-published-locales.mjs` from the old hand dictionaries (every
+  non-English locale is `machine_label`, `legal_approved: false`, legal-tier keys
+  omitted). `sync-locales.yml` (every 6 h or by hand; public repo, GitHub-hosted
+  runner, no secrets) runs `scripts/sync-locales.mjs --from <ut-translations@main>`:
+  `published/locales.json` -> `i18n/published/locales.json`,
+  `published/website/<weblate code>.json` -> `i18n/<url-locale>.json`, then
+  `gen-locales.mjs`, and opens a PR (`sync-locales/auto`; never a direct push) and
+  dispatches `ci.yml` on it (a PR made with `GITHUB_TOKEN` starts no workflow by
+  itself). **A seeded locale is never regressed:** until ut-translations publishes it
+  for `website` its list entry and strings stay; once it does, published strings win
+  per key and keys the upstream omits keep their current text. **ar, fr, ms, pt, es,
+  it and el are not translated here and are not faked:** they appear on the site
+  (routes, pages, hreflang, sitemap, switcher, band) when their sync PR is merged
+  (the merge to main runs `deploy.yml`). Test: `node --test scripts/sync-locales_test.mjs`.
+- **Generator.** `node scripts/gen-locales.mjs` writes `site/i18n-data.js` (the
+  dictionaries `i18n.js` runs on; `i18n.js` is logic only) and the locale part of
+  `site/staticwebapp.config.json` (routes, short aliases `/de`, withdrawn-locale
+  301s; every hand-kept entry is preserved). `--check` is the CI guard. It
+  refuses a string file for a locale that is not published, a key not in
+  `en.json`, an empty value, a `core` key missing from a published locale, and
+  any HTML-bearing value outside the allow-list (`a[href] b i em strong br span
+  code`, no handlers or script URLs, tag set and link targets equal to English).
+- **Build.** `src/lib/locales.ts` (via `scripts/lib/locales.mjs`, shared with the
+  generator, guards and specs) gives the Astro pages and the marketing prerender
+  `LANGS`, direction, BCP-47, the my. locales. `<html lang dir>`,
+  canonical, hreflang + `x-default`, the sitemap and the `/language` picker are
+  all produced from it. `UT_I18N_DIR` / `UT_OUT_DIR` point a build at another
+  list (the fixture builds).
+- **Per-key English fallback.** A key a locale does not ship renders the English
+  text in `<span lang="en" dir="ltr" data-i18n-fallback>`; the page shows
+  `site.fallback_note` once, under the header, only when such a span exists.
+- **No AI / machine-translation labelling (owner, 2026-11-11).** Every page is
+  machine-translated, so no band, badge, footer report link or blog "translated
+  automatically" line says so; `tests/locale-label.spec.js`,
+  `scripts/check-locale-consistency.mjs` and `scripts/locale-fixtures_test.mjs`
+  fail if one reappears. `machine_label` / `human_reviewed` in the list now only
+  decide the blog `noindex` rule below. Supersedes ut-docs#5405's label spec.
+- **Legal pages** are the English text, canonical to `/en-gb/…`, outside hreflang
+  and the sitemap, under the in-language `site.legal_english_binding` notice,
+  unless `surfaces.website.legal.<doc>` (or `legal_approved`) is true for that
+  locale **and** a translated MDX exists. Footer and cookie-banner legal links
+  always resolve (`tests/locale-label.spec.js`).
+- **Blog.** Locale directories under `src/content/blog/` must be published
+  locales (`check-locale-consistency` fails on a stray one). A post exists in a
+  locale only where translated; elsewhere the English page is served with the
+  "available in English" note, canonical to English. Every translated post
+  is a normal indexable page (owner 2026-11-16: no AI label, no noindex for
+  machine translation; flip `isIndexableTranslation` in `src/lib/blogPosts.ts`
+  to restore the rule). Only the English fallback is canonical to English. `llms.txt` stays English.
+- **Guards.** `scripts/check-locale-consistency.mjs` (after a build) fails when
+  routes, pages, hreflang, canonical, sitemap, switcher, band/badge, my. links or
+  content directories disagree with the list, or an `--absent` locale leaks.
+  `node --test scripts/locale-fixtures_test.mjs` does two real builds: a list with
+  `ms-my` and `ar-sa` added (appear everywhere, rtl for ar, label, fallback,
+  English-only legal; one human-reviewed locale loses the label) and a list
+  without `fa-ir` (no route, page, sitemap, hreflang or switcher entry, only a
+  withdrawn 301 may name it). The Playwright specs iterate the list through
+  `tests/helpers/locales.js`.
+
 - **Posts are translated, not just the chrome.** English posts live in
   `src/content/blog/en-gb/` and are the only ones written by hand (that is the
-  folder the CMS files into). Translations into `tr-tr/`, `zh-cn/`, `fa-ir/`
-  and `de-de/` are written by the pipeline cycle's own model (Claude or
+  folder the CMS files into). Translations into a published locale's folder (today `tr-tr/`, `zh-cn/`, `fa-ir/`
+  and `de-de/`) are written by the pipeline cycle's own model (Claude or
   Codex, whichever is running the Dev step) directly into those folders,
   following the checklist in `ut-docs/reference/translation.md`, and
   committed like any other content — so the site depends on files in git
   rather than on a model being up when someone builds (ut-docs#2291 retired
   the self-hosted Ollama endpoint this used to call for build-time
   translation; the in-product runtime translation paths are unaffected, see
-  that doc). Translations carry `machineTranslated: true` and say so on the
-  page, with a link to the English original. A missing translation is not an
+  that doc). Translations carry `machineTranslated: true` and link to the English original on the page. A missing translation is not an
   error: that locale falls back to English and tells the reader.
   `node scripts/translate-posts.js` is a pure, no-network checker (runs in CI
   — see `check-translate-posts` in `.github/workflows/ci.yml`) that flags a
@@ -234,11 +380,11 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `noindex` with no canonical. `/downloads` and `/downloads/` 301 to
   `/en-gb/download`, because that folder only holds per-installer redirects.
 - `scripts/check-i18n-keys.js` (run on every push/PR via `.github/workflows/ci.yml`)
-  guards `site/i18n.js`: every `data-i18n`/`data-i18n-html`/`data-i18n-aria-label`
-  key used across `site/*.html` and `src/**/*.astro` must exist in all five
-  locale dicts (en/tr/zh/fa/de), and the dicts must share the same key set —
-  a missing key otherwise fails silently (the untranslated string, or
-  aria-label, just keeps its English source text in every locale).
+  guards the keys: every `data-i18n`/`data-i18n-html`/`data-i18n-aria-label` key
+  used across `site/*.html` and `src/**/*.astro` must exist in `i18n/en.json`
+  (otherwise the template's hard-coded text shows in every locale and nothing
+  reaches translators), and no string file may carry a key `en.json` lacks.
+  Missing keys in a locale are not an error: they fall back to English by design.
 - `scripts/guard-compliance-claims.sh` + `scripts/guard-compliance-claims_test.sh`
   (ut-docs#702, the `check-compliance-claims` CI job) enforce the
   product-owner-approved fiscal-compliance wording denylist (ut-docs#667) —
@@ -296,6 +442,23 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   The deployment token lives in Key Vault `kv-unitill-dev` as
   `website-swa-deploy-token` and is mirrored to this repo's
   `AZURE_STATIC_WEB_APPS_API_TOKEN` secret.
+
+## English source for Weblate (ADR-0177, ut-docs#5405)
+
+`i18n/en.json` (flat key -> English text) and `i18n/en.meta.json` (per key a
+translator `description`, `placeholders` as `"{name} — meaning"`, optional
+`max_length`, `html`, `core`, and `review`: `legal` or `standard`) are the English
+source that `ut-translations` syncs into Weblate, and **they are edited by hand**
+(since the #5406 cutover the old dictionaries in `site/i18n.js` are gone). New
+keys need a metadata entry in the same change; `node scripts/guard-i18n-meta.mjs`
+fails on a missing description or review, a placeholder that does not match the
+English, or an unknown field (self-test: `node --test
+scripts/guard-i18n-meta_test.mjs`). Anything that looks legal, privacy, terms,
+cookie-consent or pricing must be `review: "legal"` (only a human-reviewed
+translation is published; until then the English text shows) unless it carries a
+`review_exception` reason. `core: true` marks the keys every published page frame
+needs (fallback note, legal notice, language picker); they must be
+`standard` and a locale is not published without them.
 
 ## Custom domain
 

@@ -29,9 +29,10 @@ Yönetici PIN'i (ya da Alt+F4) sizi her zaman Windows masaüstüne geri götür�
 iki seçimi de Ayarlar → Ekran altında değiştirebilirsiniz.
 
 **Apple Silicon'lu Mac (M1 ve üstü).** İndirin, açın; kasa kendi penceresinde
-çalışır. İlk seferde macOS, App Store dışından indirilen bir uygulamayı
-engelleyebilir: Sistem Ayarları → Gizlilik ve Güvenlik'i açın ve **Yine de
-Aç**'ı seçin.
+çalışır. `.dmg` dosyası imzalıdır ve Apple tarafından onaylanmıştır (notarized);
+bu yüzden macOS ilk açılışta yalnızca bir kez onay ister. Taşınabilir `.tar.gz`
+arşivi (`run-unitill.command`) onaylanmış (notarized) değildir; ilk seferde
+Sistem Ayarları → Gizlilik ve Güvenlik'i açın ve **Yine de Aç**'ı seçin.
 
 **Linux.** `.deb` paketini kurun; "Universal Till" uygulamalar menünüzde, kendi
 penceresinde görünür. Raspberry Pi dışındaki ARM kartları için de bir indirme

@@ -1,0 +1,115 @@
+---
+import BaseLayout, { LANGS, t } from '../../../layouts/BaseLayout.astro';
+import { fillTemplate, loadHelp, localized, metaDescription, neighbours, related, sectionId, sectionLabel, translatedLocales } from '../../../lib/help';
+
+// One page per public topic PER LOCALE, same fallback shape as legal/[slug]
+// and blog/[slug]: a locale without a translation serves the English text
+// under its own URL with a visible notice, a canonical on the en-gb original
+// and no hreflang/sitemap entry (ut-docs#3811), so five URLs of the same
+// English text aren't read as duplicates.
+export async function getStaticPaths() {
+  const help = await loadHelp();
+  return LANGS.flatMap((lang) =>
+    help.entries.map((entry) => ({
+      params: { lang, slug: entry.slug },
+      props: { slug: entry.slug, translatedLangs: translatedLocales(entry) },
+    })),
+  );
+}
+
+const { slug, translatedLangs } = Astro.props;
+const { lang } = Astro.params;
+const help = await loadHelp();
+const entry = help.entries.find((e) => e.slug === slug)!;
+const { topic, isFallback } = localized(entry, lang);
+const content = isFallback ? { lang: 'en', dir: 'ltr' } : {};
+
+const group = help.entries.filter((e) => e.section === entry.section);
+const sec = sectionLabel(group, lang);
+const secId = sectionId(entry.section);
+const { prev, next } = neighbours(help.entries, slug);
+const more = related(help.entries, slug, 4);
+const image = entry.images[lang];
+const ORIGIN = Astro.site!.href.replace(/\/$/, '');
+
+// Language subtag only: 'Deutsch', '中文' - never 'Deutsch (Deutschland)'.
+const langSubtag = lang.split('-')[0];
+const languageName = new Intl.DisplayNames([langSubtag], { type: 'language' }).of(langSubtag) ?? lang;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: t(lang, 'help.title'), item: `${ORIGIN}/${lang}/help/` },
+    { '@type': 'ListItem', position: 2, name: sec.label, item: `${ORIGIN}/${lang}/help/#${secId}` },
+    { '@type': 'ListItem', position: 3, name: topic.title },
+  ],
+};
+const fill = (key: string, vars: Record<string, string>) => fillTemplate(t(lang, key), vars);
+---
+
+<BaseLayout
+  title={`${topic.title} - ${t(lang, 'help.title')}`}
+  description={metaDescription(topic.summary)}
+  lang={lang}
+  path={`/help/${slug}/`}
+  isFallback={isFallback}
+  translatedLangs={translatedLangs}
+>
+  {/* Non-executable JSON-LD: needs no CSP hash. Source is the product repo's
+      own text, so "<" is escaped like blog/[slug].astro does. */}
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />
+  <article class="section help">
+    <nav class="help-crumbs" aria-label={t(lang, 'help.crumb.label')}>
+      <ol>
+        <li><a href={`/${lang}/help/`}>{t(lang, 'help.title')}</a></li>
+        <li><a href={`/${lang}/help/#${secId}`} lang={sec.isFallback ? 'en' : undefined} dir={sec.isFallback ? 'ltr' : undefined}>{sec.label}</a></li>
+        <li aria-current="page" {...content}>{topic.title}</li>
+      </ol>
+    </nav>
+
+    {isFallback && <p class="help-notice" role="note" data-untranslated>{fill('help.untranslated', { language: languageName })}</p>}
+
+    <h1 {...content}>{topic.title}</h1>
+    <p class="help-summary" {...content}>{topic.summary}</p>
+
+    {image && (
+      <figure class="help-shot">
+        <img src={image} width="1024" height="600" loading="lazy" decoding="async" alt={fill('help.shot.alt', { title: topic.title })} {...content} />
+      </figure>
+    )}
+
+    <div class="help-body" {...content} set:html={topic.html} />
+
+    {(prev || next) && (
+      <nav class="help-pager" aria-label={t(lang, 'help.pager.label')}>
+        {prev && (
+          <a class="help-prev" rel="prev" href={`/${lang}/help/${prev.slug}/`}>
+            <small>{t(lang, 'help.prev')}</small>
+            <span {...(localized(prev, lang).isFallback ? { lang: 'en', dir: 'ltr' } : {})}>{localized(prev, lang).topic.title}</span>
+          </a>
+        )}
+        {next && (
+          <a class="help-next" rel="next" href={`/${lang}/help/${next.slug}/`}>
+            <small>{t(lang, 'help.next')}</small>
+            <span {...(localized(next, lang).isFallback ? { lang: 'en', dir: 'ltr' } : {})}>{localized(next, lang).topic.title}</span>
+          </a>
+        )}
+      </nav>
+    )}
+
+    {more.length > 0 && (
+      <aside class="help-more" aria-labelledby="help-more-h">
+        <h2 id="help-more-h">{fill('help.more', { section: sec.label })}</h2>
+        <ul>
+          {more.map((e) => (
+            <li>
+              <a href={`/${lang}/help/${e.slug}/`} {...(localized(e, lang).isFallback ? { lang: 'en', dir: 'ltr' } : {})}>{localized(e, lang).topic.title}</a>
+            </li>
+          ))}
+        </ul>
+      </aside>
+    )}
+
+    <a class="help-back" href={`/${lang}/help/`} data-i18n="help.back">{t(lang, 'help.back')}</a>
+  </article>
+</BaseLayout>

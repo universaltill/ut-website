@@ -4,14 +4,19 @@
 // the visitor's locale, no broken links, nothing sent anywhere.
 import { expect, test } from "@playwright/test";
 
-const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { LOCALES, translated, MY_SERVED, RTL } from "./helpers/locales.js";
+// The German managed-TSE minimum term is read from the vendored price file, never typed twice.
+const TSE_MIN = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "data/plan-prices.json"), "utf8")).countries.de.tse_per_main_till.min_months_per_activated_till;
 // my.universaltill.com has no zh-cn tree (ut-my-shop/src/i18n/i18n.ts): that locale links to en-gb.
-const MY_SERVED = ["en-gb", "en-us", "de-de", "es-es", "fr-fr", "it-it", "pt-pt", "tr-tr", "ar-sa", "fa-ir"];
+// Which locales my. serves comes from the published list (cloud.manage), not from here.
 const MY = (l) => `https://my.universaltill.com/${MY_SERVED.includes(l) ? l : "en-gb"}/`;
 
 async function answer(page, picks = {}) {
   // picks: { biz: "cafe", needs: ["remote"], ... }; unspecified questions are skipped.
-  for (const q of ["biz", "country", "sites", "needs", "card", "hardware"]) {
+  for (const q of ["biz", "country", "sites", "people", "needs", "card", "hardware"]) {
     await expect(page.locator(".wiz-fs input").first()).toBeVisible();
     const want = [].concat(picks[q] || []);
     for (const v of want) await page.locator(`#wiz-${q}-${v}`).check();
@@ -32,7 +37,7 @@ for (const locale of LOCALES) {
       await expect(page).toHaveURL(new RegExp(`/${locale}/find-your-setup$`));
       await expect(page.locator("h1")).toBeVisible();
       await expect(page.locator(".wiz-legend")).toBeVisible();
-      await expect(page.locator("html")).toHaveAttribute("dir", locale === "fa-ir" ? "rtl" : "ltr");
+      await expect(page.locator("html")).toHaveAttribute("dir", RTL.includes(locale) ? "rtl" : "ltr");
     });
 
     test("free-app outcome goes to the download page", async ({ page }) => {
@@ -101,7 +106,7 @@ for (const locale of LOCALES) {
       await page.locator(".wiz-actions button[type=button]").click(); // Back
       await expect(page.locator("#wiz-biz-cafe")).toBeChecked(); // answer kept
       await page.locator(".wiz-actions button[type=submit]").click();
-      for (let i = 0; i < 5; i++) await page.locator(".wiz-actions button[type=submit]").click();
+      for (let i = 0; i < 6; i++) await page.locator(".wiz-actions button[type=submit]").click();
       await expect(page.locator(".wiz-result")).toBeVisible();
       await page.locator(".wiz-actions button[type=button]").nth(1).click(); // Start over
       await expect(page.locator("#wiz-biz-cafe")).not.toBeChecked();
@@ -123,6 +128,17 @@ test("Germany + Local Plus: price excl. VAT and no managed-TSE line; the TSE-law
   await expect(page.locator(".wiz-price-main")).toHaveText("€10 per month, excl. VAT");
   await expect(page.locator(".wiz-price-sub")).toHaveText("Or €8.33 per month when billed annually (two months free).");
   await expect(page.locator(".wiz-result")).toContainText("German law requires every business to have a TSE");
+  // ut-docs#5485: the law note names the managed line's minimum term, from the price file.
+  await expect(page.locator(".wiz-result")).toContainText(`That line has a minimum term of ${TSE_MIN} months for each activated main till; the plan itself has none.`);
+});
+
+test("Germany + Multi-location without fiscal tick: the law note carries the managed-TSE minimum; the UK note does not", async ({ page }) => {
+  await page.goto("/en-gb/find-your-setup");
+  await answer(page, { country: "de", sites: "few" });
+  await expect(page.locator(".wiz-result")).toContainText(`That line has a minimum term of ${TSE_MIN} months for each activated main till; the plan itself has none.`);
+  await page.goto("/en-gb/find-your-setup");
+  await answer(page, { country: "uk", needs: ["remote"] });
+  await expect(page.locator(".wiz-result")).not.toContainText("minimum term");
 });
 
 test("Germany + Shop with fiscal: managed-TSE line excl. VAT", async ({ page }) => {
@@ -131,6 +147,8 @@ test("Germany + Shop with fiscal: managed-TSE line excl. VAT", async ({ page }) 
   await expect(page.locator(".wiz-price-main")).toHaveText("€29 per month, excl. VAT");
   await expect(page.locator(".wiz-price-sub").nth(0)).toHaveText("Or €24.17 per month when billed annually (two months free).");
   await expect(page.locator(".wiz-price-sub").nth(1)).toHaveText("Plus €12 per month, excl. VAT, for each main till (managed fiscal device). Not discounted, also on annual billing.");
+  await expect(page.locator(".wiz-price-sub")).toHaveCount(3);
+  await expect(page.locator(".wiz-price-sub").nth(2)).toHaveText("The fiscal device line has a minimum term of 12 months for each activated main till; the plan itself has none. If your plan ends before a till's 12 months are up, we keep its managed fiscal device (TSE) running, and billed, until they are.");
 });
 
 test("another euro country + fiscal: honest gap, no claim about the law", async ({ page }) => {
@@ -147,7 +165,7 @@ test("each question's hint is tied to its fieldset and step changes are announce
   const live = page.locator('[aria-live="polite"]');
   await expect(live).toHaveText("");
   await page.locator(".wiz-actions button[type=submit]").click();
-  await expect(live).toContainText("Step 2 of 6");
+  await expect(live).toContainText("Step 2 of 7");
   await expect(page.locator(".wiz-legend")).toBeFocused();
 });
 
@@ -205,9 +223,17 @@ test("German view: the same ladder in EUR and the +EUR 12 TSE line, in German", 
   await page.goto("/de-de/find-your-setup");
   await answer(page, { country: "de", needs: ["fiscal"] });
   const t = (await page.locator(".wiz-price").innerText()).replace(/\u00a0/g, " ");
-  expect(t).toContain("29 € pro Monat zzgl. MwSt.");
-  expect(t).toContain("24,17 €");
-  expect(t).toContain("12 € pro Monat zzgl. MwSt. für jede Haupt-Kasse");
+  // The price lines are legal-tier: German once a human approves them, English until then.
+  if (translated("de-de", "wiz.price.month")) {
+    expect(t).toContain("29 € pro Monat zzgl. MwSt.");
+    expect(t).toContain("12 € pro Monat zzgl. MwSt. für jede Haupt-Kasse");
+  } else {
+    expect(t).toContain("29 € per month, excl. VAT");
+    expect(t).toContain("12 € per month, excl. VAT, for each main till");
+  }
+  // The minimum term (legal-tier too): German once approved, English until then; the number comes from the price file.
+  if (!translated("de-de", "wiz.price.tsemin")) expect(t).toContain("minimum term of 12 months for each activated main till");
+  expect(t).toContain("24,17 €"); // the number formatting follows the page locale either way
 });
 
 test("Multi-location shows 120 / 100.00 annual / extra 33 / 3 included / up to 10", async ({ page }) => {
@@ -243,6 +269,7 @@ for (const [locale, bizLabel, ntLabel] of [["en-gb", "Café or takeaway", "Table
     await page.locator("#wiz-country-de").check();
     await page.locator(".wiz-actions button[type=submit]").click();
     await page.locator(".wiz-actions button[type=submit]").click(); // sites skipped
+    await page.locator(".wiz-actions button[type=submit]").click(); // people skipped
     const tables = (await page.locator("label[for=wiz-needs-tables]").innerText()).trim();
     const stock = (await page.locator("label[for=wiz-needs-stock]").innerText()).trim();
     await page.locator("#wiz-needs-tables").check();
@@ -280,16 +307,16 @@ for (const [locale, bizLabel, ntLabel] of [["en-gb", "Café or takeaway", "Table
   });
 }
 
-const ALL_NEEDS = ["tables", "stock", "online", "appointments", "fiscal", "remote", "team"];
+const ALL_NEEDS = ["tables", "stock", "fiscal", "away", "remote", "online", "appointments", "roles", "archive", "accountant", "phone"];
 
 test("fa-ir worst case: the Talk to us href stays within 1800 chars and keeps the ref line", async ({ page }) => {
   await page.goto("/fa-ir/find-your-setup");
-  await answer(page, { biz: "cafe", country: "de", sites: "one", needs: ALL_NEEDS, card: "sumup", hardware: "have" });
+  await answer(page, { biz: "cafe", country: "de", sites: "one", people: "upto5", needs: ALL_NEEDS, card: "sumup", hardware: "have" });
   const hrefs = await page.locator(".wiz-result a[href^='mailto:']").evaluateAll((as) => as.map((a) => a.getAttribute("href")));
   expect(hrefs.length).toBeGreaterThan(0);
   for (const h of hrefs) {
     expect(h.length).toBeLessThanOrEqual(1800);
-    expect(decodeURIComponent(h)).toContain("ref: biz=cafe; country=de; sites=one; needs=" + ALL_NEEDS.join(",") + "; card=sumup; hardware=have; plan=");
+    expect(decodeURIComponent(h)).toContain("ref: biz=cafe; country=de; sites=one; people=upto5; needs=" + ALL_NEEDS.join(",") + "; card=sumup; hardware=have; plan=");
   }
 });
 
@@ -314,9 +341,51 @@ test("editing an answer after a result updates the Talk to us body", async ({ pa
   expect(await bodyOf()).toContain("biz=cafe; country=uk; sites=one; plan=local");
   await page.locator(".wiz-actions button[type=button]").first().click(); // Edit answers
   await page.locator("#wiz-biz-salon").check();
-  for (let i = 0; i < 6; i++) await page.locator(".wiz-actions button[type=submit]").click();
+  for (let i = 0; i < 7; i++) await page.locator(".wiz-actions button[type=submit]").click();
   await expect(page.locator(".wiz-result")).toBeVisible();
   const b = await bodyOf();
   expect(b).toContain("biz=salon; country=uk; sites=one; plan=local");
   expect(b).not.toContain("biz=cafe");
+});
+
+// ut-docs#4962: the people question and the Pro / Shop outcomes, driven in every locale.
+for (const locale of LOCALES) {
+  test(`${locale}: 3 to 5 people besides the owner recommends Pro on the cloud`, async ({ page }) => {
+    await page.goto(`/${locale}/find-your-setup`);
+    await answer(page, { biz: "cafe", country: "uk", sites: "one", people: "upto5" });
+    const result = page.locator(".wiz-result");
+    await expect(result).toHaveAttribute("data-plan", "pro");
+    await expect(result).toHaveAttribute("data-route", "cloud");
+  });
+}
+
+test("people question: the hint says till staff do not count, and the prices are Shop / Pro in the UK", async ({ page }) => {
+  await page.goto("/en-gb/find-your-setup");
+  await page.locator(".wiz-actions button[type=submit]").click(); // biz
+  await page.locator(".wiz-actions button[type=submit]").click(); // country
+  await page.locator(".wiz-actions button[type=submit]").click(); // sites
+  await expect(page.locator("#wiz-people-upto2")).toBeVisible();
+  await expect(page.locator("#wiz-hint-people")).toBeVisible();
+  await expect(page.locator("#wiz-hint-people")).toContainText("free on every plan");
+
+  await page.goto("/en-gb/find-your-setup");
+  await answer(page, { country: "uk", people: "upto2" });
+  await expect(page.locator(".wiz-result")).toHaveAttribute("data-plan", "shop");
+  await expect(page.locator(".wiz-price-main")).toHaveText("£29 per month, excl. VAT");
+
+  await page.goto("/en-gb/find-your-setup");
+  await answer(page, { country: "uk", people: "upto5" });
+  await expect(page.locator(".wiz-price-main")).toHaveText("£49 per month, excl. VAT");
+});
+
+test("people question and the 11 needs fit a 360px phone without sideways scroll or small targets", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto("/de-de/find-your-setup");
+  for (const step of ["biz", "country", "sites"]) { await expect(page.locator(`#wiz-${step}-${step === "biz" ? "cafe" : step === "country" ? "uk" : "one"}`)).toBeVisible(); await page.locator(".wiz-actions button[type=submit]").click(); }
+  for (const id of ["people", "needs"]) {
+    await expect(page.locator(`#wiz-hint-${id}`)).toBeVisible();
+    for (const h of await page.locator(".wiz-opt").evaluateAll((es) => es.map((e) => e.getBoundingClientRect().height))) expect(h).toBeGreaterThanOrEqual(44);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await page.locator(".wiz-actions button[type=submit]").click();
+  }
 });

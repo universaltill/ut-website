@@ -5,18 +5,19 @@
 // must force dir="ltr" on themselves rather than silently mis-rendering
 // English prose right-to-left.
 import { expect, test } from "@playwright/test";
+import { LOCALES, RTL } from "./helpers/locales.js";
 
 // ut-docs#3811: the page's own copy is translated now, so the section follows
 // the locale; only the manifest-fetched plugin name/tagline (English, from
 // each repo's manifest.json) still force ltr/en. Since ut-docs#4645 the card
 // carries a one-line tagline, the full description is on the plugin's page.
 test.describe("/plugins: translated copy follows the locale, manifest text forces ltr", () => {
-  for (const locale of ["fa-ir", "en-gb", "tr-tr", "zh-cn", "de-de"]) {
+  for (const locale of LOCALES) {
     test(`${locale}/plugins: plugin name and tagline render dir="ltr" lang="en"`, async ({ page }) => {
       await page.goto(`/${locale}/plugins`);
 
       const htmlDir = await page.evaluate(() => document.documentElement.dir);
-      expect(htmlDir).toBe(locale === "fa-ir" ? "rtl" : "ltr");
+      expect(htmlDir).toBe(RTL.includes(locale) ? "rtl" : "ltr");
 
       // The section itself no longer overrides the locale's direction.
       const section = page.locator("main section.section").first();

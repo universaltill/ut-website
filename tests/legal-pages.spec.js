@@ -1,3 +1,4 @@
+import { I18N } from "./helpers/locales.js";
 // ut-docs#1552: Impressum, privacy policy and terms of use pages, and the
 // footer links to them from every page. Only en-gb has real page content
 // right now (the pipeline's own-model translation workflow only targets
@@ -44,9 +45,8 @@ test.describe("footer legal links", () => {
     await expect(page.locator('.foot-legal a[href="/de-de/legal/impressum/"]')).toHaveCount(1);
     await expect(page.locator('.foot-legal a[href="/de-de/legal/privacy/"]')).toHaveCount(1);
     await expect(page.locator('.foot-legal a[href="/de-de/legal/terms/"]')).toHaveCount(1);
-    // The German-language label needs no translation to be correct — see
-    // the comment above.
-    await expect(page.locator('.foot-legal a[href="/de-de/legal/impressum/"]')).toHaveText("Impressum");
+    // The label is the published list's text (legal-tier: English until a human approves it).
+    await expect(page.locator('.foot-legal a[href="/de-de/legal/impressum/"]')).toHaveText(I18N["de-de"]["foot.impressum"]);
   });
 });
 
@@ -64,7 +64,10 @@ test.describe("legal pages render", () => {
   test("/de-de/legal/impressum falls back to English content, honestly labelled", async ({ page }) => {
     await page.goto("/de-de/legal/impressum");
     await expect(page.locator("h1")).toBeVisible();
-    await expect(page.locator('[data-i18n="news.untranslated"]')).toBeVisible();
+    // In the visitor's language: English is the binding version (ADR-0177 section 7).
+    await expect(page.locator("[data-legal-english]")).toBeVisible();
+    await expect(page.locator("[data-legal-english]")).toHaveText(I18N["de-de"]["site.legal_english_binding"]);
+    await expect(page.locator("[data-legal-english]")).toHaveAttribute("role", "note");
     // The fallback body is forced ltr/en even though the page chrome
     // around it is de-de — same rule blog/[slug].astro already applies.
     const bodyLang = await page.locator("article div[lang]").getAttribute("lang");
@@ -72,7 +75,7 @@ test.describe("legal pages render", () => {
     // ut-docs#3268: the fallback must carry the same fix as en-gb, not a
     // stale pre-fallback copy.
     const body = await page.locator("article").innerText();
-    expect(body).toContain("Farshid Mirza");
+    expect(body).toContain("Farsid Mirza");
   });
 
   test("the Impressum names the current registered office and company number", async ({ page }) => {
@@ -84,6 +87,47 @@ test.describe("legal pages render", () => {
     // ut-docs#1553 item 4 / ut-docs#3268: the owner-approved authorised
     // representative name, correctly spelled (a prior pass shipped
     // "Farsid", missing the h).
-    expect(body).toContain("Farshid Mirza");
+    expect(body).toContain("Farsid Mirza");
+  });
+});
+
+// ut-docs#6063: the live-payments legal pack (Fable 5.2 review record, section 6).
+test.describe("live-payments legal pages", () => {
+  test("/en-gb/legal/subscription-terms/ loads with the registered office and version", async ({ page }) => {
+    await page.goto("/en-gb/legal/subscription-terms/");
+    await expect(page.locator("h1")).toHaveText("Subscription Terms (United Kingdom)");
+    const body = await page.locator("article").innerText();
+    expect(body).toContain("Version 1.0");
+    expect(body).toContain("82 A James Carter Road");
+    expect(body).toContain("11442274");
+    expect(body).not.toContain("we email you a copy");
+    expect(body).not.toMatch(/\[(VERSION|DATE|REGISTERED OFFICE|OWNER DECISION)/);
+  });
+
+  test("/en-gb/legal/refunds/ loads, with no yearly-renewal refund window", async ({ page }) => {
+    await page.goto("/en-gb/legal/refunds/");
+    await expect(page.locator("h1")).toHaveText("Refund and Cancellation Policy (United Kingdom)");
+    await expect(page.locator("h2", { hasText: "14-day money-back on your first payment" })).toBeVisible();
+    const body = await page.locator("article").innerText();
+    expect(body).toMatch(/t refund renewals/);
+    expect(body).not.toMatch(/after (each|every) (yearly )?renewal/i);
+  });
+
+  test("the terms and privacy pages point at them, and privacy has the billing section", async ({ page }) => {
+    await page.goto("/en-gb/legal/terms/");
+    await expect(page.locator('article a[href="/en-gb/legal/subscription-terms/"]')).toHaveCount(1);
+    await expect(page.locator('article a[href="/en-gb/legal/refunds/"]')).toHaveCount(1);
+    await page.goto("/en-gb/legal/privacy/");
+    await expect(page.locator("h2", { hasText: "Billing and payments" })).toBeVisible();
+    const privacy = await page.locator("article").innerText();
+    expect(privacy).toContain("IP address");
+    // UK GDPR Art. 13(2)(ca), in force 2026-06-19: the right to complain to the controller (ut-docs#6063).
+    expect(privacy).toMatch(/right to complain to us/);
+    expect(privacy).toMatch(/acknowledge it within 30 days/);
+  });
+
+  test("a non-English locale serves the English legal text, labelled", async ({ page }) => {
+    await page.goto("/de-de/legal/refunds/");
+    await expect(page.locator("[data-legal-english]")).toBeVisible();
   });
 });

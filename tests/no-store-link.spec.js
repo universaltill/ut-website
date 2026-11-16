@@ -15,7 +15,7 @@ import { expect, test } from "@playwright/test";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
-const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
+import { LOCALES } from "./helpers/locales.js";
 
 function walk(dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {

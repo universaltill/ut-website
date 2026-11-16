@@ -13,5 +13,8 @@ export default defineConfig({
   // and the Decap CMS admin. Migrating the marketing pages to Astro's own
   // i18n routing is a real, separate decision — see docs/astro-migration.md.
   publicDir: 'site',
+  // The fixture build in scripts/locale-fixtures_test.mjs writes elsewhere so it
+  // never touches the dist/ the Playwright suite serves.
+  outDir: process.env.UT_OUT_DIR || 'dist',
   integrations: [mdx()],
 });

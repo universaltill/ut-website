@@ -34,12 +34,8 @@ function walk(dir) {
 
 const SHIPPED_FILES = [...walk(path.join(ROOT, "site")), ...walk(path.join(ROOT, "src"))];
 
-function loadI18N() {
-  const src = fs.readFileSync(path.join(ROOT, "site", "i18n.js"), "utf8");
-  const m = src.match(/const I18N = (\{[\s\S]*?\});\s*\n\s*\(function/);
-  if (!m) throw new Error("could not locate the I18N object literal in site/i18n.js");
-  return (0, eval)("(" + m[1] + ")");
-}
+import { I18N as ALL_I18N, LOCALES, translated } from "./helpers/locales.js";
+function loadI18N() { return ALL_I18N; }
 
 // The "right-click → Open" instruction in each launch language, plus the
 // manual kiosk step. Patterns are the wording the stale copy actually used.
@@ -67,6 +63,13 @@ const OPEN_ANYWAY = {
   "tr-tr": "Yine de Aç",
   "zh-cn": "仍要打开",
   "fa-ir": "Open Anyway",
+  "ar-sa": "فتح على أي حال",
+  "fr-fr": "Ouvrir quand même",
+  "el-gr": "Άνοιγμα ούτως ή άλλως",
+  "it-it": "Apri comunque",
+  "ms-my": "Open Anyway",
+  "pt-pt": "Abrir Mesmo Assim",
+  "es-es": "Abrir de todos modos",
 };
 
 test.describe("install instructions match the shipped packages (ut-docs#3803)", () => {
@@ -94,11 +97,18 @@ test.describe("install instructions match the shipped packages (ut-docs#3803)", 
 
   const I18N = loadI18N();
 
-  test("every launch locale is covered", () => {
-    expect(Object.keys(I18N).sort()).toEqual(Object.keys(OPEN_ANYWAY).sort());
+  // A published locale that ships its own start.mac.2 / dl.next must be listed
+  // here with macOS's label for that language; one that does not ship them shows
+  // the English text (per-key fallback) and uses the English label.
+  test("every published locale that translates the install steps is covered", () => {
+    for (const lang of LOCALES) {
+      if (translated(lang, "start.mac.2") || translated(lang, "dl.next")) expect(OPEN_ANYWAY[lang], `${lang}: add macOS's "Open Anyway" label`).toBeTruthy();
+    }
   });
 
-  for (const [lang, label] of Object.entries(OPEN_ANYWAY)) {
+  for (const lang of LOCALES) {
+    const label = translated(lang, "start.mac.2") || translated(lang, "dl.next") ? OPEN_ANYWAY[lang] : OPEN_ANYWAY["en-gb"];
+    if (!label) continue;
     test(`${lang}: portable macOS step names Privacy & Security → ${label}`, () => {
       expect(I18N[lang]["start.mac.2"]).toContain(label);
     });
@@ -113,5 +123,26 @@ test.describe("install instructions match the shipped packages (ut-docs#3803)", 
       expect(next).toContain("Raspberry Pi OS Lite");
       expect(next).toContain("Raspberry Pi OS with Desktop");
     });
+  }
+
+  // ut-docs#4127: the blog posts said "macOS may block an app downloaded outside
+  // the App Store → Open Anyway" about the Mac app, i.e. the notarized .dmg.
+  // Open Anyway belongs to the portable .tar.gz (run-unitill.command) only.
+  for (const lang of LOCALES) {
+    const dir = path.join(ROOT, "src/content/blog", lang);
+    if (!fs.existsSync(dir)) continue;
+    const label = OPEN_ANYWAY[lang] || OPEN_ANYWAY["en-gb"];
+    for (const f of fs.readdirSync(dir).filter((n) => /\.mdx?$/.test(n))) {
+      const paras = fs.readFileSync(path.join(dir, f), "utf8").split(/\n\s*\n/).map((p) => p.replace(/\s+/g, " ")).filter((p) => p.includes(label));
+      if (!paras.length) continue;
+      test(`${lang}/${f}: Open Anyway is the portable .tar.gz step, not the .dmg's`, () => {
+        for (const para of paras) {
+          const at = para.indexOf(label);
+          expect(para, "names the portable archive").toContain(".tar.gz");
+          const before = para.slice(0, at);
+          expect(before.lastIndexOf(".tar.gz"), "nearest file before the label is the .tar.gz").toBeGreaterThan(before.lastIndexOf(".dmg"));
+        }
+      });
+    }
   }
 });

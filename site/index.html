@@ -5,18 +5,13 @@
   <!-- Canonical host: send the bare apex to www before anything paints. -->
   <script>if(location.hostname==="universaltill.com"){location.replace("https://www.universaltill.com"+location.pathname+location.search+location.hash);}</script>
   <link rel="canonical" id="canonical" href="https://www.universaltill.com/">
-  <!-- hreflang: each language has its own crawlable URL for SEO. -->
-  <link rel="alternate" hreflang="en-GB" href="https://www.universaltill.com/en-gb">
-  <link rel="alternate" hreflang="tr-TR" href="https://www.universaltill.com/tr-tr">
-  <link rel="alternate" hreflang="zh-CN" href="https://www.universaltill.com/zh-cn">
-  <link rel="alternate" hreflang="fa-IR" href="https://www.universaltill.com/fa-ir">
-  <link rel="alternate" hreflang="de-DE" href="https://www.universaltill.com/de-de">
-  <link rel="alternate" hreflang="x-default" href="https://www.universaltill.com/en-gb">
+  <!-- hreflang is generated per published locale by the prerender (src/lib/marketingPages.ts); none by hand. Each language has its own crawlable URL for SEO. -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title data-i18n="meta.home.title">Universal Till — free EPOS &amp; till system that works offline</title>
-  <meta name="description" data-i18n-content="meta.home.desc" content="Free EPOS and till system for shops, cafés and market stalls. Keeps selling offline — no monthly fee for the core, no minimum term on monthly billing.">
+  <meta name="description" data-i18n-content="meta.home.desc" content="Free EPOS and till for shops, cafés and market stalls. No monthly fee for the core, no minimum term on monthly billing (Germany's managed TSE line excepted).">
   <link rel="icon" type="image/svg+xml" href="/logo.svg">
   <link rel="stylesheet" href="/styles.css">
+  <script defer src="/i18n-data.js"></script>
   <script defer src="/i18n.js"></script>
   <script defer src="/nav.js"></script>
   <!-- Cookie banner + GA4, only after Accept (ut-docs#3507). -->
@@ -36,6 +31,8 @@
     <a href="#hardware" data-i18n="nav.hardware">Hardware</a>
     <a href="#plugins" data-i18n="nav.plugins">Plugins</a>
     <a href="/blog" data-i18n="nav.news">News</a>
+    <a href="/help" data-i18n="nav.help">Help</a>
+    <a href="/pricing" data-i18n="nav.pricing">Pricing</a>
     <a href="#about" data-i18n="nav.about">About</a>
   </nav>
   <div class="nav-actions">
@@ -51,7 +48,7 @@
   <section class="hero">
     <div class="hero-text">
       <h1 data-i18n="hero.title">Your till. Your money. Your data.</h1>
-      <p class="lede" data-i18n="hero.lede">The till that never stops selling, runs on the hardware you already have, and costs nothing to start. No minimum term on monthly billing. No card-machine tie-in.</p>
+      <p class="lede" data-i18n="hero.lede">The till that never stops selling, runs on the hardware you already have, and costs nothing to start. No minimum term on monthly billing, except Germany's managed TSE line. No card-machine tie-in.</p>
       <div class="cta">
         <a class="btn primary" href="/find-your-setup" data-i18n="hero.cta1">Start free</a>
         <a class="btn ghost" href="https://github.com/universaltill/universal-till" data-i18n="hero.cta2">See the source</a>
@@ -73,7 +70,7 @@
       <div class="card"><h3 data-i18n="why.offline.t">It never stops selling.</h3><p data-i18n="why.offline.d">A full sale completes with no internet at all. Your tills catch up with each other as soon as they reconnect.</p></div>
       <div class="card"><h3 data-i18n="why.hardware.t">Use what you have.</h3><p data-i18n="why.hardware.d">An old PC or laptop, a Raspberry Pi, an Android tablet or phone. Unlimited tills, never charged per till.</p></div>
       <div class="card"><h3 data-i18n="why.payments.t">Keep your card provider.</h3><p data-i18n="why.payments.d">SumUp, Stripe or any standalone card machine: use whoever gives you the best rate. We never take a cut of your takings.</p></div>
-      <div class="card"><h3 data-i18n="why.exit.t">No tie-in, ever.</h3><p data-i18n="why.exit.d">No minimum term on monthly billing: cancel any month and take all your data with you, free.</p></div>
+      <div class="card"><h3 data-i18n="why.exit.t">No tie-in on your plan.</h3><p data-i18n="why.exit.d">No minimum term on monthly billing: cancel any month and take all your data with you, free. The one exception is Germany's managed TSE line, which has a 12-month minimum per activated main till.</p></div>
     </div>
   </section>
 
@@ -239,7 +236,7 @@
     </div>
     <div class="faq">
       <details class="faq-item"><summary data-i18n="faq.q1">Is Universal Till an EPOS system?</summary><p data-i18n="faq.a1">Yes. EPOS (electronic point of sale), POS, till system and cash register all mean the software you ring up sales on. Universal Till gives you a touch sale screen, barcode scanning, receipts, stock and sales reports.</p></details>
-      <details class="faq-item"><summary data-i18n="faq.q2">Is it really free?</summary><p data-i18n="faq.a2">Yes. The till itself is free forever on your own hardware: open source under the MIT licence, no monthly fee for the core. Paid plans have no minimum term on monthly billing. Optional cloud extras, such as off-site backup, may cost extra, and card payments carry your card provider's own fees.</p></details>
+      <details class="faq-item"><summary data-i18n="faq.q2">Is it really free?</summary><p data-i18n="faq.a2">Yes. The till itself is free forever on your own hardware: open source under the MIT licence, no monthly fee for the core. Paid plans have no minimum term on monthly billing; in Germany, the managed TSE line (optional, from Shop) has a 12-month minimum per activated main till. Optional cloud extras, such as off-site backup, may cost extra, and card payments carry your card provider's own fees.</p></details>
       <details class="faq-item"><summary data-i18n="faq.q3">Does it work without internet?</summary><p data-i18n="faq.a3">Yes. A full sale completes with no internet at all, and everything works locally on the till. Syncing is a bonus, never a requirement. A card reader still needs whatever connection its own provider requires.</p></details>
       <details class="faq-item"><summary data-i18n="faq.q4">What hardware do I need?</summary><p data-i18n="faq.a4">A Raspberry Pi, an old PC or laptop, a mini-PC or a proper touch terminal — there are downloads for Windows, macOS, Linux, Raspberry Pi and Android. The iPhone and iPad apps are in internal testing (not on the App Store yet). A complete DIY till costs from about £70.</p></details>
       <details class="faq-item"><summary data-i18n="faq.q5">Can I take card payments?</summary><p data-i18n="faq.a5">Yes. We never sit in your money flow: use any card machine and any processor — no fee creep, no frozen payouts.</p></details>
@@ -254,6 +251,7 @@
       <a class="btn primary big" href="/find-your-setup" data-i18n="close.cta">Start free</a>
     </div>
     <p class="hero-note" style="text-align:center"><span data-i18n="close.talk">Or talk to a person:</span> <bdi><a href="mailto:support@universaltill.com">support@universaltill.com</a></bdi></p>
+    <p class="hero-note" style="text-align:center"><a href="/help" data-i18n="nav.help">Help</a></p>
   </section>
 </main>
 
@@ -266,7 +264,10 @@
   <p class="foot-owner" data-i18n="foot.owner">Universal Till is a product of Task Runner Technology LTD.</p>
   <p class="foot-rights" data-i18n="foot.rights">Open source under the MIT licence.</p>
   <p class="foot-legal">
-    <a href="/legal/impressum" data-i18n="foot.impressum">Legal notice (Impressum)</a>
+    <a href="/help" data-i18n="nav.help">Help</a>
+    · <a href="/pricing" data-i18n="nav.pricing">Pricing</a>
+    · <a href="/contact" data-i18n="foot.contact">Contact</a>
+    · <a href="/legal/impressum" data-i18n="foot.impressum">Legal notice (Impressum)</a>
     · <a href="/legal/privacy" data-i18n="foot.privacy">Privacy policy</a>
     · <a href="/legal/terms" data-i18n="foot.terms">Terms of use</a>
   </p>

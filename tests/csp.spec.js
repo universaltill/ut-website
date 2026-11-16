@@ -32,7 +32,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
-const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
+import { LOCALES } from "./helpers/locales.js";
 
 const swaConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "site/staticwebapp.config.json"), "utf8"));
 const MARKETING_SUFFIXES = swaConfig.routes

@@ -1,0 +1,52 @@
+---
+import BaseLayout, { LANGS, t } from '../../../layouts/BaseLayout.astro';
+import { groupBySection, loadHelp, localized, sectionId, sectionLabel } from '../../../lib/help';
+
+// /<locale>/help/ - every public topic, grouped by (English) section, with a
+// progressive-enhancement filter (site/help.js). Without JS the whole list is
+// here and the search form stays hidden. A topic with no translation in this
+// locale is listed in English (lang="en"), same honesty as the topic page.
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+const help = await loadHelp();
+const groups = groupBySection(help.entries).map((g) => ({ ...g, ...sectionLabel(g.entries, lang), id: sectionId(g.section) }));
+---
+
+<BaseLayout title={t(lang, 'help.title')} description={t(lang, 'help.meta.desc')} lang={lang} path="/help/">
+  <section class="section help help-index">
+    <div class="help-intro">
+      <h1 data-i18n="help.title">{t(lang, 'help.title')}</h1>
+      <p class="section-sub" data-i18n="help.intro">{t(lang, 'help.intro')}</p>
+    </div>
+
+    <form class="help-search" role="search" hidden data-count={t(lang, 'help.count')} data-filtered={t(lang, 'help.count.filtered')} data-none={t(lang, 'help.count.none')}>
+      <label for="help-q" data-i18n="help.search.label">{t(lang, 'help.search.label')}</label>
+      <input id="help-q" type="search" autocomplete="off" placeholder={t(lang, 'help.search.placeholder')} />
+      <p class="help-status"><span class="help-count" role="status" aria-live="polite"></span> <button type="button" class="help-clear" hidden data-i18n="help.clear">{t(lang, 'help.clear')}</button></p>
+    </form>
+
+    {groups.map((g) => (
+      <section class="help-section" id={g.id} aria-labelledby={`${g.id}-h`}>
+        <h2 id={`${g.id}-h`}><span lang={g.isFallback ? 'en' : undefined} dir={g.isFallback ? 'ltr' : undefined}>{g.label}</span> <small>({g.entries.length})</small></h2>
+        <ul class="help-list">
+          {g.entries.map((entry) => {
+            const { topic, isFallback } = localized(entry, lang);
+            const search = [topic.title, topic.summary, ...topic.keywords, ...entry.en.keywords, entry.en.title].join(' ');
+            return (
+              <li class="help-item" data-search={search}>
+                <a href={`/${lang}/help/${entry.slug}/`} lang={isFallback ? 'en' : undefined} dir={isFallback ? 'ltr' : undefined}>
+                  <strong>{topic.title}</strong>
+                  <span>{topic.summary}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    ))}
+  </section>
+  <script defer src="/help.js"></script>
+</BaseLayout>

@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { LANGS, SOURCE_LOCALE } from '../layouts/BaseLayout.astro';
+import { LANGS, SOURCE_LOCALE, legalApprovedFor } from './locales';
 
 export interface LocalizedLegalPage {
   page: CollectionEntry<'legal'>;
@@ -26,7 +26,11 @@ export async function getAllLocalizedLegalPages(): Promise<Record<string, Locali
   for (const lang of LANGS) {
     byLocale[lang] = slugs
       .map((slug) => {
-        const translated = all.find((p) => p.id === `${lang}/${slug}`);
+        // A translated legal page is served only when the published list says a
+        // human approved that document for this locale (ADR-0177 s7). Any
+        // translation file that exists without that approval is ignored: the
+        // locale URL then serves the English text, canonical to en-gb.
+        const translated = lang === SOURCE_LOCALE || legalApprovedFor(lang, slug) ? all.find((p) => p.id === `${lang}/${slug}`) : undefined;
         const source = all.find((p) => p.id === `${SOURCE_LOCALE}/${slug}`);
         const page = translated ?? source;
         return page && { page, slug, isFallback: !translated && lang !== SOURCE_LOCALE };

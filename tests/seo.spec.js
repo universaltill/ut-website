@@ -25,7 +25,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
-const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
+import { LOCALES, SOURCE } from "./helpers/locales.js";
 
 // Same route table sitemap.xml.ts itself reads — not a second hand-kept
 // copy of the five paths, so this test can't drift from the config the
@@ -81,8 +81,20 @@ const PLUGIN_SLUGS = JSON.parse(fs.readFileSync(path.join(ROOT, "src/lib/plugin-
 // ut-docs#3811: only a locale's REAL translations are in the sitemap — an
 // untranslated fallback canonicalises to its en-gb original instead. Same
 // rule as the implementation, read from the same content directories.
+// ADR-0177 section 7 adds two rules on top: a legal page is a real translation
+// only when the list approves that document (none today), and a machine-
+// translated post in a locale without a recorded human review is noindex (so
+// not in the sitemap) unless the post is marked `reviewed`.
+const frontmatter = (file) => fs.readFileSync(file, "utf8").split("---")[1] ?? "";
 const translated = (collection, locale, slugs) =>
-  slugs.filter((slug) => fs.existsSync(path.join(ROOT, `src/content/${collection}/${locale}/${slug}.mdx`)));
+  slugs.filter((slug) => {
+    const file = path.join(ROOT, `src/content/${collection}/${locale}/${slug}.mdx`);
+    if (!fs.existsSync(file)) return false;
+    if (locale === SOURCE) return true;
+    if (collection === "legal") return false; // no locale has a human-approved legal document
+    return true; // every existing translation is indexable (owner 2026-11-16)
+  });
+const hasFile = (collection, locale, slug) => fs.existsSync(path.join(ROOT, `src/content/${collection}/${locale}/${slug}.mdx`));
 
 async function fetchXml(page, path) {
   return page.evaluate(async (p) => {
@@ -154,7 +166,11 @@ test.describe("sitemap.xml", () => {
         translated("connector", locale, ["claude"]).length /* ut-docs#5318 */,
       0,
     );
-    const locCount = (text.match(/<loc>/g) || []).length;
+    // Help pages (ut-docs#5355) come from the product repo at a pinned ref, so
+    // their count is not a constant here; tests/help-pages.spec.js and
+    // scripts/guard-help.mjs check which of them are listed.
+    for (const locale of LOCALES) expect(text).toContain(`/${locale}/help/</loc>`);
+    const locCount = (text.match(/<loc>/g) || []).length - (text.match(/\/help\/[^<]*<\/loc>/g) || []).length;
     expect(locCount).toBe(expected);
   });
 
@@ -203,12 +219,13 @@ test.describe("JSON-LD BlogPosting", () => {
     expect(data.author).toBeTruthy();
   });
 
-  test("the block's URL is locale-correct on a translated post", async ({ page }) => {
+  test("the block's URL is locale-correct on a translated post; an unreviewed machine translation names the English original", async ({ page }) => {
     const slug = EXPECTED_SLUGS[0];
     await page.goto(`/tr-tr/blog/${slug}`);
     const raw = await page.locator('script[type="application/ld+json"]').textContent();
     const data = JSON.parse(raw);
-    expect(data.mainEntityOfPage).toBe(`https://www.universaltill.com/tr-tr/blog/${slug}/`);
-    expect(data.inLanguage).toBe("tr-TR");
+    const indexable = translated("blog", "tr-tr", [slug]).length > 0;
+    expect(data.mainEntityOfPage).toBe(`https://www.universaltill.com/${indexable ? "tr-tr" : "en-gb"}/blog/${slug}/`);
+    expect(data.inLanguage).toBe("tr-TR"); // the text is Turkish either way
   });
 });

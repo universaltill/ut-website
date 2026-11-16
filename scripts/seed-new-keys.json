@@ -1,0 +1,22 @@
+{
+  "tr-tr": {
+    "site.fallback_note": "Bu sayfadaki bazı metinler henüz çevrilmedi ve İngilizce gösteriliyor.",
+    "site.legal_english_binding": "Bu hukuki metin yalnızca İngilizce olarak sunulmaktadır. Bağlayıcı olan İngilizce sürümdür.",
+    "language.current": "Geçerli"
+  },
+  "de-de": {
+    "site.fallback_note": "Einige Texte auf dieser Seite sind noch nicht übersetzt und werden auf Englisch angezeigt.",
+    "site.legal_english_binding": "Dieser Rechtstext ist nur auf Englisch verfügbar. Maßgeblich ist die englische Fassung.",
+    "language.current": "Aktuell"
+  },
+  "zh-cn": {
+    "site.fallback_note": "本页部分文字尚未翻译，暂以英文显示。",
+    "site.legal_english_binding": "本法律文本仅提供英文版，以英文版本为准。",
+    "language.current": "当前"
+  },
+  "fa-ir": {
+    "site.fallback_note": "بخشی از متن این صفحه هنوز ترجمه نشده و به انگلیسی نمایش داده می‌شود.",
+    "site.legal_english_binding": "این متن حقوقی فقط به زبان انگلیسی در دسترس است. نسخهٔ انگلیسی معتبر است.",
+    "language.current": "فعلی"
+  }
+}

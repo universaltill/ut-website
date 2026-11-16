@@ -7,7 +7,7 @@ import { expect, test } from "@playwright/test";
 import fs from "node:fs";
 
 const ORIGIN = "https://www.universaltill.com";
-const LOCALES = ["en-gb", "tr-tr", "zh-cn", "fa-ir", "de-de"];
+import { LOCALES } from "./helpers/locales.js";
 const SLUGS = JSON.parse(fs.readFileSync(new URL("../src/lib/plugin-list.json", import.meta.url), "utf8")).map((p) =>
   p.repo.replace(/^ut-plugin-/, ""),
 );

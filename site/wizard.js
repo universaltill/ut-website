@@ -40,7 +40,8 @@
 
   // my.universaltill.com serves only these locales (ut-my-shop/src/i18n/i18n.ts);
   // a visitor on any other site language (zh-cn) lands on its en-gb tree.
-  var MY_LOCALES = ["en-gb", "en-us", "de-de", "es-es", "fr-fr", "it-it", "pt-pt", "tr-tr", "ar-sa", "fa-ir"];
+  // The list comes from the published-locale list (i18n-data.js `my`), not from here.
+  var MY_LOCALES = U.my || ["en-gb"];
   var MY = "https://my.universaltill.com/" + (MY_LOCALES.indexOf(lang) !== -1 ? lang : "en-gb") + "/";
   var DOWNLOAD = "/" + lang + "/download";
   var TALK_BASE = "mailto:support@universaltill.com?subject=" + encodeURIComponent(t("wiz.talk.subject"));
@@ -175,7 +176,7 @@
   }
   function list(keys, cls) {
     var ul = el("ul", cls || "wiz-list");
-    var vars = { tse: money(R.PRICES.de.currency, R.PRICES.de.tsePerMainTill) };
+    var vars = { tse: money(R.PRICES.de.currency, R.PRICES.de.tsePerMainTill), months: num(R.PRICES.de.tseMinMonths) };
     keys.forEach(function (k) { ul.appendChild(el("li", null, fill(t(k), vars))); });
     return ul;
   }
@@ -192,6 +193,7 @@
       if (p.annual) lines.push(fill(t("wiz.price.annual"), { price: money(p.currency, p.annual) }));
       if (p.extraLocation) lines.push(fill(t("wiz.price.multi"), { price: money(p.currency, p.extraLocation), included: num(p.includedLocations), max: num(R.MAX_LOCATIONS) }));
       if (p.tse) lines.push(fill(t("wiz.price.tse"), { price: money(p.currency, p.tse) }));
+      if (p.tse && p.tseMinMonths) lines.push(fill(t("wiz.price.tsemin"), { months: num(p.tseMinMonths) }));
     }
     return lines;
   }
