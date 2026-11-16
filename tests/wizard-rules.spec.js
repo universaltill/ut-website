@@ -94,7 +94,7 @@ test("Germany: a fiscal need means Shop with the per-main-till fiscal line; euro
   const r = rec({ country: "de", needs: ["fiscal"] });
   expect(r).toMatchObject({ plan: "shop", route: "cloud" });
   expect(r.price).toMatchObject({ currency: "EUR", monthly: 29, annual: 24.17, tse: 12 });
-  expect(r.plugins).toContain("language-de");
+  expect(r.plugins).not.toContain("language-de");
   expect(r.notes).toContain("wiz.n.deowndevice");
   // other euro countries and the UK carry no fiscal line
   expect(rec({ country: "eu", needs: ["remote"] }).price).toMatchObject({ currency: "EUR", tse: 0 });
