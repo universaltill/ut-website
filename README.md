@@ -8,6 +8,13 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   introducing translation bugs. `astro.config.mjs` sets `publicDir: 'site'`,
   so Astro copies this tree into `dist/` **byte-for-byte unchanged**. Edit
   these files exactly as before.
+- `/<locale>/claude/` ("Use Universal Till in Claude", ut-docs#5318): MDX in
+  `src/content/connector/{en-gb,de-de,tr-tr}/`, rendered by
+  `src/pages/[...lang]/claude.astro` (same fallback shape as legal; fa/zh show
+  English). Claims are bound by ADR-0175 and policed by
+  `scripts/guard-claude-claims.sh`. `site/.well-known/security.txt` (RFC 9116)
+  is checked by `scripts/check-security-txt.mjs`; **renew its `Expires` before
+  it is 60 days away** or CI fails.
 - Astro builds only genuinely *new* surface on top of that: the blog
   (`src/content/blog/`, MDX content collections), `/plugins`, and the
   Impressum/privacy/terms pages (`src/content/legal/`, ut-docs#1552 — same

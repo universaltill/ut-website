@@ -744,6 +744,11 @@
       "statusCode": 301
     },
     {
+      "route": "/claude",
+      "redirect": "/en-gb/claude/",
+      "statusCode": 301
+    },
+    {
       "route": "/legal/subscription-terms",
       "redirect": "/en-gb/legal/subscription-terms/",
       "statusCode": 301
