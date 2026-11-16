@@ -116,7 +116,6 @@
   "wiz.res.plugins.all": "Browse all plugins",
   "wiz.plugin.payment-sumup": "SumUp card payments",
   "wiz.plugin.payment-stripe": "Stripe card payments",
-  "wiz.plugin.language-de": "German language pack",
   "wiz.res.gaps": "Not yet",
   "wiz.gap.appointments": "Two-way sync with booking platforms such as Booksy is coming, but it is not available yet. It depends on partner access we do not have yet, and we cannot give a date.",
   "wiz.gap.online": "Online ordering and web-shop sync are coming, but they are not available yet. We cannot give a date; tell us what you need.",

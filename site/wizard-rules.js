@@ -154,7 +154,6 @@
   var PLUGINS = [
     { slug: "payment-sumup", if: { card: ["sumup"] } },
     { slug: "payment-stripe", if: { card: ["stripe"] } },
-    { slug: "language-de", if: { country: ["de"] } },
   ];
 
   // Short extra lines: what the answer means for this shop.

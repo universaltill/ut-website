@@ -86,7 +86,6 @@
   "wiz.res.plugins.all": "Tüm eklentilere göz atın",
   "wiz.plugin.payment-sumup": "SumUp ile kart ödemesi",
   "wiz.plugin.payment-stripe": "Stripe ile kart ödemesi",
-  "wiz.plugin.language-de": "Almanca dil paketi",
   "wiz.res.gaps": "Henüz yok",
   "wiz.gap.appointments": "Booksy gibi rezervasyon platformlarıyla çift yönlü senkronizasyon yakında geliyor ancak henüz mevcut değil. Henüz sahip olmadığımız iş ortağı erişimine bağlı; tarih veremiyoruz.",
   "wiz.gap.online": "Online sipariş ve web mağazası senkronizasyonu yakında geliyor ancak henüz mevcut değil. Tarih veremiyoruz; ihtiyacınızı bize söyleyin.",

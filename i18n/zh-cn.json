@@ -86,7 +86,6 @@
   "wiz.res.plugins.all": "浏览所有插件",
   "wiz.plugin.payment-sumup": "SumUp 刷卡支付",
   "wiz.plugin.payment-stripe": "Stripe 刷卡支付",
-  "wiz.plugin.language-de": "德语语言包",
   "wiz.res.gaps": "暂未提供",
   "wiz.gap.appointments": "与 Booksy 等预约平台的双向同步即将推出，但目前尚不可用。这取决于我们尚未获得的合作伙伴接口权限，目前无法给出日期。",
   "wiz.gap.online": "在线点单和网店同步即将推出，但目前尚不可用。我们无法给出日期，欢迎告诉我们你的需求。",
