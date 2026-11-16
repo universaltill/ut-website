@@ -119,7 +119,11 @@ test.describe("live-payments legal pages", () => {
     await expect(page.locator('article a[href="/en-gb/legal/refunds/"]')).toHaveCount(1);
     await page.goto("/en-gb/legal/privacy/");
     await expect(page.locator("h2", { hasText: "Billing and payments" })).toBeVisible();
-    expect(await page.locator("article").innerText()).toContain("IP address");
+    const privacy = await page.locator("article").innerText();
+    expect(privacy).toContain("IP address");
+    // UK GDPR Art. 13(2)(ca), in force 2026-06-19: the right to complain to the controller (ut-docs#6063).
+    expect(privacy).toMatch(/right to complain to us/);
+    expect(privacy).toMatch(/acknowledge it within 30 days/);
   });
 
   test("a non-English locale serves the English legal text, labelled", async ({ page }) => {
