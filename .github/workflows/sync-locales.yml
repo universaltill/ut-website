@@ -90,6 +90,6 @@ jobs:
           fi
           if [ -z "$(gh pr list --head "$branch" --state open --json number --jq '.[0].number')" ]; then
             gh pr create --base main --head "$branch" --title "locales: sync published website locales (ut-translations@${src})" \
-              --body "Automated by sync-locales.yml. Merging deploys the new or updated languages. Review the AI-label state in i18n/published/locales.json (human_reviewed / machine_label) before merging."
+              --body "Automated by sync-locales.yml. Merging deploys the new or updated languages. Review the review state in i18n/published/locales.json (human_reviewed / machine_label) before merging."
           fi
           gh workflow run ci.yml --ref "$branch"
