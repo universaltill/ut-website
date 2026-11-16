@@ -44,7 +44,6 @@
   "wiz.o.needs.appointments": "Termine und Buchungen",
   "wiz.o.needs.fiscal": "Ein Fiskalgerät (Steuer)",
   "wiz.o.needs.remote": "Mein Geschäft im Browser verwalten, auch abseits der Kasse",
-  "wiz.o.needs.team": "Zugang für den Steuerberater, Mitarbeiterrollen oder Telefon-Support",
   "wiz.q.card": "Wie nehmen Sie Kartenzahlungen an?",
   "wiz.o.card.sumup": "SumUp",
   "wiz.o.card.stripe": "Stripe",
