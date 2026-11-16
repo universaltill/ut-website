@@ -173,7 +173,8 @@ test("real metadata: legal-tier count is pinned so re-classification shows in re
   // 64: + wiz.price.tsemin, the German managed-TSE minimum term (ut-docs#5473); wiz.n.detse -> wiz.n.detsemin is one removed, one added, so still 64 (ut-docs#5485).
   // 72 (ut-docs#4962): wiz.gap.team removed; + wiz.q.people.hint, wiz.r.members2/5/50, wiz.r.roles, wiz.r.archive, wiz.gap.mobilesync/accountant/phone.
   // 73: + wiz.o.needs.archive (states the 7-to-10-year retention, review of ut-docs#4962).
-  assert.equal(Object.values(meta).filter((e) => e.review === "legal").length, 73);
+  // 114: + 41 pricing/contact keys (pricing page and its meta, ut-docs#4963; the contact pilot card and note, ut-docs#1434).
+  assert.equal(Object.values(meta).filter((e) => e.review === "legal").length, 114);
 });
 
 test("core is only allowed on standard keys", () => {

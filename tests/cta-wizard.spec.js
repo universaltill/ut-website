@@ -5,7 +5,7 @@
 import { expect, test } from "@playwright/test";
 
 import { LOCALES } from "./helpers/locales.js";
-const PAGES = ["", "/download", "/start", "/pilot", "/language", "/android-till", "/find-your-setup", "/plugins/", "/blog/", "/legal/privacy"];
+const PAGES = ["", "/download", "/start", "/pilot", "/pricing", "/contact", "/language", "/android-till", "/find-your-setup", "/plugins/", "/blog/", "/legal/privacy"];
 const CTA = 'a[data-i18n="nav.start"], a[data-i18n="nav.get"], a[data-i18n="hero.cta1"], a[data-i18n="free.cta"], a[data-i18n="close.cta"]';
 
 for (const locale of LOCALES) {
