@@ -112,7 +112,7 @@ test("CLI fails on a mutated copy of the repo files", () => {
 
 test("every key the wizard can ask for is in en.json with metadata", () => {
   const ctx = {};
-  for (const f of ["site/plan-prices.js", "site/wizard-rules.js"]) vm.runInNewContext(fs.readFileSync(path.join(repo, f), "utf8"), ctx);
+  for (const f of ["site/plan-prices.js", "site/plan-wizard-rules.js", "site/wizard-rules.js"]) vm.runInNewContext(fs.readFileSync(path.join(repo, f), "utf8"), ctx);
   const en = JSON.parse(fs.readFileSync(path.join(repo, "i18n/en.json"), "utf8"));
   const meta = JSON.parse(fs.readFileSync(path.join(repo, "i18n/en.meta.json"), "utf8"));
   const keys = ctx.UT_WIZARD_RULES.allKeys();
@@ -165,13 +165,16 @@ test("real metadata: marketing copy is standard, binding claims are legal", () =
   const meta = JSON.parse(fs.readFileSync(path.join(repo, "i18n/en.meta.json"), "utf8"));
   for (const k of ["foot.tagline", "hero.cta1", "close.cta", "close.title", "free.title", "nav.start", "wiz.cta.download", "wiz.price.pick"])
     assert.equal(meta[k].review, "standard", k);
-  for (const k of ["wiz.privacy", "wiz.res.sent", "wiz.talk.note", "consent.text", "foot.privacy", "foot.terms", "foot.impressum", "wiz.price.month", "wiz.price.tse", "wiz.price.tsemin", "wiz.n.detsemin", "wiz.gap.tr", "wiz.q.card.hint", "why.exit.d", "pluginspage.perm.net", "free.body", "wiz.gap.team", "about.body", "hero.note"])
+  for (const k of ["wiz.privacy", "wiz.res.sent", "wiz.talk.note", "consent.text", "foot.privacy", "foot.terms", "foot.impressum", "wiz.price.month", "wiz.price.tse", "wiz.price.tsemin", "wiz.n.detsemin", "wiz.gap.tr", "wiz.q.card.hint", "why.exit.d", "pluginspage.perm.net", "free.body", "wiz.gap.mobilesync", "wiz.gap.accountant", "wiz.gap.phone", "wiz.r.members50", "wiz.r.archive", "wiz.o.needs.archive", "wiz.q.people.hint", "about.body", "hero.note"])
     assert.equal(meta[k].review, "legal", k);
 });
 test("real metadata: legal-tier count is pinned so re-classification shows in review", () => {
   const meta = JSON.parse(fs.readFileSync(path.join(repo, "i18n/en.meta.json"), "utf8"));
   // 64: + wiz.price.tsemin, the German managed-TSE minimum term (ut-docs#5473); wiz.n.detse -> wiz.n.detsemin is one removed, one added, so still 64 (ut-docs#5485).
-  assert.equal(Object.values(meta).filter((e) => e.review === "legal").length, 64);
+  // 72 (ut-docs#4962): wiz.gap.team removed; + wiz.q.people.hint, wiz.r.members2/5/50, wiz.r.roles, wiz.r.archive, wiz.gap.mobilesync/accountant/phone.
+  // 73: + wiz.o.needs.archive (states the 7-to-10-year retention, review of ut-docs#4962).
+  // 117: +3 pilot-page keys (#92: where.t/de/uk); 114: + 41 pricing/contact keys (pricing page and its meta, ut-docs#4963; the contact pilot card and note, ut-docs#1434).
+  assert.equal(Object.values(meta).filter((e) => e.review === "legal").length, 117);
 });
 
 test("core is only allowed on standard keys", () => {
@@ -182,9 +185,9 @@ test("core is only allowed on standard keys", () => {
   const m2 = okMeta(); m2["a.b"].core = "yes";
   assert.match(run(okEn, m2).join("\n"), /a\.b.*core/);
 });
-test("the AI-label and fallback keys are core and standard", () => {
+test("the fallback keys are core and standard", () => {
   const meta = JSON.parse(fs.readFileSync(path.join(repo, "i18n/en.meta.json"), "utf8"));
-  for (const k of ["site.machine_label", "site.machine_label_detail", "site.machine_label_link", "site.machine_label_report", "site.machine_label_badge", "site.fallback_note", "site.legal_english_binding", "language.current"]) {
+  for (const k of ["site.fallback_note", "site.legal_english_binding", "language.current"]) {
     assert.equal(meta[k].core, true, k); assert.equal(meta[k].review, "standard", k);
   }
 });

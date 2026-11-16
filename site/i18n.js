@@ -93,23 +93,6 @@ const I18N = (window.UT_I18N_DATA && window.UT_I18N_DATA.locales) || {};
   }
   // Same markup as src/lib/chrome.ts (the build's copy of it).
   function el(tag, cls, text) { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
-  function band(lang, dict) {
-    const b = el("div", "mt-band");
-    b.setAttribute("role", "note"); b.setAttribute("data-mt-band", ""); b.setAttribute("data-locale-bound", "");
-    const p = el("p", "mt-band__text");
-    p.appendChild(el("strong", null, dict["site.machine_label"]));
-    p.appendChild(document.createTextNode(" "));
-    p.appendChild(el("span", null, dict["site.machine_label_detail"]));
-    const links = el("p", "mt-band__links");
-    const en = el("a", null, dict["site.machine_label_link"]);
-    // The 404 page has no English twin to link to: go to the English home page.
-    en.setAttribute("href", document.body.hasAttribute("data-not-found") ? pathFor(DEFAULT, "/") : pathFor(DEFAULT, stripLang(location.pathname))); en.setAttribute("hreflang", "en-GB");
-    const rep = el("a", null, dict["site.machine_label_report"]);
-    rep.setAttribute("href", "mailto:support@universaltill.com?subject=" + encodeURIComponent("Translation error (" + lang + ")") + "&body=" + encodeURIComponent("Page: " + ORIGIN + pathFor(lang, stripLang(location.pathname)) + "\nWhat reads wrongly:\n"));
-    [en, rep].forEach(function (a) { const w = document.createElement("bdi"); w.appendChild(a); links.appendChild(w); });
-    b.appendChild(p); b.appendChild(links);
-    return b;
-  }
   function note(dict) {
     const n = el("div", "mt-band mt-band--note");
     n.setAttribute("role", "note"); n.setAttribute("data-fallback-note", ""); n.setAttribute("data-locale-bound", "");
@@ -185,16 +168,15 @@ const I18N = (window.UT_I18N_DATA && window.UT_I18N_DATA.locales) || {};
         if (/^\/[a-z]{2}-[a-z]{2}(?=[\/?#]|$)/.test(href)) a.setAttribute("href", "/" + lang + href.slice(shown.length + 1));
       });
     }
-    // The AI band and fallback note are prerendered for the page's own
+    // The fallback note is prerendered for the page's own
     // locale. A build cannot do it for the one 404 page that every locale
-    // shares, nor after a client-side switch, so rebuild them here: drop the
-    // ones bound to the previous locale, add this locale's.
+    // shares, nor after a client-side switch, so rebuild it here: drop the
+    // one bound to the previous locale, add this locale's.
     if (shown !== lang) {
       document.querySelectorAll("[data-locale-bound]").forEach(function (n) { n.remove(); });
       const header = document.querySelector("header.nav");
       if (header) {
         const frag = [];
-        if (dict._label) frag.push(band(lang, dict));
         if (document.querySelector("[data-i18n-fallback]")) frag.push(note(dict));
         let at = header;
         frag.forEach(function (n) { at.insertAdjacentElement("afterend", n); at = n; });

@@ -6,6 +6,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   check-i18n:
     runs-on: ubuntu-latest
@@ -19,6 +23,7 @@ jobs:
       # Weblate (i18n/en.json is the source since the #5406 cutover).
       - run: node scripts/guard-i18n-meta.mjs
       - run: node --test scripts/sync-locales_test.mjs
+      - run: node --test scripts/required-locales_test.mjs
       - run: node --test scripts/guard-i18n-meta_test.mjs
       # ut-docs#5406: site/i18n-data.js and the locale routes of
       # site/staticwebapp.config.json are GENERATED from i18n/published/locales.json
@@ -50,6 +55,8 @@ jobs:
       # no credential here).
       - run: bash scripts/guard-plan-prices_test.sh
       - run: bash scripts/guard-plan-prices.sh
+      # ut-docs#4962: the wizard's answer->plan mapping, vendored from ut-docs.
+      - run: node --test scripts/gen-plan-wizard-rules_test.mjs
       - run: bash scripts/download-redirects_test.sh
 
   # ut-docs#4405 (follow-up of #4229): only allow-listed @universaltill.com

@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { LANGS, SOURCE_LOCALE, isMachineLabelled } from './locales';
+import { LANGS, SOURCE_LOCALE } from './locales';
 
 export interface LocalizedPost {
   post: CollectionEntry<'blog'>;
@@ -12,9 +12,14 @@ export interface LocalizedPost {
   indexable: boolean;
 }
 
-/** Whether a (translated) post of `lang` may be indexed. English always may. */
-export const isIndexableTranslation = (post: CollectionEntry<'blog'>, lang: string): boolean =>
-  lang === SOURCE_LOCALE || !post.data.machineTranslated || !isMachineLabelled(lang) || post.data.reviewed === true;
+/**
+ * Whether a (translated) post of `lang` may be indexed. Owner decision
+ * 2026-11-16: every translation that exists is a normal indexable page (the
+ * English is AI-assisted too, so no AI/machine label and no noindex for it).
+ * The technical safeguard stays elsewhere: a post that does NOT exist in the
+ * locale is the English fallback, canonical to English (`isFallback`).
+ */
+export const isIndexableTranslation = (_post: CollectionEntry<'blog'>, _lang: string): boolean => true;
 
 const slugOf = (entry: CollectionEntry<'blog'>) => entry.id.split('/').slice(1).join('/');
 

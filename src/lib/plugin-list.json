@@ -7,8 +7,6 @@
   { "repo": "ut-plugin-integration-ai", "branch": "main", "hasRelease": true },
   { "repo": "ut-plugin-integration-webhook", "branch": "main", "hasRelease": false },
   { "repo": "ut-plugin-button-nosale", "branch": "main", "hasRelease": true },
-  { "repo": "ut-plugin-language-es", "branch": "main", "hasRelease": true },
-  { "repo": "ut-plugin-language-de", "branch": "main", "hasRelease": true },
   { "repo": "ut-plugin-theme-screen-top", "branch": "main", "hasRelease": true },
   { "repo": "ut-plugin-theme-buttons-left", "branch": "main", "hasRelease": true },
   { "repo": "ut-plugin-theme-midnight", "branch": "main", "hasRelease": true }

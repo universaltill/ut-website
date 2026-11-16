@@ -25,7 +25,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
-import { LOCALES, isLabelled, SOURCE } from "./helpers/locales.js";
+import { LOCALES, SOURCE } from "./helpers/locales.js";
 
 // Same route table sitemap.xml.ts itself reads — not a second hand-kept
 // copy of the five paths, so this test can't drift from the config the
@@ -92,8 +92,7 @@ const translated = (collection, locale, slugs) =>
     if (!fs.existsSync(file)) return false;
     if (locale === SOURCE) return true;
     if (collection === "legal") return false; // no locale has a human-approved legal document
-    const fm = frontmatter(file);
-    return !/^machineTranslated:\s*true/m.test(fm) || !isLabelled(locale) || /^reviewed:\s*true/m.test(fm);
+    return true; // every existing translation is indexable (owner 2026-11-16)
   });
 const hasFile = (collection, locale, slug) => fs.existsSync(path.join(ROOT, `src/content/${collection}/${locale}/${slug}.mdx`));
 
@@ -227,17 +226,5 @@ test.describe("JSON-LD BlogPosting", () => {
     const indexable = translated("blog", "tr-tr", [slug]).length > 0;
     expect(data.mainEntityOfPage).toBe(`https://www.universaltill.com/${indexable ? "tr-tr" : "en-gb"}/blog/${slug}/`);
     expect(data.inLanguage).toBe("tr-TR"); // the text is Turkish either way
-  });
-
-  test("an unreviewed machine-translated post is noindex with the canonical on the English original", async ({ request }) => {
-    const slug = EXPECTED_SLUGS.find((s) => hasFile("blog", "tr-tr", s) && translated("blog", "tr-tr", [s]).length === 0);
-    test.skip(!slug, "every tr-tr post is indexable");
-    const html = await (await request.get(`/tr-tr/blog/${slug}/`)).text();
-    expect(html).toMatch(/<meta name="robots" content="noindex"/);
-    expect(html).toContain(`<link rel="canonical" href="https://www.universaltill.com/en-gb/blog/${slug}/"`);
-    expect(html).not.toMatch(/rel="alternate" hreflang=/);
-    // The English original does not offer it as an alternate.
-    const en = await (await request.get(`/en-gb/blog/${slug}/`)).text();
-    expect(en).not.toContain('hreflang="tr-TR"');
   });
 });
