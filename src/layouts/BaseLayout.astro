@@ -48,12 +48,19 @@ interface Props {
   keys?: string[];
   /** Show the "English is binding" notice (legal pages served in English). */
   legalEnglish?: boolean;
+  /** In-app view (ut-docs#6398, ADR-0194 2.3): no site menu, no Pricing or
+   *  Get started link, no footer links, so a store-build user who follows an
+   *  in-app legal link has no one-tap route to plans or sign-up. Pages using
+   *  it are noindex and point their canonical at the normal page. */
+  chromeless?: boolean;
+  /** Path (without language prefix) the canonical should name; defaults to path. */
+  canonicalPath?: string;
 }
 
-const { title, description, lang, path, translatedLangs = LANGS, isFallback = false, noindex = false, keys = [], legalEnglish = false } = Astro.props;
+const { title, description, lang, path, translatedLangs = LANGS, isFallback = false, noindex = false, keys = [], legalEnglish = false, chromeless = false, canonicalPath } = Astro.props;
 const current = lang ?? DEFAULT_LANG;
 const dir = dirOf(current);
-const canonical = new URL(isFallback || noindex ? `/${SOURCE_LOCALE}${path}` : Astro.url.pathname, Astro.site);
+const canonical = new URL(canonicalPath ? `/${current}${canonicalPath}` : isFallback || noindex ? `/${SOURCE_LOCALE}${path}` : Astro.url.pathname, Astro.site);
 
 // The chrome's data-i18n strings, rendered in this page's locale at build
 // time — the same dict site/i18n.js applies at runtime, so a crawler that
@@ -128,6 +135,14 @@ const alternates = isFallback || noindex
      shortened four-link menu, a larger logo and a Download button, so
      arriving here felt like leaving the site.
      tests/site-consistency.spec.js compares the two headers on every build. -->
+{chromeless ? (
+  <header class="nav" data-chromeless>
+    <span class="brand">
+      <img src="/logo.svg" alt="" width="22" height="30" />
+      <span>Universal <strong>Till</strong></span>
+    </span>
+  </header>
+) : (
 <header class="nav">
   <a class="brand" href={L('/')}>
     <img src="/logo.svg" alt="" width="22" height="30" />
@@ -154,6 +169,7 @@ const alternates = isFallback || noindex
     <a class="lang-link" rel="nofollow" href={`/${current}/language?from=${encodeURIComponent(path)}`} aria-label={langPillLabel(current)} data-i18n-aria-label="nav.language">{langPillText(current)}</a>
   </div>
 </header>
+)}
 
 {usedFallback && <Fragment set:html={fallbackNoteHtml(I18N[current])} />}
 {legalEnglish && <div class="mt-band mt-band--note" role="note" data-legal-english><p class="mt-band__text">{T('site.legal_english_binding')}</p></div>}
@@ -162,6 +178,8 @@ const alternates = isFallback || noindex
   <slot />
 </main>
 
+{chromeless ? null : (
+<Fragment>
 <!-- Same footer as site/index.html, tagline included and same 19x26 mark. -->
 <footer class="foot">
   <div class="foot-brand">
@@ -194,6 +212,8 @@ const alternates = isFallback || noindex
     <a href={L('/legal/terms/')} data-i18n="foot.terms" set:html={F('foot.terms')}></a>
   </p>
 </footer>
+</Fragment>
+)}
 
 </body>
 </html>

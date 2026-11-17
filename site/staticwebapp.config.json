@@ -759,6 +759,11 @@
       "statusCode": 301
     },
     {
+      "route": "/legal/app-privacy",
+      "redirect": "/en-gb/legal/app-privacy/",
+      "statusCode": 301
+    },
+    {
       "route": "/blog/*",
       "redirect": "/en-gb/blog/",
       "statusCode": 301

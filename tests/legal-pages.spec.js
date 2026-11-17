@@ -126,6 +126,36 @@ test.describe("live-payments legal pages", () => {
     expect(privacy).toMatch(/acknowledge it within 30 days/);
   });
 
+  test("/en-gb/legal/app-privacy/ covers every app data flow with version, company and ICO (ut-docs#6398)", async ({ page }) => {
+    await page.goto("/en-gb/legal/app-privacy/");
+    await expect(page.locator("h1")).toHaveText("Privacy notice for the Universal Till apps");
+    const body = await page.locator("article").innerText();
+    expect(body).toContain("Version 1.0");
+    expect(body).toContain("11442274");
+    expect(body).toContain("ZC263752");
+    await expect(page.locator('article a[href*="ico.org.uk"]').first()).toBeVisible();
+    for (const flow of ["Till check-in", "Usage statistics", "Problem reports", "Diagnostic mode", "Paid-plan cloud sync", "Plugin marketplace", "Update checks", "Barcode lookup", "Payment providers", "The app stores"]) {
+      await expect(page.locator("h3", { hasText: flow })).toHaveCount(1);
+    }
+    // The check-in is planned (ut-docs#6559): the notice must say so, and must not
+    // promise a control that is not in the released apps.
+    expect(body).toContain("planned");
+    expect(body).toContain("We will never send your sales, customers, staff or items.");
+    expect(body).not.toContain("Press Stop sending");
+    await page.goto("/en-gb/legal/privacy/");
+    await expect(page.locator('article a[href="/en-gb/legal/app-privacy/"]')).toHaveCount(1);
+  });
+
+  test("the in-app legal view has no Pricing or Get started route (ADR-0194 2.3, ut-docs#6398)", async ({ page }) => {
+    await page.goto("/en-gb/app/legal/app-privacy/");
+    await expect(page.locator("h1")).toHaveText("Privacy notice for the Universal Till apps");
+    await expect(page.locator('a[href*="pricing"], a[href*="find-your-setup"], a[href*="/plans"], .nav-actions')).toHaveCount(0);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex");
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", /\/en-gb\/legal\/app-privacy\/$/);
+    // links to other legal pages stay in the in-app view
+    await expect(page.locator('article a[href="/en-gb/app/legal/privacy/"]').first()).toBeVisible();
+  });
+
   test("a non-English locale serves the English legal text, labelled", async ({ page }) => {
     await page.goto("/de-de/legal/refunds/");
     await expect(page.locator("[data-legal-english]")).toBeVisible();
