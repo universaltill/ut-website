@@ -1,0 +1,133 @@
+---
+title: "Privacy notice for the Universal Till apps"
+summary: "What the Universal Till till apps (Windows, Android, iPhone and iPad, Raspberry Pi) send off your device, why, for how long, and your rights."
+updated: 2026-11-17
+---
+
+Version 1.0 (draft) · 2026-11-17
+
+> **DRAFT: needs owner approval (ut-docs#6398). Not yet in force. Remove this line when the owner approves the text on the card. Items in [square brackets] are open points the owner must settle or confirm before this notice is published.**
+
+This notice covers the Universal Till till apps: the software you install from the Microsoft Store, Google Play, the App Store or our website. For our website and the billing of paid plans, see the [privacy policy](/en-gb/legal/privacy/). English is the operative text.
+
+**The short version.** The till sells fully offline and keeps your sales, customers, staff and items on your own device. It works with no account. The app sends data off your device only in the cases below. Nothing here is advertising or sold to anyone. We add no advertising, analytics or crash-reporting software of our own to the apps; the iPhone and iPad app also contains Stripe's card-reader software, described in section 8. [Owner to confirm: Stripe's own data collection in that software, against its privacy manifest.]
+
+## Who we are
+
+Task Runner Technology Ltd ("we", "us"), 82 A James Carter Road, Mildenhall, Suffolk, England, IP28 7DE, United Kingdom, company number 11442274, trading as Universal Till. We are registered with the Information Commissioner's Office, registration number **ZC263752**. Contact: [support@universaltill.com](mailto:support@universaltill.com). See our [legal notice](/en-gb/legal/impressum/).
+
+## What the app sends, and why
+
+For each flow: what is sent, why, our legal basis under UK GDPR, how long we keep it, and whether you can stop it.
+
+### 1. Till check-in (planned: not in the released apps yet)
+
+**Status.** The start-up check-in described here is planned (ut-docs#6559) and is not in the apps you can download today. Until a release adds it, the apps send nothing in this section. This section is the notice that will apply from that release; the plan is for the app to show this wording and offer a control to stop it before anything is sent.
+
+**What we will send.** Each time the till starts: its software version, system type, country, language, the shop name you chose, a random till code and when it last started; and when the till updates itself or a plugin is added, updated or removed, which version or plugin changed and when. We will never send your sales, customers, staff or items. Your till will work whether or not it can reach us, and this will never delay a sale.
+
+**Why.** To run and support Universal Till, to see which versions are in use and fix problems, to keep the service secure, and to count how many tills use it.
+
+**Legal basis.** Legitimate interests (UK GDPR Art. 6(1)(f)): running and improving our own service. We have weighed this against your privacy because the data is about the till, not your customers.
+
+**How long.** [Retention period to be set by the owner before this flow ships; this text will then state it.] We will not keep it longer than we need it for the purpose above.
+
+**Stopping.** The plan is for the release that adds the check-in to include a setting to stop it. You can also email us. Cloud features you use still need to connect.
+
+### 2. Usage statistics (only if you switch them on)
+
+**What we send.** If the till offers usage statistics and you switch them on, it sends counts of which parts of the app are used, with no sales, customer or staff data. This is off by default. If the option is not in your version, nothing is sent.
+
+**Legal basis.** Your consent (Art. 6(1)(a)) and, for reading information on your device, your consent under the Privacy and Electronic Communications Regulations.
+
+**How long.** [Retention period to be set by the owner before this flow ships.] This flow is also not in the released apps yet.
+
+**Stopping.** Switch it off in Settings at any time. That is as easy as switching it on.
+
+### 3. Problem reports (screenshots and voice notes)
+
+**What we send.** Only when you press **Report an issue** and then **Save report**: the text you write, any screenshots or voice notes you add, and the till's recent warning and error logs. If diagnostic mode is on, the report also names that diagnostic session. A screenshot can show customer or staff details that are on screen at the time; please check before you send. The report is saved on the till first and uploads when it is online.
+
+**Why.** To find and fix the problem you describe, and to tell you how it went.
+
+**Legal basis.** Your consent, given by saving the report (Art. 6(1)(a)); for the technical logs attached to it, our legitimate interest in fixing faults (Art. 6(1)(f)).
+
+**How long.** [Retention period to be set by the owner; no automatic deletion is in place yet, so until then we delete a report on request.]
+
+**Stopping.** Do not send a report. Press **Discard** to throw away a draft.
+
+### 4. Diagnostic mode (only when the shop turns it on)
+
+**What we send.** Nothing, unless a shop owner or manager switches on diagnostic mode, and the till shows when it is on. Then it sends technical events and logs so support can help. These can contain personal details that happened to be in a log line. Logs pass through a filter that replaces passwords, access tokens and card numbers it recognises; it does not remove names, addresses or anything else, and we do not claim it catches everything.
+
+**Legal basis.** The consent of the shop owner (Art. 6(1)(a)), recorded in an audit trail on the till.
+
+**How long.** [Retention period to be set by the owner; no automatic deletion is in place yet, so until then we delete a session on request.]
+
+**Stopping.** Switch diagnostic mode off in Settings, or end the session.
+
+### 5. Paid-plan cloud sync (we act for your shop)
+
+**What we send.** Only if your shop has a paid plan with cloud features turned on: the shop data those features need, for example items, sales and staff accounts, and customer records you keep in the till. It travels over an encrypted connection to our cloud, hosted by Microsoft Azure in France (as stated in our [privacy policy](/en-gb/legal/privacy/)).
+
+**Our role.** For this data **your shop is the controller and we are the processor**. We use it only to provide the cloud features you ask for, under our terms and data processing agreement. If you are a customer or member of staff of a shop, ask the shop about your data.
+
+**How long.** For as long as the shop's account lasts; we erase it when the account is closed, apart from records the law requires us to keep.
+
+**Stopping.** Turn the cloud features off, or close the account.
+
+### 6. Plugin marketplace (browsing, installing and in the background)
+
+**What we send.** When you browse or install from the plugin marketplace, the request carries your network address, the listing or package you ask for and, if your till is linked to the cloud, its cloud sign-in token. We use it to serve the download and to keep the marketplace secure. Legal basis: legitimate interests (Art. 6(1)(f)). Server logs: [retention period to be set by the owner; the earlier 90-day figure is unconfirmed].
+
+**In the background.** Even if you never open the marketplace, the till contacts it on its own to refresh the plugin catalogue, to check whether an installed plugin has been withdrawn, to check for plugin updates, to install the plugins that come with the till, and to refresh installed language packs. These requests carry the same network address and, if linked, the cloud sign-in token.
+
+**Plugin status reports (only if you switch them on).** In Settings you can switch on "Send plugin telemetry to the marketplace". It is off by default. If you switch it on, the till periodically sends the list of installed plugins and their versions, with the till's device identifier and its merchant and store identifiers, to the marketplace so we can spot problems early. It never includes sales, customers, staff or items. Legal basis: your consent (Art. 6(1)(a)). Switch it off in Settings at any time. [Retention period to be set by the owner.]
+
+### 7. Update checks (website download, Android APK download, Windows direct build)
+
+**What we send.** The builds you download from our website (the Android APK), the Windows direct build (the one the Microsoft Store listing distributes) and the Raspberry Pi build check GitHub's public releases page for a newer version. The request carries what any web request carries, such as your IP address, visible to GitHub (a service of Microsoft). We do not receive it. Apps installed from Google Play and the App Store never do this; the store updates them.
+
+### Barcode lookup (Open Food Facts and sister databases)
+
+**What we send.** When a manager adds an item and asks the till to look up a barcode, the till sends that barcode, and its network address as any request does, to Open Food Facts, Open Products Facts and Open Beauty Facts (open product databases run by third parties, which receive it under their own privacy terms). It sends no sales, customer or staff data. If you choose a product photo from the result, the photo is downloaded from the same databases. This works only when you ask for it. It is a convenience only; nothing at checkout depends on it.
+
+### 8. Payment providers
+
+If you take card payments through a payment provider's plugin, the provider handles the card data under its own privacy notice, as an independent controller. Card numbers never pass through our servers.
+
+The iPhone and iPad app includes Stripe's Terminal software for taking card payments with a card reader. It is switched off in the app builds we publish today. [Owner to confirm whether it stays switched off in the first App Store release.] When it is used, Stripe handles the card data and the data its software needs (including the device location and Bluetooth, below) under Stripe's own privacy notice.
+
+### 9. The app stores
+
+The Microsoft Store, Google Play and the App Store collect their own data about downloads, crashes and ratings under their own privacy notices. We see only the totals and crash reports they give us.
+
+### 10. Your own network
+
+Tills in the same shop talk to each other over your local network, and to printers and card readers you set up. That traffic stays on your network and does not come to us.
+
+## Permissions
+
+You can refuse any permission and still use the till.
+
+- **Microphone**, when you record a voice note for a problem report.
+- **Camera**, to scan a barcode with the camera or to take an item or report photo. The image is processed on your device for scanning; it leaves the device only if you attach it to a problem report or an item you sync.
+- **Photos or files**, if you choose a picture to add.
+- **Bluetooth**, to connect to card readers and Bluetooth printers you set up. On older Android versions Android ties Bluetooth scanning to a location permission; the till does not read your location.
+- **Local network** (iPhone and iPad), to find and sync with the other tills in your shop and your printers. This traffic stays on your network.
+- **Location** (iPhone and iPad), asked for only by Stripe's card-payment software if a card reader is used, as card networks require. [Owner to confirm that it is not used or asked for in the first App Store release.]
+- **Notifications** (Android), to show the till's running notice while it works in the background.
+
+## Your rights
+
+You can ask us to see, correct, delete or export the personal data we hold about you, to restrict it, and to object to it where we rely on legitimate interests. Where we rely on consent you can withdraw it at any time. Email [support@universaltill.com](mailto:support@universaltill.com). To delete your Universal Till account, use the account deletion page linked in the app. We make no automated decisions about you with this data.
+
+**Complaints.** You have the right to complain to us. Email [support@universaltill.com](mailto:support@universaltill.com). We acknowledge a complaint about personal data within 30 days and tell you the outcome without undue delay. You can also complain to the [Information Commission](https://ico.org.uk/make-a-complaint/) (formerly the Information Commissioner's Office) at any time.
+
+## Where your data goes
+
+Cloud sync data is hosted by Microsoft Azure in France (see our [privacy policy](/en-gb/legal/privacy/)). [Owner to confirm before publication where problem-report screenshots, voice notes and diagnostic data are stored; we do not yet say it is in the European Union.] Where a provider we use is outside the UK, we rely on the safeguards it offers for the transfer. [Owner to confirm the transfer wording.]
+
+## Changes
+
+We may update this notice. The version and date at the top show the latest revision. A change that adds a new kind of data to be sent is shown in the app before the till sends it.

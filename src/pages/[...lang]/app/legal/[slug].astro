@@ -1,0 +1,50 @@
+---
+import { render } from 'astro:content';
+import BaseLayout, { LANGS, SOURCE_LOCALE } from '../../../../layouts/BaseLayout.astro';
+import { getAllLocalizedLegalPages, translatedLangsOf } from '../../../../lib/legalPages';
+import { formatDate } from '../../../../lib/dates';
+
+// In-app view of the legal pages (ut-docs#6398; ADR-0194 section 2.3).
+// The till's store builds (Google Play, App Store) may link to a legal page
+// only if it leads to no checkout. The normal pages carry the site menu with
+// Pricing and "Get started", so the app links here instead: same text, same
+// content collection, but no menu, no Pricing, no Get started, no footer
+// links (BaseLayout `chromeless`). It is noindex and its canonical is the
+// normal page, so search engines still see one copy.
+export async function getStaticPaths() {
+  const byLocale = await getAllLocalizedLegalPages();
+  return LANGS.flatMap((lang) =>
+    (byLocale[lang] ?? []).map(({ page, slug, isFallback }) => ({
+      params: { lang, slug },
+      props: { page, isFallback, translatedLangs: translatedLangsOf(byLocale, slug) },
+    })),
+  );
+}
+
+const { page, isFallback } = Astro.props;
+const { lang, slug } = Astro.params;
+const { Content } = await render(page);
+---
+
+<BaseLayout
+  title={page.data.title}
+  description={page.data.summary}
+  lang={lang}
+  path={`/app/legal/${slug}/`}
+  canonicalPath={`/legal/${slug}/`}
+  isFallback={isFallback}
+  noindex={true}
+  legalEnglish={isFallback}
+  chromeless={true}
+>
+  <article class="section" style="max-width:44rem" data-app-legal>
+    <h1 dir={isFallback ? 'ltr' : undefined} lang={isFallback ? 'en' : undefined}>{page.data.title}</h1>
+    <p class="muted" style="font-size:.85rem;margin:.2rem 0 1rem" dir={isFallback ? 'ltr' : undefined} lang={isFallback ? 'en' : undefined}>
+      <bdi><time datetime={page.data.updated.toISOString().slice(0, 10)}>{formatDate(page.data.updated, isFallback ? SOURCE_LOCALE : lang)}</time></bdi>
+    </p>
+    <div style="line-height:1.7;color:var(--ink-soft)" dir={isFallback ? 'ltr' : undefined} lang={isFallback ? 'en' : undefined}>
+      <Content />
+    </div>
+  </article>
+  <script src="/app-legal-links.js" defer></script>
+</BaseLayout>
