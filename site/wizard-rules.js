@@ -89,7 +89,7 @@
   // i18n reason line per BUILT data rule (key ids are this site's, not ut-docs').
   var REASON_OF_RULE = {
     huge: "wiz.r.huge", multi: "wiz.r.multi", "managed-fiscal": "wiz.r.defiscal",
-    "members-2": "wiz.r.members2", "members-5": "wiz.r.members5", "members-50": "wiz.r.members50",
+    "members-2": "wiz.r.members2", "members-5": "wiz.r.members5", "members-more": "wiz.r.membersmore",
     roles: "wiz.r.roles", archive: "wiz.r.archive", remote: "wiz.r.remote",
     tables: "wiz.r.tables", stock: "wiz.r.stock",
   };
