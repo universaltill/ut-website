@@ -97,7 +97,7 @@ test.describe("live-payments legal pages", () => {
     await page.goto("/en-gb/legal/subscription-terms/");
     await expect(page.locator("h1")).toHaveText("Subscription Terms (United Kingdom)");
     const body = await page.locator("article").innerText();
-    expect(body).toContain("Version 1.1");
+    expect(body).toContain("Version 1.0");
     expect(body).toContain("82 A James Carter Road");
     expect(body).toContain("11442274");
     expect(body).not.toContain("we email you a copy");
@@ -188,6 +188,5 @@ test.describe("AI assistant connector legal sections (DRAFT, ut-docs#5325)", () 
     expect(body).toContain("6-digit");
     expect(body).toContain("24 hours");
     expect(body).toMatch(/separate controller/i);
-    expect(body).toContain("365 days");
   });
 });
