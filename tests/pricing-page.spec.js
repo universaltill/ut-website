@@ -10,6 +10,13 @@ import { LOCALES, LOCALE_INFO, ENGLISH } from "./helpers/locales.js";
 const ROOT = path.resolve(import.meta.dirname, "..");
 const DATA = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "plan-prices.json"), "utf8"));
 const COUNTRY = { uk: "gb", de: "de", eu: "eurozone" };
+// ut-docs#6722: the URL locale is the country; ONE market per page, none for an unpriced locale.
+const MARKET_OF = { "en-gb": "uk", "de-de": "de", "el-gr": "eu", "es-es": "eu", "fr-fr": "eu", "it-it": "eu", "pt-pt": "eu" };
+const marketOf = (l) => MARKET_OF[l] || null;
+const amountsOf = (key) => {
+  const c = DATA.countries[key];
+  return [...Object.values(PLAN).flatMap((code) => [c.annual_per_month_minor[code], c.monthly_minor[code], c.monthly_minor[code] * 10]), c.extra_location.monthly_minor, c.extra_location.annual_per_month_minor];
+};
 const PLAN = { plus: "local_plus", shop: "shop", pro: "pro", multi: "multi_location" };
 const bcp47 = (l) => LOCALE_INFO.find((x) => x.url === l).bcp47;
 
@@ -32,26 +39,40 @@ test.describe("/pricing: prices come from the data, in the raw HTML", () => {
       expect(res.status()).toBe(200);
       const html = await res.text();
       const body = norm(text(html));
-      for (const [mid, key] of Object.entries(COUNTRY)) {
-        const c = DATA.countries[key];
-        const panel = html.match(new RegExp(`<div class="price-market" data-market="${mid}"[\\s\\S]*?(?=<div class="price-market" data-market=|<div class="price-other")`))[0];
-        const ptext = norm(text(panel));
-        for (const [p, code] of Object.entries(PLAN)) {
-          expect(ptext, `${locale} ${mid} ${p} annual`).toContain(money(locale, c.currency, c.annual_per_month_minor[code]));
-          expect(ptext, `${locale} ${mid} ${p} monthly`).toContain(money(locale, c.currency, c.monthly_minor[code]));
-          // billed up front = ten months
-          expect(ptext, `${locale} ${mid} ${p} yearly total`).toContain(money(locale, c.currency, c.monthly_minor[code] * 10));
-        }
-        expect(ptext).toContain(money(locale, c.currency, c.extra_location.monthly_minor));
-        expect(ptext).toContain(money(locale, c.currency, c.extra_location.annual_per_month_minor));
-        if (c.tse_per_main_till) {
-          expect(panel).toContain("data-tse");
-          expect(ptext).toContain(money(locale, c.currency, c.tse_per_main_till.monthly_minor));
-          expect(ptext).toContain(new Intl.NumberFormat(numLocale(locale)).format(c.tse_per_main_till.min_months_per_activated_till));
-        } else {
-          expect(panel).not.toContain("data-tse");
-        }
+      const mid = marketOf(locale);
+      if (!mid) {
+        expect(html, `${locale} has no priced market`).not.toContain("data-plan-price=\"plus\"");
+        for (const key of Object.values(COUNTRY)) for (const v of amountsOf(key)) expect(body, `${locale} must show no ${key} price`).not.toContain(money(locale, DATA.countries[key].currency, v));
+        expect(body).not.toMatch(/[£€]\s?\d|\d\s?[£€]|\b(GBP|EUR)\b/);
+        expect(html).not.toContain("data-tse");
+        expect(html).not.toContain("data-effective-from");
+        expect(html).toContain("mailto:hello@universaltill.com");
+        expect(html).toContain('data-plan-price="local"');
+        return;
       }
+      // exactly ONE market panel, and it is this locale's
+      expect([...html.matchAll(/data-market="([a-z]+)"/g)].map((m) => m[1]), locale).toEqual([mid]);
+      const c = DATA.countries[COUNTRY[mid]];
+      const panel = html.match(/<div class="price-market" data-market=[\s\S]*?(?=<div class="price-gaps")/)[0];
+      const ptext = norm(text(panel));
+      for (const [p, code] of Object.entries(PLAN)) {
+        expect(ptext, `${locale} ${mid} ${p} annual`).toContain(money(locale, c.currency, c.annual_per_month_minor[code]));
+        expect(ptext, `${locale} ${mid} ${p} monthly`).toContain(money(locale, c.currency, c.monthly_minor[code]));
+        expect(ptext, `${locale} ${mid} ${p} yearly total`).toContain(money(locale, c.currency, c.monthly_minor[code] * 10));
+      }
+      expect(ptext).toContain(money(locale, c.currency, c.extra_location.monthly_minor));
+      expect(ptext).toContain(money(locale, c.currency, c.extra_location.annual_per_month_minor));
+      if (c.tse_per_main_till) {
+        expect(panel).toContain("data-tse");
+        expect(ptext).toContain(money(locale, c.currency, c.tse_per_main_till.monthly_minor));
+        expect(ptext).toContain(new Intl.NumberFormat(numLocale(locale)).format(c.tse_per_main_till.min_months_per_activated_till));
+      } else {
+        expect(html).not.toContain("data-tse");
+      }
+      // no other market's price is on the page (GBP vs EUR symbols never mix)
+      const otherCur = c.currency === "GBP" ? "EUR" : "GBP";
+      expect(body, `${locale} shows a ${otherCur} price`).not.toMatch(new RegExp(otherCur === "GBP" ? "£\\s?\\d|\\d\\s?£|GBP" : "€\\s?\\d|\\d\\s?€|EUR"));
+      if (mid === "eu") for (const v of amountsOf("de")) if (!amountsOf("eurozone").includes(v)) expect(body, `${locale} shows a German-only amount`).not.toContain(money(locale, "EUR", v));
       expect(body).toContain(new Intl.DateTimeFormat(numLocale(locale), { dateStyle: "long", timeZone: "UTC" }).format(new Date(DATA.effective_from + "T00:00:00Z")).replace(/[\u00a0\u202f]/g, " "));
     });
   }
@@ -62,7 +83,7 @@ test.describe("/pricing: prices come from the data, in the raw HTML", () => {
     for (const n of ["Local", "Local Plus", "Shop", "Pro", "Multi-location", "Enterprise and chains"]) expect(t).toContain(n);
     expect(t).toContain("excl. VAT");
     expect(t).toContain("All prices exclude VAT");
-    expect(t).toContain("not published yet");
+    expect(t).not.toContain("not published yet");
     expect(t).toContain("Not yet");
     expect(t).toContain("never charged per till");
     expect(html).toContain('href="/en-gb/download"');
@@ -74,7 +95,7 @@ test.describe("/pricing: prices come from the data, in the raw HTML", () => {
 
   test("en-gb: annual billing is shown before monthly on every paid plan, and the UK TSE line is absent", async ({ request }) => {
     const html = await (await request.get("/en-gb/pricing")).text();
-    const uk = html.match(/<div class="price-market" data-market="uk"[\s\S]*?(?=<div class="price-market" data-market="de")/)[0];
+    const uk = html.match(/<div class="price-market" data-market="uk"[\s\S]*?(?=<div class="price-gaps")/)[0];
     const cards = uk.split('<article class="card price-card"').slice(1).filter((c) => /data-plan="(plus|shop|pro|multi)"/.test(c));
     expect(cards).toHaveLength(4);
     for (const c of cards) {
@@ -87,11 +108,11 @@ test.describe("/pricing: prices come from the data, in the raw HTML", () => {
 
   test("de-de: the German panel carries the TSE line with the 12-month minimum, as the wizard words it", async ({ request }) => {
     const html = await (await request.get("/de-de/pricing")).text();
-    const de = html.match(/<div class="price-market" data-market="de"[\s\S]*?(?=<div class="price-market" data-market="eu")/)[0];
+    const de = html.match(/<div class="price-market" data-market="de"[\s\S]*?(?=<div class="price-gaps")/)[0];
     const t = norm(text(de));
     expect(t).toContain("TSE");
     expect(t).toContain(String(DATA.countries.de.tse_per_main_till.min_months_per_activated_till));
-    expect(html).toMatch(/data-default-market="de"/);
+    expect(html).not.toMatch(/data-market="(uk|eu)"/);
   });
 });
 
@@ -141,25 +162,27 @@ test.describe("/pricing: links and the picker", () => {
     for (const h of hrefs) expect((await request.get(h)).status(), h).toBe(200);
   });
 
-  test("with JavaScript the page opens on the locale's market and the picker switches", async ({ page }) => {
-    await page.goto("/en-gb/pricing");
-    await expect(page.locator('[data-market="uk"]')).toBeVisible();
-    await expect(page.locator('[data-market="de"]')).toBeHidden();
-    await page.locator('button[data-for="de"]').click();
-    await expect(page.locator('[data-market="de"]')).toBeVisible();
-    await expect(page.locator('[data-market="uk"]')).toBeHidden();
-    await expect(page.locator('[data-tse]')).toBeVisible();
-    await page.goto("/de-de/pricing");
-    await expect(page.locator('[data-market="de"]')).toBeVisible();
+  test("no tabs or picker anywhere: one market per page, same with JavaScript on or off", async ({ page, browser }) => {
+    for (const [locale, mid] of [["en-gb", "uk"], ["de-de", "de"], ["fr-fr", "eu"]]) {
+      await page.goto(`/${locale}/pricing`);
+      await expect(page.locator("[data-market]")).toHaveCount(1);
+      await expect(page.locator(`[data-market="${mid}"]`)).toBeVisible();
+      await expect(page.locator("[data-picker], button[data-for], .price-pick")).toHaveCount(0);
+    }
+    const ctx = await browser.newContext({ javaScriptEnabled: false });
+    const nojs = await ctx.newPage();
+    await nojs.goto("/de-de/pricing");
+    await expect(nojs.locator("[data-market]")).toHaveCount(1);
+    await expect(nojs.locator('[data-market="de"]')).toBeVisible();
+    await ctx.close();
   });
 
-  test("with JavaScript off every market is shown and the picker is not", async ({ browser }) => {
-    const ctx = await browser.newContext({ javaScriptEnabled: false });
-    const page = await ctx.newPage();
-    await page.goto("/en-gb/pricing");
-    for (const m of ["uk", "de", "eu"]) await expect(page.locator(`[data-market="${m}"]`)).toBeVisible();
-    await expect(page.locator("[data-picker]")).toBeHidden();
-    await ctx.close();
+  test("an unpriced locale shows free Local and Talk to us, no paid price", async ({ page }) => {
+    for (const locale of LOCALES.filter((l) => !marketOf(l))) {
+      await page.goto(`/${locale}/pricing`);
+      await expect(page.locator('[data-market="none"]')).toBeVisible();
+      await expect(page.locator('[data-plan-price="plus"], [data-plan-price="shop"], [data-plan-price="pro"], [data-plan-price="multi"]')).toHaveCount(0);
+    }
   });
 
   test("Pricing is linked from the header and the footer of the home page in every locale", async ({ request }) => {

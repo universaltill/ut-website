@@ -545,10 +545,7 @@ img { max-width: 100%; }
 
 /* Pricing page (ut-docs#4963) */
 .pricing .price-intro { text-align: center; max-width: 44rem; margin: 0 auto .6rem; color: var(--ink-soft); }
-.price-picker { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; margin: 1.2rem 0; }
-.price-picker[hidden], .price-market[hidden] { display: none; }
-.price-pick { min-height: 44px; cursor: pointer; font: inherit; }
-.price-pick[aria-pressed="true"] { background: var(--brand); color: #fff; border-color: var(--brand); }
+
 .price-market { margin: 1.4rem 0 2rem; }
 .price-market > h2 { text-align: center; font-size: 1.3rem; margin: 0 0 1rem; }
 .price-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
@@ -557,6 +554,6 @@ img { max-width: 100%; }
 .price-card .price-sub { font-size: .9rem; margin: 0 0 .25rem; }
 .price-feats { margin: .8rem 0; padding-inline-start: 1.1rem; color: var(--ink-soft); font-size: .93rem; }
 .price-cta { margin-top: auto; padding-top: .6rem; }
-.price-tse, .price-other, .price-gaps { max-width: 48rem; margin: 1.4rem auto; padding: 1rem 1.2rem; border: 1px solid var(--border); border-radius: var(--radius); }
-.price-tse h3, .price-other h2, .price-gaps h2 { margin: 0 0 .5rem; font-size: 1.1rem; }
+.price-tse, .price-gaps { max-width: 48rem; margin: 1.4rem auto; padding: 1rem 1.2rem; border: 1px solid var(--border); border-radius: var(--radius); }
+.price-tse h3, .price-gaps h2 { margin: 0 0 .5rem; font-size: 1.1rem; }
 .price-eff, .price-legal { text-align: center; color: var(--ink-soft); font-size: .9rem; }
