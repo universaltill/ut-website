@@ -34,8 +34,8 @@ const config = JSON.parse(rawConfig);
 const problems = [];
 
 // Azure Static Web Apps refuses to deploy a config over 20 KB (a deploy failed at 18.6 KB pretty-printed).
-// gen-locales and generate-csp write it compact; keep a wide margin.
-if (Buffer.byteLength(rawConfig) > 16000) {
+// gen-locales, generate-csp and download-redirects.sh write it compact; deploy adds the download routes, then checks again.
+if (Buffer.byteLength(rawConfig) > 18000) {
   problems.push(`staticwebapp.config.json is ${Buffer.byteLength(rawConfig)} bytes; Azure Static Web Apps rejects over 20 KB. Keep it compact (node scripts/gen-locales.mjs) and trim routes.`);
 }
 

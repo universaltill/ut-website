@@ -43,6 +43,6 @@ while IFS='|' read -r key stable asset fallback; do
 done <<<"$entries"
 
 # Redirects go first so they win over any catch-all route.
-jq --argjson r "$routes" '.routes = ($r + (.routes // []))' "$cfg" >"$cfg.tmp" && mv "$cfg.tmp" "$cfg"
+jq -c --argjson r "$routes" '.routes = ($r + (.routes // []))' "$cfg" >"$cfg.tmp" && mv "$cfg.tmp" "$cfg"
 jq -n --arg v "$ver" --arg t "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson d "$downloads" \
   '{version:$v, released:$t, downloads:$d}' >"$site/downloads/latest.json"
