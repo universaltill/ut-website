@@ -158,6 +158,8 @@ export function localeRoutes(list) {
   for (const l of websiteLocales(list)) {
     for (const p of PAGES) out.push({ route: `/${l.url}${p.suffix}`, rewrite: `/${l.url}/${p.file}` });
     for (const s of REDIRECT_SUFFIXES) out.push({ route: `/${l.url}${s}`, redirect: `/${l.url}`, statusCode: 301 });
+    // The retired cloud-terms page is now the English Merchant Terms (ut-docs#3264), in every locale.
+    out.push({ route: `/${l.url}/legal/cloud-terms`, redirect: `/${SOURCE}/legal/merchant-terms/`, statusCode: 301 });
   }
   const seen = new Set();
   for (const l of websiteLocales(list)) {
