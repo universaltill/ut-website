@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { getEntry } from 'astro:content';
 import { LANGS } from '../layouts/BaseLayout.astro';
 import { getAllLocalizedPosts } from '../lib/blogPosts';
 import { getAllLocalizedLegalPages } from '../lib/legalPages';
@@ -69,6 +70,9 @@ export const GET: APIRoute = async ({ site }) => {
       entries.push(urlEntry(`${base}/${lang}/claude/`, page.data.updated.toISOString()));
     }
   }
+
+  const support = await getEntry('support', 'en-gb/support');
+  if (support) entries.push(urlEntry(`${base}/en-gb/support/`, support.data.updated.toISOString()));
 
   const body =
     '<?xml version="1.0" encoding="UTF-8"?>\n' +

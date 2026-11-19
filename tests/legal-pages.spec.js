@@ -161,3 +161,32 @@ test.describe("live-payments legal pages", () => {
     await expect(page.locator("[data-legal-english]")).toBeVisible();
   });
 });
+
+// ut-docs#5325: the AI assistant connector sections are DRAFT until the owner
+// signs off. Delete the DRAFT assertions then (legal-reviews/2026-11-19-connector-legal-5325.md).
+test.describe("AI assistant connector legal sections (DRAFT, ut-docs#5325)", () => {
+  for (const [slug, link] of [["privacy", "/en-gb/support/"], ["subscription-terms", "/en-gb/legal/privacy/"]]) {
+    test(`${slug} has a DRAFT-marked AI assistant connector section`, async ({ page }) => {
+      await page.goto(`/en-gb/legal/${slug}/`);
+      await expect(page.locator("article h2", { hasText: "AI assistant connector" })).toHaveCount(1);
+      const body = await page.locator("article").innerText();
+      expect(body).toContain("DRAFT");
+      expect(body).toContain("5325");
+      // the link must sit inside the connector section, not elsewhere on the page
+      const section = await page.locator("article").evaluate((el) => {
+        const h = [...el.querySelectorAll("h2")].find((x) => x.textContent.includes("AI assistant connector"));
+        let html = "";
+        for (let n = h.nextElementSibling; n && n.tagName !== "H2"; n = n.nextElementSibling) html += n.outerHTML;
+        return html;
+      });
+      expect(section).toContain(`href="${link}"`);
+    });
+  }
+  test("privacy states the activation rules and the separate-controller point", async ({ page }) => {
+    await page.goto("/en-gb/legal/privacy/");
+    const body = await page.locator("article").innerText();
+    expect(body).toContain("6-digit");
+    expect(body).toContain("24 hours");
+    expect(body).toMatch(/separate controller/i);
+  });
+});

@@ -36,7 +36,7 @@ export const PAGES = [
 ];
 /** Locale-relative paths that 301 to the locale root (the store was removed). */
 export const REDIRECT_SUFFIXES = ["/store"];
-/** Locale-relative paths that 301 to another page of the same locale (/support is the contact page, ut-docs#1434). */
+/** Locale-relative paths that 301 to another page of the same locale (/support is the contact page, ut-docs#1434). The source locale (en-gb) is exempt: it has a real support page since ut-docs#5325. */
 export const PAGE_REDIRECTS = [{ suffix: "/support", to: "/contact" }];
 /** Astro-built sections whose index every locale has. */
 export const ASTRO_INDEXES = ["/blog/", "/plugins/", "/help/", "/legal/impressum/", "/legal/privacy/", "/legal/terms/"];
@@ -162,7 +162,7 @@ export function localeRoutes(list) {
   for (const l of websiteLocales(list)) {
     for (const p of PAGES) out.push({ route: `/${l.url}${p.suffix}`, rewrite: `/${l.url}/${p.file}` });
     for (const s of REDIRECT_SUFFIXES) out.push({ route: `/${l.url}${s}`, redirect: `/${l.url}`, statusCode: 301 });
-    for (const r of PAGE_REDIRECTS) out.push({ route: `/${l.url}${r.suffix}`, redirect: `/${l.url}${r.to}`, statusCode: 301 });
+    for (const r of PAGE_REDIRECTS.filter(() => l.url !== SOURCE)) out.push({ route: `/${l.url}${r.suffix}`, redirect: `/${l.url}${r.to}`, statusCode: 301 });
   }
   const seen = new Set();
   for (const l of websiteLocales(list)) {

@@ -173,3 +173,10 @@ test("a published list with an odd url locale is refused, and shared language al
   const aliases = localeRoutes({ locales: [l("en-gb"), l("pt-pt"), l("pt-br")], withdrawn: [] }).filter((r) => r.route === "/pt");
   assert.equal(aliases.length, 1);
 });
+
+test("/support redirects to contact in every locale except the source, which has a real page (ut-docs#5325)", () => {
+  const l = (url) => ({ url, native_name: url, english_name: url, dir: "ltr", surfaces: { website: { published: true } } });
+  const routes = localeRoutes({ locales: [l("en-gb"), l("de-de")], withdrawn: [] });
+  assert.ok(routes.some((r) => r.route === "/de-de/support" && r.redirect === "/de-de/contact"));
+  assert.ok(!routes.some((r) => r.route === "/en-gb/support"));
+});
