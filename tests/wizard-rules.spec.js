@@ -195,7 +195,13 @@ test("AC3: 3 to 5 people, custom roles or the cloud archive are Pro (49 / 40.83)
 test("AC4: more than 5 people is Multi-location even with one location, and says why", () => {
   const r = rec({ people: "more", sites: "one" });
   expect(r).toMatchObject({ plan: "multi", route: "cloud" });
-  expect(r.reasons).toContain("wiz.r.members50");
+  expect(r.reasons).toContain("wiz.r.membersmore");
+  // Multi-location includes 20 team members, more is "talk to us" (owner, 2026-11-19, ut-docs#6713).
+  const en = ALL_I18N["en-gb"];
+  expect(en["wiz.r.membersmore"]).toContain("Multi-location up to 20. For more than 20, talk to us.");
+  expect(en["pricing.f.multi.3"]).toContain("Up to 20 people besides you");
+  expect(en["pricing.f.multi.3"]).toContain("For more than 20, talk to us.");
+  for (const k of ["wiz.r.membersmore", "pricing.f.multi.3"]) expect(en[k], k).not.toMatch(/\b50\b/);
   expect(r.reasons).not.toContain("wiz.r.multi");
   expect(r.price.extra).toBe(false);
   expect(rec({ people: "none" })).toMatchObject({ plan: "local", reasons: ["wiz.r.local"] });
@@ -207,7 +213,7 @@ test("a reason that names a plan starts with 'From' so it stays true under a hig
   expect(r.plan).toBe("pro");
   expect(r.reasons).toEqual(expect.arrayContaining(["wiz.r.members2", "wiz.r.roles", "wiz.r.archive"]));
   for (const k of ["wiz.r.members2", "wiz.r.members5", "wiz.r.roles", "wiz.r.archive"]) expect(en[k], k).toMatch(/^From (Shop|Pro),/);
-  for (const k of ["wiz.r.members2", "wiz.r.members5", "wiz.r.members50", "wiz.r.roles", "wiz.r.archive", "wiz.gap.mobilesync", "wiz.gap.accountant", "wiz.gap.phone"]) {
+  for (const k of ["wiz.r.members2", "wiz.r.members5", "wiz.r.membersmore", "wiz.r.roles", "wiz.r.archive", "wiz.gap.mobilesync", "wiz.gap.accountant", "wiz.gap.phone"]) {
     expect(en[k], k).not.toMatch(/legal|compliant|audit|certified|revisionssicher/i);
     expect(en[k], k).not.toMatch(/\b20\d\d\b/); // no date promised
   }

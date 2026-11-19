@@ -13,7 +13,7 @@
     { "id": "managed-fiscal", "if": { "needs": ["fiscal"], "country": "managed_fiscal_markets" }, "plan": "shop", "ladder_row": "Fiscal device and audit export (where the market requires one)", "built": true },
     { "id": "members-2", "if": { "people": ["upto2"] }, "plan": "shop", "ladder_row": "Team members on my., besides the owner", "built": true },
     { "id": "members-5", "if": { "people": ["upto5"] }, "plan": "pro", "ladder_row": "Team members on my., besides the owner", "built": true },
-    { "id": "members-50", "if": { "people": ["more"] }, "plan": "multi_location", "ladder_row": "Team members on my., besides the owner", "built": true },
+    { "id": "members-more", "if": { "people": ["more"] }, "plan": "multi_location", "ladder_row": "Team members on my., besides the owner", "built": true },
     { "id": "roles", "if": { "needs": ["roles"] }, "plan": "pro", "ladder_row": "Custom staff roles, edited in my.", "built": true },
     { "id": "archive", "if": { "needs": ["archive"] }, "plan": "pro", "ladder_row": "Cloud archive of receipts and reports", "built": true },
     { "id": "remote", "if": { "needs": ["remote"] }, "plan": "local_plus", "ladder_row": "Cloud sync and manage from a browser (my.)", "built": true },
@@ -25,8 +25,8 @@
   ],
   "notes": [
     "Tills: unlimited tills in one shop, synced over the shop's own network, are on every plan and the software is never metered per till (ladder row 'Unlimited tills in one shop'). So the wizard asks no till-count question: several tills on one network never change the plan. A till away from the shop's network is the 'away' rule (Pro once ut-docs#4196 ships). In Germany the managed TSE line is priced per main till in plan-prices.json.",
-    "Team members are the people who sign in to my. besides the owner (ut-cloud subscription.MemberLimit: Shop 2, Pro 5, Multi-location 50, Enterprise and chains no plan cap; ut-docs#4115). Till staff accounts, fixed roles and shifts are on every plan and are not team members.",
-    "More than 5 team members lands on Multi-location even with one location: it is the cheapest plan with more than 5 (50). More than 50 is Enterprise and chains (talk to us); the wizard does not ask for it separately.",
+    "Team members are the people who sign in to my. besides the owner (ut-cloud subscription.MemberLimit: Shop 2, Pro 5, Multi-location 20, Enterprise and chains no plan cap; ut-docs#4115, Multi-location cut from 50 to 20 on 2026-11-19 by ut-docs#6713). Till staff accounts, fixed roles and shifts are on every plan and are not team members.",
+    "More than 5 team members lands on Multi-location even with one location: it is the cheapest plan with more than 5 (20). More than 20 is Enterprise and chains (talk to us); the wizard does not ask for it separately.",
     "managed_fiscal_markets lists the wizard country ids where we provide a managed fiscal device from Shop (today Germany's TSE). A market joins when its managed device exists (subscription-plans.md, Fiscal markets); the website's reason text for that rule names Germany and needs a new key when a second market joins.",
     "built false = Coming soon in subscription-plans.md Implementation status. Flip it to true the day the row ships; the website then refuses to load until it gives that rule a reason line and drops its not-yet line."
   ]
