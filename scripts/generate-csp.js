@@ -215,7 +215,7 @@ if (mode === "check") {
 
 // --write
 siteConfig.globalHeaders = { ...siteConfig.globalHeaders, "Content-Security-Policy": csp };
-const written = JSON.stringify(siteConfig, null, 2) + "\n";
+const written = JSON.stringify(siteConfig) + "\n";
 fs.writeFileSync(siteConfigPath, written);
 // Keep dist/ in sync too — astro build copies publicDir (site/) to dist/ at
 // the START of the build, before this script ever runs, so dist's copy is
