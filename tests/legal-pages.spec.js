@@ -163,7 +163,9 @@ test.describe("merchant terms, DPA and cloud privacy", () => {
     const body = await page.locator("article").innerText();
     expect(body).toContain("dpa-v1.0");
     expect(body).toMatch(/Where we are a controller, not your processor/);
-    for (const name of ["Microsoft Azure", "Brevo", "GitHub"]) expect(body).toContain(name);
+    for (const name of ["Microsoft Azure", "Brevo"]) expect(body).toContain(name);
+    // GitHub is not a sub-processor while the organisation is on the Free plan (ut-docs#3264, #5555).
+    expect(body).not.toContain("GitHub");
     await expect(page.locator('article a[href="/en-gb/legal/merchant-terms/"]')).toHaveCount(1);
   });
 
