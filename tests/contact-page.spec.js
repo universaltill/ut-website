@@ -1,4 +1,5 @@
-// /<locale>/contact and the /<locale>/support redirect (ut-docs#1434). Plain
+// /<locale>/contact and the /<locale>/support redirect for every locale except
+// en-gb, which has a real support page since ut-docs#5325 (support-page.spec.js). Plain
 // mailto links to allow-listed aliases only: no form, no third-party service.
 import { expect, test } from "@playwright/test";
 
@@ -60,23 +61,18 @@ test.describe("/contact", () => {
 });
 
 test.describe("/support redirects to /contact", () => {
-  for (const locale of LOCALES) {
+  for (const locale of LOCALES.filter((l) => l !== "en-gb")) {
     test(`/${locale}/support 301s to /${locale}/contact`, async ({ request }) => {
       const res = await request.get(`/${locale}/support`, { maxRedirects: 0 });
       expect(res.status()).toBe(301);
       expect(res.headers()["location"]).toBe(`/${locale}/contact`);
     });
   }
-  for (const [from, to] of [["/support", "/en-gb/contact"], ["/contact", "/en-gb/contact"], ["/pricing", "/en-gb/pricing"], ["/pricing.html", "/en-gb/pricing"], ["/contact.html", "/en-gb/contact"]]) {
+  for (const [from, to] of [["/support", "/en-gb/support/"], ["/contact", "/en-gb/contact"], ["/pricing", "/en-gb/pricing"], ["/pricing.html", "/en-gb/pricing"], ["/contact.html", "/en-gb/contact"]]) {
     test(`${from} 301s to ${to}`, async ({ request }) => {
       const res = await request.get(from, { maxRedirects: 0 });
       expect(res.status()).toBe(301);
       expect(res.headers()["location"]).toBe(to);
     });
   }
-  test("following /en-gb/support lands on a 200 contact page", async ({ request }) => {
-    const res = await request.get("/en-gb/support");
-    expect(res.status()).toBe(200);
-    expect(await res.text()).toContain("Contact us");
-  });
 });

@@ -63,4 +63,15 @@ const connector = defineCollection({
   }),
 });
 
-export const collections = { blog, legal, connector };
+// Support page (ut-docs#5325): English only; other locales redirect to their
+// own contact page (staticwebapp.config.json).
+const support = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/support' }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    updated: z.coerce.date(),
+  }),
+});
+
+export const collections = { blog, legal, connector, support };

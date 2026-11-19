@@ -48,11 +48,6 @@
       "statusCode": 301
     },
     {
-      "route": "/en-gb/support",
-      "redirect": "/en-gb/contact",
-      "statusCode": 301
-    },
-    {
       "route": "/ar-sa",
       "rewrite": "/ar-sa/index.html"
     },
@@ -705,7 +700,7 @@
     },
     {
       "route": "/support",
-      "redirect": "/en-gb/contact",
+      "redirect": "/en-gb/support/",
       "statusCode": 301
     },
     {
