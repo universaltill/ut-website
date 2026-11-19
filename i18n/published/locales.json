@@ -11,15 +11,27 @@
       "dir": "rtl",
       "english_name": "Arabic",
       "native_name": "العربية",
-      "published": false,
-      "reason": "no surface has English in this repo yet",
+      "published": true,
+      "reason": "",
       "human_reviewed": false,
       "machine_label": true,
       "review_verified": false,
       "legal_approved": false,
       "surfaces": {
         "website": {
-          "published": false
+          "published": true,
+          "approved": 420,
+          "total": 484,
+          "coverage": 1,
+          "core_ok": true,
+          "omitted_broken": 0,
+          "omitted_legal": 64,
+          "omitted": {
+            "legal_english_only": 64
+          },
+          "legal_approved": false,
+          "legal_keys": 64,
+          "review_verified": false
         }
       }
     },
@@ -68,15 +80,27 @@
       "dir": "ltr",
       "english_name": "Greek",
       "native_name": "Ελληνικά",
-      "published": false,
-      "reason": "no surface has English in this repo yet",
+      "published": true,
+      "reason": "",
       "human_reviewed": false,
       "machine_label": true,
       "review_verified": false,
       "legal_approved": false,
       "surfaces": {
         "website": {
-          "published": false
+          "published": true,
+          "approved": 420,
+          "total": 484,
+          "coverage": 1,
+          "core_ok": true,
+          "omitted_broken": 0,
+          "omitted_legal": 64,
+          "omitted": {
+            "legal_english_only": 64
+          },
+          "legal_approved": false,
+          "legal_keys": 64,
+          "review_verified": false
         }
       }
     },
@@ -123,15 +147,27 @@
       "dir": "ltr",
       "english_name": "Spanish",
       "native_name": "Español",
-      "published": false,
-      "reason": "no surface has English in this repo yet",
+      "published": true,
+      "reason": "",
       "human_reviewed": false,
       "machine_label": true,
       "review_verified": false,
       "legal_approved": false,
       "surfaces": {
         "website": {
-          "published": false
+          "published": true,
+          "approved": 420,
+          "total": 484,
+          "coverage": 1,
+          "core_ok": true,
+          "omitted_broken": 0,
+          "omitted_legal": 64,
+          "omitted": {
+            "legal_english_only": 64
+          },
+          "legal_approved": false,
+          "legal_keys": 64,
+          "review_verified": false
         }
       }
     },
@@ -180,15 +216,27 @@
       "dir": "ltr",
       "english_name": "French",
       "native_name": "Français",
-      "published": false,
-      "reason": "no surface has English in this repo yet",
+      "published": true,
+      "reason": "",
       "human_reviewed": false,
       "machine_label": true,
       "review_verified": false,
       "legal_approved": false,
       "surfaces": {
         "website": {
-          "published": false
+          "published": true,
+          "approved": 420,
+          "total": 484,
+          "coverage": 1,
+          "core_ok": true,
+          "omitted_broken": 0,
+          "omitted_legal": 64,
+          "omitted": {
+            "legal_english_only": 64
+          },
+          "legal_approved": false,
+          "legal_keys": 64,
+          "review_verified": false
         }
       }
     },
@@ -200,15 +248,27 @@
       "dir": "ltr",
       "english_name": "Italian",
       "native_name": "Italiano",
-      "published": false,
-      "reason": "no surface has English in this repo yet",
+      "published": true,
+      "reason": "",
       "human_reviewed": false,
       "machine_label": true,
       "review_verified": false,
       "legal_approved": false,
       "surfaces": {
         "website": {
-          "published": false
+          "published": true,
+          "approved": 420,
+          "total": 484,
+          "coverage": 1,
+          "core_ok": true,
+          "omitted_broken": 0,
+          "omitted_legal": 64,
+          "omitted": {
+            "legal_english_only": 64
+          },
+          "legal_approved": false,
+          "legal_keys": 64,
+          "review_verified": false
         }
       }
     },
@@ -220,15 +280,27 @@
       "dir": "ltr",
       "english_name": "Malay",
       "native_name": "Bahasa Melayu",
-      "published": false,
-      "reason": "no surface has English in this repo yet",
+      "published": true,
+      "reason": "",
       "human_reviewed": false,
       "machine_label": true,
       "review_verified": false,
       "legal_approved": false,
       "surfaces": {
         "website": {
-          "published": false
+          "published": true,
+          "approved": 420,
+          "total": 484,
+          "coverage": 1,
+          "core_ok": true,
+          "omitted_broken": 0,
+          "omitted_legal": 64,
+          "omitted": {
+            "legal_english_only": 64
+          },
+          "legal_approved": false,
+          "legal_keys": 64,
+          "review_verified": false
         }
       }
     },
@@ -240,15 +312,27 @@
       "dir": "ltr",
       "english_name": "Portuguese",
       "native_name": "Português",
-      "published": false,
-      "reason": "no surface has English in this repo yet",
+      "published": true,
+      "reason": "",
       "human_reviewed": false,
       "machine_label": true,
       "review_verified": false,
       "legal_approved": false,
       "surfaces": {
         "website": {
-          "published": false
+          "published": true,
+          "approved": 420,
+          "total": 484,
+          "coverage": 1,
+          "core_ok": true,
+          "omitted_broken": 0,
+          "omitted_legal": 64,
+          "omitted": {
+            "legal_english_only": 64
+          },
+          "legal_approved": false,
+          "legal_keys": 64,
+          "review_verified": false
         }
       }
     },

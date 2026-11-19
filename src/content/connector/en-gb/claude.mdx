@@ -1,0 +1,120 @@
+---
+title: "Use Universal Till in Claude"
+summary: "How to connect your shop's Universal Till account to your own Claude account, what Claude can see, and how you stay in control."
+updated: 2026-11-04
+---
+
+<h2 id="what">What it is and what you need</h2>
+
+Universal Till connects to Claude through a remote MCP connector. Once you add it to your own Claude account, Claude can read parts of your shop and propose changes. You decide what it may see, and nothing changes until you confirm it.
+
+You need:
+
+- a Universal Till shop with a my.universaltill.com account, where you are the owner or a manager;
+- a Claude account that lets you add a custom connector by its web address;
+- a shop on the cloud-managed catalogue if you want to apply changes. On other shops the connection is read-only, and it tells you so.
+
+<h2 id="setup">Set up</h2>
+
+You add the connector yourself, in your own account. Nothing is installed for you, and you never paste a password, key or token anywhere.
+
+1. Sign in to <a href="https://my.universaltill.com">my.universaltill.com</a>, open **Connected assistants** and choose **Connect an assistant**. This starts the connection from your account.
+2. In your own Claude account, add a custom connector and enter this address. Menu names in Claude can change; look for custom connectors in its settings.
+
+   <code>https://mcp.universaltill.com</code>
+
+3. Claude opens a Universal Till page in your browser. Check the shop, the time it says the request started, and the account you are signed in with.
+4. Choose what Claude may do: **read only**, or **read and propose**. Choose which kinds of data it may see. Customer and staff data are off, and only the shop owner can turn them on.
+5. Choose **Allow**. We email the shop owner about every new connection.
+
+If your shop's owner has not switched the connector on for the shop, the connection is refused. The switch is off by default.
+
+<h2 id="tools">What Claude can see and do</h2>
+
+Claude can use a fixed list of tools. It cannot run free-form database queries.
+
+- **Read your shop profile.**
+- **Read your catalogue:** list categories, list items, open one item.
+- **Read your settings:** list the settings it is allowed to see.
+- **Propose a change to items** (a proposal covers up to 50 items; up to 3 proposals can wait for approval per connection).
+- **Propose a change to one setting.**
+- **Reports:** reports are added after the report builder is available. Until then there are no report tools.
+
+What Claude cannot reach, whatever you allow: tax and legal settings, fiscal settings, credentials and keys, payment provider settings, roles and PINs, AI settings and anything about billing. An assistant may add a first barcode to an item that has none, but never change or remove one.
+
+Claude can only use your role's rights. A cashier cannot connect an assistant.
+
+<h3 id="proposals">Changes are proposals you confirm</h3>
+
+Claude cannot change your shop on its own. When it wants to change something, it creates a proposal and gives you a link to my.universaltill.com.
+
+1. Open the proposal in my.universaltill.com. It shows the exact before and after, written by Universal Till. It does not show any reason written by an assistant.
+2. Choose **Confirm** or **Reject**. Only an owner or a manager can confirm. Price changes and proposals with more than 10 rows ask you to sign in again first.
+3. If a value has changed since Claude proposed it, the proposal is refused and Claude has to propose it again.
+
+A proposal expires after one hour and can be used once. You can undo a confirmed change in my.universaltill.com for 7 days; values you have changed since are left alone and listed.
+
+In my.universaltill.com the shop owner can switch price changes off, and can switch clearing a field on or off. Price changes are on by default and clearing is off by default.
+
+<h2 id="activation">Activation</h2>
+
+Depending on how the connection was started, it may stay inactive until you activate it in my.universaltill.com. Nothing is read while it is inactive.
+
+1. Claude shows a 6-digit code, in the chat only. We do not show it in my.universaltill.com or send it by email.
+2. In my.universaltill.com, open **Connected assistants**, find the waiting connection and enter the code. The shop owner or the person who connected it can do this, after signing in again.
+3. The connection becomes active.
+
+The code works for 24 hours. After 5 wrong attempts the connection is revoked.
+
+If you cannot see a code in Claude, the connection is not yours. Choose **Not mine, revoke** on the same screen. Do not enter a code someone sent you.
+
+<h2 id="revoke">Revoke or disconnect</h2>
+
+- **In my.universaltill.com:** open **Connected assistants**, find the connection and choose **Revoke**. It stops Claude straight away.
+- **In Claude:** remove the connector from your Claude settings. To end the connection on our side as well, also revoke it in my.universaltill.com.
+
+A connection also ends by itself after at most 90 days, and you can connect again. A shop can have at most 5 connections.
+
+<h2 id="data">What data leaves your shop</h2>
+
+When Claude reads your shop, that data is sent to Anthropic, the company behind Claude. We send only the kinds of data you allowed on the consent page.
+
+- Customer and staff data are off by default. Only the shop owner can turn them on. If customers are on, we send only the fields marked shareable.
+- Nothing from a shop on another server region is sent.
+- What Anthropic keeps or uses is set by Anthropic's own policy for your Claude plan. This page does not describe it. Read Anthropic's terms for your plan.
+- Universal Till does not store your Claude password or session and does not use a Universal Till AI account.
+- Anthropic may process the data outside the UK and the EU. If you switch customer or staff data on, you are responsible for having a lawful basis to share it and for telling the people concerned.
+
+See our <a href="/en-gb/legal/privacy/">privacy policy</a> and <a href="/en-gb/legal/terms/">terms</a>.
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+**"Not active yet. In my.universaltill.com → Connected assistants, enter the code ... to activate."**
+The connection is waiting for activation. Follow the steps under Activation. The code expires after 24 hours; after that, connect again.
+
+**The connection was revoked after I entered a code.**
+After 5 wrong attempts the connection is revoked. Connect again and enter the new code carefully.
+
+**Claude says there are too many requests.**
+Each connection can make 60 requests a minute. Wait a minute and try again.
+
+**Claude says the service is temporarily unavailable.**
+Wait a little and try again. Your shop has not been changed.
+
+**The connection is refused.**
+The shop owner has to switch the connector on for the shop. The switch is off by default. Also check that you are an owner or a manager, and that the shop has fewer than 5 connections.
+
+**Claude can read but cannot apply changes.**
+Applying changes works only on shops with a cloud-managed catalogue. On other shops, make the change in the till.
+
+**A proposal is expired or refused.**
+Proposals last one hour and are refused if a value has changed. Ask Claude to propose it again.
+
+<h2 id="support">Help and notice</h2>
+
+For company details, see our <a href="/en-gb/legal/impressum/">legal notice</a>. To report a security problem, see our <a href="/.well-known/security.txt">security contact</a>.
+
+{/* claim-ok: disclaimer */}
+Universal Till is not affiliated with or endorsed by Anthropic. Claude and Anthropic are trademarks of their owners.
+
+This page is in English, the text that governs.

@@ -70,7 +70,7 @@ const jsonLd = {
   path={`/blog/${slug}/`}
   isFallback={isFallback}
   noindex={noindex}
-  keys={['news.machine', 'news.original', 'news.untranslated', 'news.back']}
+  keys={['news.original', 'news.untranslated', 'news.back']}
   translatedLangs={translatedLangs}
 >
   {/* set:html because Astro would otherwise HTML-escape the JSON (turning
@@ -100,13 +100,8 @@ const jsonLd = {
     </p>
     <h1 dir={isFallback ? 'ltr' : undefined} lang={isFallback ? 'en' : undefined}>{post.data.title}</h1>
 
-    {/* Say which of the two this is. A machine translation presented as if a
-        person wrote it is a small dishonesty that costs trust the first time a
-        reader spots an odd phrase; naming it costs nothing. Both notes link to
-        the English original, which is always the source of truth. */}
     {post.data.machineTranslated && (
       <p class="muted" style="font-size:.85rem;margin:.2rem 0 1rem">
-        <span data-i18n="news.machine">{t(lang, 'news.machine')}</span>{' '}
         <a href={`/en-gb/blog/${slug}/`} data-i18n="news.original">{t(lang, 'news.original')}</a>
       </p>
     )}

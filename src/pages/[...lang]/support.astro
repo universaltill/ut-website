@@ -1,0 +1,36 @@
+---
+import { getEntry, render } from 'astro:content';
+import BaseLayout, { SOURCE_LOCALE } from '../../layouts/BaseLayout.astro';
+import { formatDate } from '../../lib/dates';
+
+// Support page (ut-docs#5325): English only. The other locales keep their 301
+// to their own translated contact page (staticwebapp.config.json), so no
+// untranslated fallback page is minted for them.
+export async function getStaticPaths() {
+  const page = await getEntry('support', 'en-gb/support');
+  if (!page) throw new Error('src/content/support/en-gb/support.mdx is missing');
+  return [{ params: { lang: SOURCE_LOCALE }, props: { page } }];
+}
+
+const { page } = Astro.props;
+const { lang } = Astro.params;
+const { Content } = await render(page);
+---
+
+<BaseLayout
+  title={page.data.title}
+  description={page.data.summary}
+  lang={lang}
+  path="/support/"
+  translatedLangs={[SOURCE_LOCALE]}
+>
+  <article class="section support-page" style="max-width:44rem">
+    <h1>{page.data.title}</h1>
+    <p class="muted" style="font-size:.85rem;margin:.2rem 0 1rem">
+      <bdi><time datetime={page.data.updated.toISOString().slice(0, 10)}>{formatDate(page.data.updated, SOURCE_LOCALE)}</time></bdi>
+    </p>
+    <div style="line-height:1.7;color:var(--ink-soft)">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

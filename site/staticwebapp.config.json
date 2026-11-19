@@ -27,6 +27,14 @@
       "rewrite": "/en-gb/pilot.html"
     },
     {
+      "route": "/en-gb/pricing",
+      "rewrite": "/en-gb/pricing.html"
+    },
+    {
+      "route": "/en-gb/contact",
+      "rewrite": "/en-gb/contact.html"
+    },
+    {
       "route": "/en-gb/android-till",
       "rewrite": "/en-gb/android-till.html"
     },
@@ -41,6 +49,57 @@
     },
     {
       "route": "/en-gb/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/ar-sa",
+      "rewrite": "/ar-sa/index.html"
+    },
+    {
+      "route": "/ar-sa/download",
+      "rewrite": "/ar-sa/download.html"
+    },
+    {
+      "route": "/ar-sa/start",
+      "rewrite": "/ar-sa/start.html"
+    },
+    {
+      "route": "/ar-sa/find-your-setup",
+      "rewrite": "/ar-sa/find-your-setup.html"
+    },
+    {
+      "route": "/ar-sa/pilot",
+      "rewrite": "/ar-sa/pilot.html"
+    },
+    {
+      "route": "/ar-sa/pricing",
+      "rewrite": "/ar-sa/pricing.html"
+    },
+    {
+      "route": "/ar-sa/contact",
+      "rewrite": "/ar-sa/contact.html"
+    },
+    {
+      "route": "/ar-sa/android-till",
+      "rewrite": "/ar-sa/android-till.html"
+    },
+    {
+      "route": "/ar-sa/language",
+      "rewrite": "/ar-sa/language.html"
+    },
+    {
+      "route": "/ar-sa/store",
+      "redirect": "/ar-sa",
+      "statusCode": 301
+    },
+    {
+      "route": "/ar-sa/support",
+      "redirect": "/ar-sa/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/ar-sa/legal/cloud-terms",
       "redirect": "/en-gb/legal/merchant-terms/",
       "statusCode": 301
     },
@@ -65,6 +124,14 @@
       "rewrite": "/zh-cn/pilot.html"
     },
     {
+      "route": "/zh-cn/pricing",
+      "rewrite": "/zh-cn/pricing.html"
+    },
+    {
+      "route": "/zh-cn/contact",
+      "rewrite": "/zh-cn/contact.html"
+    },
+    {
       "route": "/zh-cn/android-till",
       "rewrite": "/zh-cn/android-till.html"
     },
@@ -78,7 +145,63 @@
       "statusCode": 301
     },
     {
+      "route": "/zh-cn/support",
+      "redirect": "/zh-cn/contact",
+      "statusCode": 301
+    },
+    {
       "route": "/zh-cn/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/fr-fr",
+      "rewrite": "/fr-fr/index.html"
+    },
+    {
+      "route": "/fr-fr/download",
+      "rewrite": "/fr-fr/download.html"
+    },
+    {
+      "route": "/fr-fr/start",
+      "rewrite": "/fr-fr/start.html"
+    },
+    {
+      "route": "/fr-fr/find-your-setup",
+      "rewrite": "/fr-fr/find-your-setup.html"
+    },
+    {
+      "route": "/fr-fr/pilot",
+      "rewrite": "/fr-fr/pilot.html"
+    },
+    {
+      "route": "/fr-fr/pricing",
+      "rewrite": "/fr-fr/pricing.html"
+    },
+    {
+      "route": "/fr-fr/contact",
+      "rewrite": "/fr-fr/contact.html"
+    },
+    {
+      "route": "/fr-fr/android-till",
+      "rewrite": "/fr-fr/android-till.html"
+    },
+    {
+      "route": "/fr-fr/language",
+      "rewrite": "/fr-fr/language.html"
+    },
+    {
+      "route": "/fr-fr/store",
+      "redirect": "/fr-fr",
+      "statusCode": 301
+    },
+    {
+      "route": "/fr-fr/support",
+      "redirect": "/fr-fr/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/fr-fr/legal/cloud-terms",
       "redirect": "/en-gb/legal/merchant-terms/",
       "statusCode": 301
     },
@@ -103,6 +226,14 @@
       "rewrite": "/de-de/pilot.html"
     },
     {
+      "route": "/de-de/pricing",
+      "rewrite": "/de-de/pricing.html"
+    },
+    {
+      "route": "/de-de/contact",
+      "rewrite": "/de-de/contact.html"
+    },
+    {
       "route": "/de-de/android-till",
       "rewrite": "/de-de/android-till.html"
     },
@@ -116,7 +247,165 @@
       "statusCode": 301
     },
     {
+      "route": "/de-de/support",
+      "redirect": "/de-de/contact",
+      "statusCode": 301
+    },
+    {
       "route": "/de-de/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/el-gr",
+      "rewrite": "/el-gr/index.html"
+    },
+    {
+      "route": "/el-gr/download",
+      "rewrite": "/el-gr/download.html"
+    },
+    {
+      "route": "/el-gr/start",
+      "rewrite": "/el-gr/start.html"
+    },
+    {
+      "route": "/el-gr/find-your-setup",
+      "rewrite": "/el-gr/find-your-setup.html"
+    },
+    {
+      "route": "/el-gr/pilot",
+      "rewrite": "/el-gr/pilot.html"
+    },
+    {
+      "route": "/el-gr/pricing",
+      "rewrite": "/el-gr/pricing.html"
+    },
+    {
+      "route": "/el-gr/contact",
+      "rewrite": "/el-gr/contact.html"
+    },
+    {
+      "route": "/el-gr/android-till",
+      "rewrite": "/el-gr/android-till.html"
+    },
+    {
+      "route": "/el-gr/language",
+      "rewrite": "/el-gr/language.html"
+    },
+    {
+      "route": "/el-gr/store",
+      "redirect": "/el-gr",
+      "statusCode": 301
+    },
+    {
+      "route": "/el-gr/support",
+      "redirect": "/el-gr/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/el-gr/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/it-it",
+      "rewrite": "/it-it/index.html"
+    },
+    {
+      "route": "/it-it/download",
+      "rewrite": "/it-it/download.html"
+    },
+    {
+      "route": "/it-it/start",
+      "rewrite": "/it-it/start.html"
+    },
+    {
+      "route": "/it-it/find-your-setup",
+      "rewrite": "/it-it/find-your-setup.html"
+    },
+    {
+      "route": "/it-it/pilot",
+      "rewrite": "/it-it/pilot.html"
+    },
+    {
+      "route": "/it-it/pricing",
+      "rewrite": "/it-it/pricing.html"
+    },
+    {
+      "route": "/it-it/contact",
+      "rewrite": "/it-it/contact.html"
+    },
+    {
+      "route": "/it-it/android-till",
+      "rewrite": "/it-it/android-till.html"
+    },
+    {
+      "route": "/it-it/language",
+      "rewrite": "/it-it/language.html"
+    },
+    {
+      "route": "/it-it/store",
+      "redirect": "/it-it",
+      "statusCode": 301
+    },
+    {
+      "route": "/it-it/support",
+      "redirect": "/it-it/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/it-it/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/ms-my",
+      "rewrite": "/ms-my/index.html"
+    },
+    {
+      "route": "/ms-my/download",
+      "rewrite": "/ms-my/download.html"
+    },
+    {
+      "route": "/ms-my/start",
+      "rewrite": "/ms-my/start.html"
+    },
+    {
+      "route": "/ms-my/find-your-setup",
+      "rewrite": "/ms-my/find-your-setup.html"
+    },
+    {
+      "route": "/ms-my/pilot",
+      "rewrite": "/ms-my/pilot.html"
+    },
+    {
+      "route": "/ms-my/pricing",
+      "rewrite": "/ms-my/pricing.html"
+    },
+    {
+      "route": "/ms-my/contact",
+      "rewrite": "/ms-my/contact.html"
+    },
+    {
+      "route": "/ms-my/android-till",
+      "rewrite": "/ms-my/android-till.html"
+    },
+    {
+      "route": "/ms-my/language",
+      "rewrite": "/ms-my/language.html"
+    },
+    {
+      "route": "/ms-my/store",
+      "redirect": "/ms-my",
+      "statusCode": 301
+    },
+    {
+      "route": "/ms-my/support",
+      "redirect": "/ms-my/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/ms-my/legal/cloud-terms",
       "redirect": "/en-gb/legal/merchant-terms/",
       "statusCode": 301
     },
@@ -141,6 +430,14 @@
       "rewrite": "/fa-ir/pilot.html"
     },
     {
+      "route": "/fa-ir/pricing",
+      "rewrite": "/fa-ir/pricing.html"
+    },
+    {
+      "route": "/fa-ir/contact",
+      "rewrite": "/fa-ir/contact.html"
+    },
+    {
       "route": "/fa-ir/android-till",
       "rewrite": "/fa-ir/android-till.html"
     },
@@ -154,7 +451,114 @@
       "statusCode": 301
     },
     {
+      "route": "/fa-ir/support",
+      "redirect": "/fa-ir/contact",
+      "statusCode": 301
+    },
+    {
       "route": "/fa-ir/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/pt-pt",
+      "rewrite": "/pt-pt/index.html"
+    },
+    {
+      "route": "/pt-pt/download",
+      "rewrite": "/pt-pt/download.html"
+    },
+    {
+      "route": "/pt-pt/start",
+      "rewrite": "/pt-pt/start.html"
+    },
+    {
+      "route": "/pt-pt/find-your-setup",
+      "rewrite": "/pt-pt/find-your-setup.html"
+    },
+    {
+      "route": "/pt-pt/pilot",
+      "rewrite": "/pt-pt/pilot.html"
+    },
+    {
+      "route": "/pt-pt/pricing",
+      "rewrite": "/pt-pt/pricing.html"
+    },
+    {
+      "route": "/pt-pt/contact",
+      "rewrite": "/pt-pt/contact.html"
+    },
+    {
+      "route": "/pt-pt/android-till",
+      "rewrite": "/pt-pt/android-till.html"
+    },
+    {
+      "route": "/pt-pt/language",
+      "rewrite": "/pt-pt/language.html"
+    },
+    {
+      "route": "/pt-pt/store",
+      "redirect": "/pt-pt",
+      "statusCode": 301
+    },
+    {
+      "route": "/pt-pt/support",
+      "redirect": "/pt-pt/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/pt-pt/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/es-es",
+      "rewrite": "/es-es/index.html"
+    },
+    {
+      "route": "/es-es/download",
+      "rewrite": "/es-es/download.html"
+    },
+    {
+      "route": "/es-es/start",
+      "rewrite": "/es-es/start.html"
+    },
+    {
+      "route": "/es-es/find-your-setup",
+      "rewrite": "/es-es/find-your-setup.html"
+    },
+    {
+      "route": "/es-es/pilot",
+      "rewrite": "/es-es/pilot.html"
+    },
+    {
+      "route": "/es-es/pricing",
+      "rewrite": "/es-es/pricing.html"
+    },
+    {
+      "route": "/es-es/contact",
+      "rewrite": "/es-es/contact.html"
+    },
+    {
+      "route": "/es-es/android-till",
+      "rewrite": "/es-es/android-till.html"
+    },
+    {
+      "route": "/es-es/language",
+      "rewrite": "/es-es/language.html"
+    },
+    {
+      "route": "/es-es/store",
+      "redirect": "/es-es",
+      "statusCode": 301
+    },
+    {
+      "route": "/es-es/support",
+      "redirect": "/es-es/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/es-es/legal/cloud-terms",
       "redirect": "/en-gb/legal/merchant-terms/",
       "statusCode": 301
     },
@@ -179,6 +583,14 @@
       "rewrite": "/tr-tr/pilot.html"
     },
     {
+      "route": "/tr-tr/pricing",
+      "rewrite": "/tr-tr/pricing.html"
+    },
+    {
+      "route": "/tr-tr/contact",
+      "rewrite": "/tr-tr/contact.html"
+    },
+    {
       "route": "/tr-tr/android-till",
       "rewrite": "/tr-tr/android-till.html"
     },
@@ -192,8 +604,18 @@
       "statusCode": 301
     },
     {
+      "route": "/tr-tr/support",
+      "redirect": "/tr-tr/contact",
+      "statusCode": 301
+    },
+    {
       "route": "/tr-tr/legal/cloud-terms",
       "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/ar",
+      "redirect": "/ar-sa",
       "statusCode": 301
     },
     {
@@ -202,13 +624,43 @@
       "statusCode": 301
     },
     {
+      "route": "/fr",
+      "redirect": "/fr-fr",
+      "statusCode": 301
+    },
+    {
       "route": "/de",
       "redirect": "/de-de",
       "statusCode": 301
     },
     {
+      "route": "/el",
+      "redirect": "/el-gr",
+      "statusCode": 301
+    },
+    {
+      "route": "/it",
+      "redirect": "/it-it",
+      "statusCode": 301
+    },
+    {
+      "route": "/ms",
+      "redirect": "/ms-my",
+      "statusCode": 301
+    },
+    {
       "route": "/fa",
       "redirect": "/fa-ir",
+      "statusCode": 301
+    },
+    {
+      "route": "/pt",
+      "redirect": "/pt-pt",
+      "statusCode": 301
+    },
+    {
+      "route": "/es",
+      "redirect": "/es-es",
       "statusCode": 301
     },
     {
@@ -287,6 +739,31 @@
       "statusCode": 301
     },
     {
+      "route": "/pricing",
+      "redirect": "/en-gb/pricing",
+      "statusCode": 301
+    },
+    {
+      "route": "/pricing.html",
+      "redirect": "/en-gb/pricing",
+      "statusCode": 301
+    },
+    {
+      "route": "/contact",
+      "redirect": "/en-gb/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/contact.html",
+      "redirect": "/en-gb/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/support",
+      "redirect": "/en-gb/support/",
+      "statusCode": 301
+    },
+    {
       "route": "/android-till.html",
       "redirect": "/en-gb/android-till",
       "statusCode": 301
@@ -322,6 +799,11 @@
       "statusCode": 301
     },
     {
+      "route": "/claude",
+      "redirect": "/en-gb/claude/",
+      "statusCode": 301
+    },
+    {
       "route": "/legal/subscription-terms",
       "redirect": "/en-gb/legal/subscription-terms/",
       "statusCode": 301
@@ -329,6 +811,11 @@
     {
       "route": "/legal/refunds",
       "redirect": "/en-gb/legal/refunds/",
+      "statusCode": 301
+    },
+    {
+      "route": "/legal/app-privacy",
+      "redirect": "/en-gb/legal/app-privacy/",
       "statusCode": 301
     },
     {

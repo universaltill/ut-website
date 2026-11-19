@@ -1,0 +1,120 @@
+---
+title: "Universal Till in Claude nutzen"
+summary: "So verbinden Sie Ihr Universal-Till-Geschäft mit Ihrem eigenen Claude-Konto, was Claude sehen kann und wie Sie die Kontrolle behalten."
+updated: 2026-11-04
+---
+
+<h2 id="what">Was es ist und was Sie brauchen</h2>
+
+Universal Till verbindet sich über einen Remote-MCP-Connector mit Claude. Haben Sie ihn Ihrem eigenen Claude-Konto hinzugefügt, kann Claude Teile Ihres Geschäfts lesen und Änderungen vorschlagen. Sie legen fest, was Claude sehen darf, und nichts ändert sich, bevor Sie es bestätigen.
+
+Sie brauchen:
+
+- ein Universal-Till-Geschäft mit einem Konto auf my.universaltill.com, in dem Sie Inhaber oder Manager sind;
+- ein Claude-Konto, in dem Sie einen eigenen Connector über seine Webadresse hinzufügen können;
+- ein Geschäft mit Cloud-verwaltetem Katalog, wenn Änderungen angewendet werden sollen. In anderen Geschäften ist die Verbindung nur lesend, und sie sagt Ihnen das.
+
+<h2 id="setup">Einrichtung</h2>
+
+Sie fügen den Connector selbst in Ihrem eigenen Konto hinzu. Es wird nichts für Sie installiert, und Sie fügen nirgends ein Passwort, einen Schlüssel oder ein Token ein.
+
+1. Melden Sie sich bei <a href="https://my.universaltill.com">my.universaltill.com</a> an, öffnen Sie **Verbundene Assistenten** und wählen Sie **Assistenten verbinden**. So starten Sie die Verbindung aus Ihrem Konto.
+2. Fügen Sie in Ihrem eigenen Claude-Konto einen eigenen Connector hinzu und geben Sie diese Adresse ein. Menünamen in Claude können sich ändern; suchen Sie in den Einstellungen nach eigenen Connectors.
+
+   <code>https://mcp.universaltill.com</code>
+
+3. Claude öffnet eine Universal-Till-Seite in Ihrem Browser. Prüfen Sie das Geschäft, die angezeigte Startzeit der Anfrage und das Konto, mit dem Sie angemeldet sind.
+4. Legen Sie fest, was Claude darf: **nur lesen** oder **lesen und vorschlagen**. Legen Sie fest, welche Datenarten Claude sehen darf. Kunden- und Mitarbeiterdaten sind aus, und nur der Inhaber des Geschäfts kann sie einschalten.
+5. Wählen Sie **Zulassen**. Wir informieren den Inhaber per E-Mail über jede neue Verbindung.
+
+Hat der Inhaber den Connector für das Geschäft nicht eingeschaltet, wird die Verbindung abgelehnt. Der Schalter ist standardmäßig aus.
+
+<h2 id="tools">Was Claude sehen und tun kann</h2>
+
+Claude nutzt eine feste Liste von Werkzeugen. Freie Datenbankabfragen sind nicht möglich.
+
+- **Geschäftsprofil lesen.**
+- **Katalog lesen:** Kategorien auflisten, Artikel auflisten, einen Artikel öffnen.
+- **Einstellungen lesen:** die Einstellungen auflisten, die Claude sehen darf.
+- **Änderung an einem Artikel vorschlagen** (bis zu 50 Artikel pro Vorschlag).
+- **Änderung an einer Einstellung vorschlagen.**
+- **Berichte:** Berichte kommen, sobald der Berichtsgenerator verfügbar ist. Bis dahin antworten die Berichtswerkzeuge, dass sie nicht verfügbar sind.
+
+Was Claude nie erreicht, egal was Sie erlauben: Steuer- und Rechtseinstellungen, Fiskaleinstellungen, Zugangsdaten und Schlüssel, Einstellungen von Zahlungsanbietern, Rollen und PINs, KI-Einstellungen und alles zur Abrechnung. Ein Assistent darf bei einem Artikel ohne Barcode den ersten Barcode ergänzen, einen vorhandenen aber nie ändern oder entfernen.
+
+Claude hat höchstens die Rechte Ihrer Rolle. Eine Kassenkraft kann keinen Assistenten verbinden.
+
+<h3 id="proposals">Änderungen sind Vorschläge, die Sie bestätigen</h3>
+
+Claude kann Ihr Geschäft nicht eigenständig ändern. Möchte Claude etwas ändern, erstellt es einen Vorschlag und gibt Ihnen einen Link zu my.universaltill.com.
+
+1. Öffnen Sie den Vorschlag in my.universaltill.com. Er zeigt das genaue Vorher und Nachher, formuliert von Universal Till. Eine von einem Assistenten geschriebene Begründung wird nicht angezeigt.
+2. Wählen Sie **Bestätigen** oder **Ablehnen**. Nur Inhaber und Manager können bestätigen. Bei Preisänderungen und bei Vorschlägen mit mehr als 10 Zeilen müssen Sie sich zuerst erneut anmelden.
+3. Hat sich ein Wert seit dem Vorschlag geändert, wird der Vorschlag abgelehnt, und Claude muss ihn neu vorschlagen.
+
+Ein Vorschlag verfällt nach einer Stunde und ist nur einmal verwendbar. Eine bestätigte Änderung können Sie 7 Tage lang in my.universaltill.com rückgängig machen; Werte, die Sie inzwischen selbst geändert haben, bleiben unberührt und werden aufgelistet.
+
+In my.universaltill.com kann der Inhaber Preisänderungen ausschalten und das Leeren von Feldern ein- oder ausschalten. Preisänderungen sind standardmäßig an, das Leeren von Feldern ist standardmäßig aus.
+
+<h2 id="activation">Aktivierung</h2>
+
+Je nachdem, wie die Verbindung gestartet wurde, bleibt sie inaktiv, bis Sie sie in my.universaltill.com aktivieren. Solange sie inaktiv ist, wird nichts gelesen.
+
+1. Claude zeigt einen 6-stelligen Code, nur im Chat. Wir zeigen ihn nicht in my.universaltill.com und senden ihn nicht per E-Mail.
+2. Öffnen Sie in my.universaltill.com **Verbundene Assistenten**, suchen Sie die wartende Verbindung und geben Sie den Code ein. Das kann der Inhaber des Geschäfts oder die Person tun, die die Verbindung hergestellt hat, nach erneuter Anmeldung.
+3. Die Verbindung wird aktiv.
+
+Der Code gilt 24 Stunden. Nach 5 falschen Eingaben wird die Verbindung widerrufen.
+
+Sehen Sie in Claude keinen Code, gehört die Verbindung nicht Ihnen. Wählen Sie auf demselben Bildschirm **Nicht meine, widerrufen**. Geben Sie keinen Code ein, den Ihnen jemand geschickt hat.
+
+<h2 id="revoke">Widerrufen oder trennen</h2>
+
+- **In my.universaltill.com:** Öffnen Sie **Verbundene Assistenten**, suchen Sie die Verbindung und wählen Sie **Widerrufen**. Claude wird sofort gestoppt.
+- **In Claude:** Entfernen Sie den Connector in Ihren Claude-Einstellungen. Damit die Verbindung auch auf unserer Seite endet, widerrufen Sie sie zusätzlich in my.universaltill.com.
+
+Eine Verbindung endet außerdem spätestens nach 90 Tagen von selbst; Sie können sie neu herstellen. Ein Geschäft kann höchstens 5 Verbindungen haben.
+
+<h2 id="data">Welche Daten Ihr Geschäft verlassen</h2>
+
+Wenn Claude Ihr Geschäft liest, werden diese Daten an Anthropic gesendet, das Unternehmen hinter Claude. Wir senden nur die Datenarten, die Sie auf der Zustimmungsseite erlaubt haben.
+
+- Kunden- und Mitarbeiterdaten sind standardmäßig aus. Nur der Inhaber des Geschäfts kann sie einschalten. Sind Kundendaten an, senden wir nur Felder, die als teilbar markiert sind.
+- Aus einem Geschäft in einer anderen Serverregion wird nichts gesendet.
+- Was Anthropic speichert oder nutzt, richtet sich nach Anthropics eigenen Richtlinien für Ihren Claude-Tarif. Diese Seite beschreibt das nicht. Lesen Sie die Bedingungen von Anthropic für Ihren Tarif.
+- Universal Till speichert weder Ihr Claude-Passwort noch Ihre Claude-Sitzung und nutzt kein KI-Konto von Universal Till.
+- Anthropic kann die Daten außerhalb des Vereinigten Königreichs und der EU verarbeiten. Schalten Sie Kunden- oder Mitarbeiterdaten ein, sind Sie dafür verantwortlich, dass Sie eine Rechtsgrundlage für die Weitergabe haben und die betroffenen Personen informieren.
+
+Siehe unsere <a href="/de-de/legal/privacy/">Datenschutzerklärung</a> und die <a href="/de-de/legal/terms/">Nutzungsbedingungen</a>.
+
+<h2 id="troubleshooting">Fehlerbehebung</h2>
+
+**„Not active yet. In my.universaltill.com → Connected assistants, enter the code ... to activate."**
+Diese Meldung erscheint in Claude auf Englisch. Die Verbindung wartet auf Aktivierung. Folgen Sie den Schritten unter Aktivierung. Der Code verfällt nach 24 Stunden; danach verbinden Sie neu.
+
+**Die Verbindung wurde widerrufen, nachdem ich einen Code eingegeben habe.**
+Nach 5 falschen Eingaben wird die Verbindung widerrufen. Verbinden Sie neu und geben Sie den neuen Code sorgfältig ein.
+
+**Claude meldet zu viele Anfragen.**
+Jede Verbindung kann 60 Anfragen pro Minute stellen. Warten Sie eine Minute und versuchen Sie es erneut.
+
+**Claude meldet, der Dienst sei vorübergehend nicht verfügbar.**
+Warten Sie kurz und versuchen Sie es erneut. Ihr Geschäft wurde nicht verändert.
+
+**Die Verbindung wird abgelehnt.**
+Der Inhaber muss den Connector für das Geschäft einschalten. Der Schalter ist standardmäßig aus. Prüfen Sie außerdem, ob Sie Inhaber oder Manager sind und ob das Geschäft weniger als 5 Verbindungen hat.
+
+**Claude kann lesen, aber keine Änderungen anwenden.**
+Änderungen lassen sich nur in Geschäften mit Cloud-verwaltetem Katalog anwenden. In anderen Geschäften nehmen Sie die Änderung an der Kasse vor.
+
+**Ein Vorschlag ist abgelaufen oder wurde abgelehnt.**
+Vorschläge gelten eine Stunde und werden abgelehnt, wenn sich ein Wert geändert hat. Bitten Sie Claude, ihn neu vorzuschlagen.
+
+<h2 id="support">Hilfe und Hinweis</h2>
+
+Angaben zum Unternehmen finden Sie im <a href="/de-de/legal/impressum/">Impressum</a>. Um ein Sicherheitsproblem zu melden, siehe unseren <a href="/.well-known/security.txt">Sicherheitskontakt</a>.
+
+{/* claim-ok: disclaimer */}
+Universal Till ist steht in keiner geschäftlichen Verbindung zu Anthropic und wird nicht von Anthropic empfohlen oder unterstützt. Claude und Anthropic sind Marken ihrer jeweiligen Inhaber.
+
+Bei Abweichungen gilt der englische Text.

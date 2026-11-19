@@ -51,4 +51,27 @@ const legal = defineCollection({
   }),
 });
 
-export const collections = { blog, legal };
+// Connector pages (ut-docs#5318): "Use Universal Till in Claude". Same
+// shape and fallback machinery as `legal`; own collection so the claim guard
+// (scripts/guard-claude-claims.sh) scans exactly these files.
+const connector = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/connector' }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    updated: z.coerce.date(),
+  }),
+});
+
+// Support page (ut-docs#5325): English only; other locales redirect to their
+// own contact page (staticwebapp.config.json).
+const support = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/support' }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    updated: z.coerce.date(),
+  }),
+});
+
+export const collections = { blog, legal, connector, support };

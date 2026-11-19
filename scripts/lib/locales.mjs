@@ -29,11 +29,15 @@ export const PAGES = [
   { file: "start.html", suffix: "/start" },
   { file: "find-your-setup.html", suffix: "/find-your-setup" },
   { file: "pilot.html", suffix: "/pilot" },
+  { file: "pricing.html", suffix: "/pricing" },
+  { file: "contact.html", suffix: "/contact" },
   { file: "android-till.html", suffix: "/android-till" },
   { file: "language.html", suffix: "/language" },
 ];
 /** Locale-relative paths that 301 to the locale root (the store was removed). */
 export const REDIRECT_SUFFIXES = ["/store"];
+/** Locale-relative paths that 301 to another page of the same locale (/support is the contact page, ut-docs#1434). The source locale (en-gb) is exempt: it has a real support page since ut-docs#5325. */
+export const PAGE_REDIRECTS = [{ suffix: "/support", to: "/contact" }];
 /** Astro-built sections whose index every locale has. */
 export const ASTRO_INDEXES = ["/blog/", "/plugins/", "/help/", "/legal/impressum/", "/legal/privacy/", "/legal/terms/"];
 
@@ -86,7 +90,7 @@ export const bcp47Of = (l) => l.bcp47 || l.url.replace(/-([a-z]+)$/, (_, r) => "
 /**
  * Complete dictionary of one locale: every English key, the locale's approved
  * text where it has one, English otherwise. `_fb` lists the keys that fell
- * back. `_name`/`_english`/`_dir`/`_bcp47`/`_label` carry the list's facts.
+ * back. `_name`/`_english`/`_dir`/`_bcp47` carry the list's facts.
  */
 export function buildDict(l, english, strings) {
   const dict = {};
@@ -95,7 +99,7 @@ export function buildDict(l, english, strings) {
     if (l.url !== SOURCE && typeof strings[k] === "string" && strings[k] !== "") dict[k] = strings[k];
     else { dict[k] = en; if (l.url !== SOURCE) fb.push(k); }
   }
-  return { ...dict, _name: l.native_name, _english: l.english_name, _dir: l.dir, _bcp47: bcp47Of(l), _label: hasMachineLabel(l), _fb: fb };
+  return { ...dict, _name: l.native_name, _english: l.english_name, _dir: l.dir, _bcp47: bcp47Of(l), _fb: fb };
 }
 
 export function loadDicts(dir = i18nDir()) {
@@ -158,6 +162,7 @@ export function localeRoutes(list) {
   for (const l of websiteLocales(list)) {
     for (const p of PAGES) out.push({ route: `/${l.url}${p.suffix}`, rewrite: `/${l.url}/${p.file}` });
     for (const s of REDIRECT_SUFFIXES) out.push({ route: `/${l.url}${s}`, redirect: `/${l.url}`, statusCode: 301 });
+    for (const r of PAGE_REDIRECTS.filter(() => l.url !== SOURCE)) out.push({ route: `/${l.url}${r.suffix}`, redirect: `/${l.url}${r.to}`, statusCode: 301 });
     // The retired cloud-terms page is now the English Merchant Terms (ut-docs#3264), in every locale.
     out.push({ route: `/${l.url}/legal/cloud-terms`, redirect: `/${SOURCE}/legal/merchant-terms/`, statusCode: 301 });
   }
@@ -184,3 +189,14 @@ export function buildSwaConfig(existing, list) {
 }
 
 export const serializeSwa = (cfg) => JSON.stringify(cfg, null, 2) + "\n";
+
+/**
+ * Wording of the AI / machine-translation disclosures the owner retired
+ * (2026-11-11), every locale. No built page may contain any of them; a guard
+ * (check-locale-consistency, locale-label.spec) fails if one comes back.
+ */
+export const RETIRED_AI_PHRASES = [
+  "Translated with AI", "Translated automatically", "Mit KI übersetzt", "Automatisch übersetzt",
+  "ترجمه‌شده با هوش مصنوعی", "به‌صورت خودکار ترجمه شده است", "Yapay zekâ ile çevrildi",
+  "Otomatik olarak çevrildi", "由 AI 翻译", "本文为自动翻译", "Report a translation error", "Read the English version",
+];

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>if(location.hostname==="universaltill.com"){location.replace("https://www.universaltill.com"+location.pathname+location.search+location.hash);}</script>
+  <link rel="canonical" id="canonical" href="https://www.universaltill.com/pricing">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="meta.pricing.title">Pricing — Universal Till</title>
+  <meta name="description" data-i18n-content="meta.pricing.desc" content="Universal Till plans and prices for the UK, Germany and the eurozone. Start free on your own hardware; paid cloud plans are billed annually (two months free) or monthly, excluding VAT.">
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <link rel="stylesheet" href="/styles.css">
+  <script defer src="/i18n-data.js"></script>
+  <script defer src="/i18n.js"></script>
+  <script defer src="/nav.js"></script>
+  <!-- Cookie banner + GA4, only after Accept (ut-docs#3507). -->
+  <script defer src="/consent.js"></script>
+</head>
+<body>
+
+<header class="nav">
+  <a class="brand" href="/">
+    <img src="/logo.svg" alt="" width="22" height="30">
+    <span>Universal <strong>Till</strong></span>
+  </a>
+  <nav id="site-nav">
+    <a href="/#solutions" data-i18n="nav.solutions">Solutions</a>
+    <a href="/#tour" data-i18n="nav.tour">Tour</a>
+    <a href="/blog" data-i18n="nav.news">News</a>
+    <a href="/help" data-i18n="nav.help">Help</a>
+    <a href="/pricing" data-i18n="nav.pricing" aria-current="page">Pricing</a>
+    <a href="/find-your-setup" data-i18n="nav.start">Get started</a>
+  </nav>
+  <div class="nav-actions">
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu" data-i18n-aria-label="nav.menu">
+      <span class="nav-toggle-bars" aria-hidden="true"></span>
+    </button>
+    <a class="btn" href="/download" data-i18n="nav.download">Download</a>
+    <a class="lang-link" href="/language" aria-label="Language" data-i18n-aria-label="nav.language">🌐 EN</a>
+  </div>
+</header>
+
+<main>
+  <section class="section pricing">
+    <div class="section-head">
+      <h1 data-i18n="pricing.title">Simple, honest pricing</h1>
+      <p class="section-sub" data-i18n="pricing.lede">Start free on your own hardware. Add cloud features when you need them. Our software is never charged per till.</p>
+    </div>
+    <!-- Filled at build time by src/lib/pricing.ts from site/plan-prices.js (generated from data/plan-prices.json): no amount is typed here. -->
+    <div id="pricing-root" data-pricing></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="foot-brand"><img src="/logo.svg" alt="" width="19" height="26"> <span>Universal <strong>Till</strong></span></div>
+  <p class="foot-owner" data-i18n="foot.owner">Universal Till is a product of Task Runner Technology LTD.</p>
+  <p class="foot-rights" data-i18n="foot.rights">Open source under the MIT licence.</p>
+  <p class="foot-legal">
+    <a href="/help" data-i18n="nav.help">Help</a>
+    · <a href="/pricing" data-i18n="nav.pricing">Pricing</a>
+    · <a href="/contact" data-i18n="foot.contact">Contact</a>
+    · <a href="/legal/impressum" data-i18n="foot.impressum">Legal notice (Impressum)</a>
+    · <a href="/legal/privacy" data-i18n="foot.privacy">Privacy policy</a>
+    · <a href="/legal/terms" data-i18n="foot.terms">Terms of use</a>
+  </p>
+</footer>
+
+</body>
+</html>

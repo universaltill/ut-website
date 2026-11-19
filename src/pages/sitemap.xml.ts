@@ -1,7 +1,9 @@
 import type { APIRoute } from 'astro';
+import { getEntry } from 'astro:content';
 import { LANGS } from '../layouts/BaseLayout.astro';
 import { getAllLocalizedPosts } from '../lib/blogPosts';
 import { getAllLocalizedLegalPages } from '../lib/legalPages';
+import { getAllLocalizedConnectorPages } from '../lib/connectorPages';
 import { loadPlugins } from '../lib/plugins';
 import { loadHelp, localized } from '../lib/help';
 import { isNoindex, marketingRoutes, templateFor } from '../lib/marketingPages';
@@ -39,6 +41,7 @@ export const GET: APIRoute = async ({ site }) => {
   // canonical just tells a crawler which one to distrust.
   const byLocale = await getAllLocalizedPosts();
   const legalByLocale = await getAllLocalizedLegalPages();
+  const connectorByLocale = await getAllLocalizedConnectorPages();
   // One page per plugin per locale (ut-docs#4645), from the same list the
   // grid and the pages themselves are built from.
   const plugins = await loadPlugins();
@@ -63,7 +66,13 @@ export const GET: APIRoute = async ({ site }) => {
     for (const { slug, page } of (legalByLocale[lang] ?? []).filter((p) => !p.isFallback)) {
       entries.push(urlEntry(`${base}/${lang}/legal/${slug}/`, page.data.updated.toISOString()));
     }
+    for (const { page } of (connectorByLocale[lang] ?? []).filter((p) => !p.isFallback)) {
+      entries.push(urlEntry(`${base}/${lang}/claude/`, page.data.updated.toISOString()));
+    }
   }
+
+  const support = await getEntry('support', 'en-gb/support');
+  if (support) entries.push(urlEntry(`${base}/en-gb/support/`, support.data.updated.toISOString()));
 
   const body =
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
