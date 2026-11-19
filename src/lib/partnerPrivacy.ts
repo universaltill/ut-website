@@ -9,6 +9,9 @@
 // To go live (a reviewed one-line change, the owner's OK on the text named in
 // the PR): set the constant to true AND remove the DRAFT comment from
 // src/content/partner-notice/en-gb/partner-privacy.mdx (a test enforces it).
+// The gate test's OFF-build assertions skip themselves once the flag is true
+// and a LIVE-only test guards the same invariants (noindex, no sitemap/llms,
+// no inbound link), so the flip stays this one reviewed line.
 // Conditions: owner OK on the text, #6275 and #6276 shipped, #6278 settled or
 // the neutral regulator phrase kept, partner agreement clause 10A.
 // Order: this site first, then the partner app's PARTNER_PRIVACY_URL variable.

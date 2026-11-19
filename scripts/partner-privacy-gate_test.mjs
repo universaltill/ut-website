@@ -46,7 +46,8 @@ function walk(dir, files = []) {
 const textFiles = (out) => walk(out).filter((f) => /\.(html|xml|txt|js|mjs|json|css)$/.test(f));
 const grep = (out, re) => textFiles(out).filter((f) => re.test(fs.readFileSync(f, "utf8"))).map((f) => path.relative(out, f));
 const read = (out, rel) => fs.readFileSync(path.join(out, rel), "utf8");
-const plain = (html) => html.replace(/<\/?(strong|em|a|b|bdi|span|code)\b[^>]*>/g, "").replace(/<[^>]+>/g, " ").replace(/&#39;|&#x27;|\u2019/g, "'") // the site's markdown smartypants curls apostrophes.replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+// the site's markdown smartypants curls apostrophes, hence the \u2019 replacement below
+const plain = (html) => html.replace(/<\/?(strong|em|a|b|bdi|span|code)\b[^>]*>/g, "").replace(/<[^>]+>/g, " ").replace(/&#39;|&#x27;|\u2019/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
 
 let OFF, ON;
 before(() => {
@@ -54,12 +55,12 @@ before(() => {
   ON = build("on", { UT_PARTNER_PRIVACY_PAGE: "on" });
 });
 
-test("the committed flag is OFF and the page path is the one the partner app pins", () => {
-  assert.equal(PARTNER_PRIVACY_PAGE_LIVE, false);
+test("the page path is the one the partner app pins (and the committed flag is a boolean)", () => {
+  assert.equal(typeof PARTNER_PRIVACY_PAGE_LIVE, "boolean");
   assert.equal(PARTNER_PRIVACY_PATH, "/partner-privacy/");
 });
 
-test("partnerPrivacyEnabled: env alone never switches the production build on", () => {
+test("partnerPrivacyEnabled: env alone never switches the production build on", { skip: PARTNER_PRIVACY_PAGE_LIVE && "gate is LIVE: see the LIVE test" }, () => {
   const keep = { ...process.env };
   try {
     delete process.env.UT_OUT_DIR;
@@ -76,13 +77,13 @@ test("partnerPrivacyEnabled: env alone never switches the production build on", 
   }
 });
 
-test("OFF: the page is not emitted for any locale", () => {
+test("OFF: the page is not emitted for any locale", { skip: PARTNER_PRIVACY_PAGE_LIVE && "gate is LIVE: see the LIVE test" }, () => {
   assert.equal(fs.existsSync(path.join(OFF, PAGE)), false);
   assert.equal(fs.existsSync(path.join(OFF, "de-de/partner-privacy")), false);
   assert.equal(walk(OFF).filter((f) => /partner-privacy/.test(path.relative(OFF, f))).length, 0, "no file named partner-privacy");
 });
 
-test("OFF: no output file (html, sitemap, llms, js, swa config) mentions the slug or the page text", () => {
+test("OFF: no output file (html, sitemap, llms, js, swa config) mentions the slug or the page text", { skip: PARTNER_PRIVACY_PAGE_LIVE && "gate is LIVE: see the LIVE test" }, () => {
   assert.deepEqual(grep(OFF, /partner-privacy/), []);
   assert.deepEqual(grep(OFF, /How we use this number|Privacy notice for partners/), []);
   assert.deepEqual(grep(OFF, /Support phone numbers partners publish/), []);
@@ -95,7 +96,21 @@ test("ON: page exists with noindex, one h1, self canonical, no form", () => {
   assert.match(html, new RegExp(`<h1[^>]*>${TITLE}</h1>`));
   assert.match(html, /rel="canonical" href="https:\/\/www\.universaltill\.com\/en-gb\/partner-privacy\/"/);
   assert.doesNotMatch(html, /<form/);
-  assert.equal(fs.existsSync(path.join(ON, "de-de/partner-privacy/index.html")), false, "English only");
+  // Other locales are noindex English fallbacks (like legal/[slug]) so the header language picker never 404s.
+  const de = read(ON, "de-de/partner-privacy/index.html");
+  assert.match(de, /<meta name="robots" content="noindex"/);
+  assert.match(de, /rel="canonical" href="https:\/\/www\.universaltill\.com\/en-gb\/partner-privacy\/"/);
+  assert.match(de, /data-legal-english/);
+  assert.doesNotMatch(de, /rel="alternate" hreflang/, "fallback pages advertise no alternates");
+});
+
+test("LIVE (committed flag true): the production-style build emits the page, noindex, listed nowhere", { skip: !PARTNER_PRIVACY_PAGE_LIVE && "gate is OFF" }, () => {
+  const html = read(OFF, PAGE); // the default build; with the flag true it is the live build
+  assert.match(html, /<meta name="robots" content="noindex"/);
+  assert.doesNotMatch(html, /DRAFT/);
+  for (const f of ["sitemap.xml", "llms.txt", "llms-full.txt"]) {
+    if (fs.existsSync(path.join(OFF, f))) assert.doesNotMatch(read(OFF, f), /partner-privacy/, f);
+  }
 });
 
 test("ON: still in no sitemap, llms file, app/legal route and no other page links to it", () => {
@@ -103,8 +118,9 @@ test("ON: still in no sitemap, llms file, app/legal route and no other page link
     if (fs.existsSync(path.join(ON, f))) assert.doesNotMatch(read(ON, f), /partner-privacy/, f);
   }
   assert.equal(fs.existsSync(path.join(ON, "en-gb/app/legal/partner-privacy")), false);
-  const linking = grep(ON, /partner-privacy/).filter((f) => f !== PAGE.replaceAll("/", path.sep));
-  assert.deepEqual(linking, [], "only the page itself may mention its own slug");
+  const own = /^[a-z]{2}-[a-z]{2}[\\/]partner-privacy[\\/]index\.html$/;
+  const linking = grep(ON, /partner-privacy/).filter((f) => !own.test(f));
+  assert.deepEqual(linking, [], "only the page itself (any locale) may mention its own slug");
 });
 
 test("ON: body text is section 1 of the draft word for word; neutral regulator phrase; one address", () => {
@@ -128,9 +144,10 @@ test("ON: body text is section 1 of the draft word for word; neutral regulator p
   assert.ok(text.includes("English"), "states English is the operative text");
 });
 
-test("the source mdx equals the ut-docs draft when the checkout is beside us, and carries the DRAFT marker", () => {
+test("the source mdx equals the ut-docs draft when the checkout is beside us, and carries the DRAFT marker while not live", () => {
   const src = fs.readFileSync(MDX, "utf8");
-  assert.match(src, /(?:<!--|\{\/\*)\s*DRAFT\b/, "DRAFT marker comment (UX note); the go-live PR removes it");
+  // The marker is required only while the page is not live; the go-live PR removes it (see the flip guard below).
+  if (!PARTNER_PRIVACY_PAGE_LIVE) assert.match(src, /(?:<!--|\{\/\*)\s*DRAFT\b/, "DRAFT marker comment (UX note); the go-live PR removes it");
   for (const dir of [process.env.UT_DOCS_DIR, path.join(ROOT, "../ut-docs"), path.join(ROOT, "../../../../ut-docs")].filter(Boolean)) {
     const f = path.join(dir, "reference/partner-support-contact-notices-draft.md");
     if (!fs.existsSync(f)) continue;

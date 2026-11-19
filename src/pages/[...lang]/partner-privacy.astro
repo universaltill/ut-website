@@ -1,10 +1,10 @@
 ---
 import { getEntry, render } from 'astro:content';
-import BaseLayout, { SOURCE_LOCALE } from '../../layouts/BaseLayout.astro';
+import BaseLayout, { LANGS, SOURCE_LOCALE } from '../../layouts/BaseLayout.astro';
 import { formatDate } from '../../lib/dates';
 import { PARTNER_PRIVACY_PATH, partnerPrivacyEnabled } from '../../lib/partnerPrivacy';
 
-// Partner privacy notice (ut-docs#6277): English only, noindex, and NOT emitted
+// Partner privacy notice (ut-docs#6277): English text in every locale (non-English locales are noindex English fallbacks like legal/[slug].astro, so the header language picker never 404s), noindex, and NOT emitted
 // at all while the publish gate (src/lib/partnerPrivacy.ts) is OFF. Own
 // collection, not `legal`, so the sitemap, llms.txt and the in-app legal route
 // never enumerate it.
@@ -12,10 +12,10 @@ export async function getStaticPaths() {
   if (!partnerPrivacyEnabled()) return [];
   const page = await getEntry('partnerNotice', 'en-gb/partner-privacy');
   if (!page) throw new Error('src/content/partner-notice/en-gb/partner-privacy.mdx is missing');
-  return [{ params: { lang: SOURCE_LOCALE }, props: { page } }];
+  return LANGS.map((lang) => ({ params: { lang }, props: { page, isFallback: lang !== SOURCE_LOCALE } }));
 }
 
-const { page } = Astro.props;
+const { page, isFallback } = Astro.props;
 const { lang } = Astro.params;
 const { Content } = await render(page);
 ---
@@ -26,17 +26,19 @@ const { Content } = await render(page);
   lang={lang}
   path={PARTNER_PRIVACY_PATH}
   translatedLangs={[SOURCE_LOCALE]}
+  isFallback={isFallback}
+  legalEnglish={isFallback}
   noindex={true}
 >
   <article class="section support-page" style="max-width:44rem">
     <p style="margin:0 0 .6rem"><a href="/en-gb/support/">Back to Universal Till support</a></p>
-    <h1>{page.data.title}</h1>
-    <p class="muted" style="font-size:.85rem;margin:.2rem 0 1rem">
+    <h1 dir={isFallback ? 'ltr' : undefined} lang={isFallback ? 'en' : undefined}>{page.data.title}</h1>
+    <p class="muted" style="font-size:.85rem;margin:.2rem 0 1rem" dir={isFallback ? 'ltr' : undefined} lang={isFallback ? 'en' : undefined}>
       <bdi><time datetime={page.data.updated.toISOString().slice(0, 10)}>{formatDate(page.data.updated, SOURCE_LOCALE)}</time></bdi>
     </p>
-    <div style="line-height:1.7;color:var(--ink-soft)">
+    <div style="line-height:1.7;color:var(--ink-soft)" dir={isFallback ? 'ltr' : undefined} lang={isFallback ? 'en' : undefined}>
       <Content />
     </div>
-    <p class="muted" style="font-size:.85rem;margin-top:1.5rem">This English text is the operative version of this notice.</p>
+    <p class="muted" style="font-size:.85rem;margin-top:1.5rem" dir={isFallback ? 'ltr' : undefined} lang={isFallback ? 'en' : undefined}>This English text is the operative version of this notice.</p>
   </article>
 </BaseLayout>
