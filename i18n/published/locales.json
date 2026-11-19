@@ -1,7 +1,7 @@
 {
   "schema": 1,
-  "generated_at": "2026-11-04T21:57:16Z",
-  "source_commit": "593f49bc5222db2f99f4b1a40f54f06d68b82c9f",
+  "generated_at": "2026-11-17T21:20:28Z",
+  "source_commit": "8659786d7e652b4841670e8b7d8db18c451986bb",
   "locales": [
     {
       "code": "ar",
@@ -110,27 +110,27 @@
       "url": "en-gb",
       "bcp47": "en-GB",
       "dir": "ltr",
-      "english_name": "English (UK)",
+      "english_name": "English",
       "native_name": "English",
       "published": true,
       "reason": "",
       "human_reviewed": true,
       "machine_label": false,
-      "review_verified": false,
+      "review_verified": true,
       "legal_approved": true,
       "surfaces": {
         "website": {
           "published": true,
-          "approved": 465,
-          "total": 465,
+          "approved": 555,
+          "total": 555,
           "coverage": 1,
           "core_ok": true,
           "omitted_broken": 0,
           "omitted_legal": 0,
           "omitted": {},
           "legal_approved": true,
-          "legal_keys": 63,
-          "review_verified": false
+          "legal_keys": 117,
+          "review_verified": true
         },
         "cloud": {
           "manage": {
