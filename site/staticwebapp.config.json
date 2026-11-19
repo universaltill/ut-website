@@ -759,6 +759,16 @@
       "statusCode": 301
     },
     {
+      "route": "/legal/marketplace-terms",
+      "redirect": "/en-gb/legal/marketplace-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/legal/marketplace-content-guidelines",
+      "redirect": "/en-gb/legal/marketplace-content-guidelines/",
+      "statusCode": 301
+    },
+    {
       "route": "/blog/*",
       "redirect": "/en-gb/blog/",
       "statusCode": 301

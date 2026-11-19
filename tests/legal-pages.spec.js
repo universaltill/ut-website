@@ -146,6 +146,37 @@ test.describe("live-payments legal pages", () => {
     await expect(page.locator('article a[href="/en-gb/legal/app-privacy/"]')).toHaveCount(1);
   });
 
+  test("marketplace publisher terms and content guidelines are drafts with the required sections (ut-docs#6400)", async ({ page }) => {
+    await page.goto("/en-gb/legal/marketplace-terms/");
+    await expect(page.locator("h1")).toHaveText("Marketplace publisher terms");
+    let body = await page.locator("article").innerText();
+    expect(body).toContain("DRAFT: needs owner approval (ut-docs#6400)");
+    for (const h of ["Who may publish", "Reports and what we do with them", "Appeals", "Sanctions and restricted parties", "Open legal questions for the owner"]) {
+      await expect(page.locator("h2", { hasText: h })).toBeVisible();
+    }
+    expect(body).toContain("verified publisher identity");
+    expect(body).toContain("support@universaltill.com");
+    await expect(page.locator('article a[href="/en-gb/legal/marketplace-content-guidelines/"]').first()).toBeVisible();
+
+    await page.goto("/en-gb/legal/marketplace-content-guidelines/");
+    await expect(page.locator("h1")).toHaveText("Marketplace content guidelines");
+    body = await page.locator("article").innerText();
+    expect(body).toContain("DRAFT: needs owner approval (ut-docs#6400)");
+    for (const w of ["Malware", "Deception", "Illegal content", "Harvesting personal data", "Bypassing payments or age rules", "Report this listing"]) {
+      expect(body).toContain(w);
+    }
+    await expect(page.locator("h2", { hasText: "Artificial intelligence" })).toBeVisible();
+    await expect(page.locator('article a[href="/en-gb/legal/marketplace-terms/"]').first()).toBeVisible();
+  });
+
+  test("the marketplace pages have a chrome-less in-app view", async ({ request, page }) => {
+    for (const slug of ["marketplace-terms", "marketplace-content-guidelines"]) {
+      await page.goto(`/en-gb/app/legal/${slug}/`);
+      await expect(page.locator("h1")).toBeVisible();
+      await expect(page.locator(".nav-actions")).toHaveCount(0);
+    }
+  });
+
   test("the in-app legal view has no Pricing or Get started route (ADR-0194 2.3, ut-docs#6398)", async ({ page }) => {
     await page.goto("/en-gb/app/legal/app-privacy/");
     await expect(page.locator("h1")).toHaveText("Privacy notice for the Universal Till apps");
