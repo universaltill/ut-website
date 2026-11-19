@@ -188,6 +188,8 @@ jobs:
       # Two real fixture builds (a new locale appears by data alone; an absent
       # locale leaves no route, page, sitemap, hreflang or switcher entry).
       - run: node --test scripts/locale-fixtures_test.mjs
+      # ut-docs#6277: the partner privacy page is not emitted while its flag is OFF.
+      - run: node --test scripts/partner-privacy-gate_test.mjs
       # ut-docs#5355: every public help topic in every locale, every internal
       # link/image resolves, no front-matter leakage, sitemap vs canonicals.
       - run: node scripts/guard-help.mjs
