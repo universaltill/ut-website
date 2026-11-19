@@ -74,4 +74,16 @@ const support = defineCollection({
   }),
 });
 
-export const collections = { blog, legal, connector, support };
+// Partner privacy notice (ut-docs#6277): English only, published only while the
+// gate in src/lib/partnerPrivacy.ts is ON. Own collection so no legal-collection
+// consumer (sitemap, llms.txt, /app/legal/) can pick it up.
+const partnerNotice = defineCollection({
+  loader: glob({ pattern: '**/*.mdx', base: './src/content/partner-notice' }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    updated: z.coerce.date(),
+  }),
+});
+
+export const collections = { blog, legal, connector, support, partnerNotice };
