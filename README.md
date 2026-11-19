@@ -150,13 +150,13 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `BaseLayout.astro`; `site/pilot.html` is not linked yet (a separate PR edits it).
   **Pricing:** the body is built at build time by `src/lib/pricing.ts` (called from
   `marketingPages.ts`) from `site/plan-prices.js`, i.e. `data/plan-prices.json`, so no amount
-  is typed in HTML or `en.json` and the raw HTML carries every price (no JS needed). One panel
-  per market (UK, Germany, eurozone outside Germany); with JS off all three show, with JS
-  `site/pricing.js` shows the locale's one (`-de` opens Germany, everything else the UK) and
-  adds a picker. Annual billing first (per-month equivalent, ten months billed up front, "two
+  is typed in HTML or `en.json` and the raw HTML carries every price (no JS needed). ONE market per page,
+  chosen from the URL locale by `marketOf` (ut-docs#6722): en-gb UK GBP, de-de Germany EUR,
+  el-gr/es-es/fr-fr/it-it/pt-pt Eurozone EUR; every other locale shows no prices (free Local +
+  Talk to us). No tabs, no picker, no `pricing.js`. Annual billing first (per-month equivalent, ten months billed up front, "two
   months free"), monthly as the alternative, everything "excl. VAT". Germany adds the TSE line
   and its 12-month minimum from the wizard's own keys (`wiz.price.tse`, `wiz.price.tsemin`,
-  `wiz.n.detsemin`); other countries say "not published yet". Free Local goes to `/download`,
+  `wiz.n.detsemin`); a locale without a market says "not published yet". Free Local goes to `/download`,
   paid plans to the wizard (its last step stays the only link on to my.universaltill.com),
   Enterprise and chains to a `hello@` mailto. Feature lines say only what is live today and
   reuse the wizard's "Not yet" lines; no competitor names, no off-site backup claim. Every

@@ -21,7 +21,7 @@ import { parse, parseFragment, serialize } from 'parse5';
 // @ts-ignore - plain ESM shared with the node scripts
 import { PAGES } from '../../scripts/lib/locales.mjs';
 import { I18N, LANGS, dirOf, infoOf, myLocaleFor } from './locales';
-import { pricingHtml, defaultMarket } from './pricing';
+import { pricingHtml } from './pricing';
 import { ORIGIN, fallbackNoteHtml, languageGridHtml } from './chrome';
 
 export { ORIGIN, I18N };
@@ -246,7 +246,6 @@ export function renderMarketingPage(route: MarketingRoute, routes: MarketingRout
       if (h) setAttr(a, 'href', localizedHref(h, route.locale, suffixes));
     });
     setChildren(n, frag.childNodes);
-    setAttr(n, 'data-default-market', defaultMarket(route.locale));
     if (built.usedFallback) usedFallback = true;
   });
 
