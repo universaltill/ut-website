@@ -28,9 +28,16 @@ import { fileURLToPath } from "node:url";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 // An explicit path is for scripts/check-swa-config_test.sh's fixtures.
 const configPath = process.argv[2] || path.join(root, 'site', 'staticwebapp.config.json');
-const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+const rawConfig = fs.readFileSync(configPath, 'utf8');
+const config = JSON.parse(rawConfig);
 
 const problems = [];
+
+// Azure Static Web Apps refuses to deploy a config over 20 KB (a deploy failed at 18.6 KB pretty-printed).
+// gen-locales and generate-csp write it compact; keep a wide margin.
+if (Buffer.byteLength(rawConfig) > 16000) {
+  problems.push(`staticwebapp.config.json is ${Buffer.byteLength(rawConfig)} bytes; Azure Static Web Apps rejects over 20 KB. Keep it compact (node scripts/gen-locales.mjs) and trim routes.`);
+}
 
 if (config.auth) {
   problems.push(

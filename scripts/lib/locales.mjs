@@ -188,7 +188,8 @@ export function buildSwaConfig(existing, list) {
   return { ...existing, routes: [...localeRoutes(list), ...kept] };
 }
 
-export const serializeSwa = (cfg) => JSON.stringify(cfg, null, 2) + "\n";
+// Compact: Azure Static Web Apps rejects a config over 20 KB and the pretty form passed 18 KB with 188 routes (deploy 44543877979).
+export const serializeSwa = (cfg) => JSON.stringify(cfg) + "\n";
 
 /**
  * Wording of the AI / machine-translation disclosures the owner retired
