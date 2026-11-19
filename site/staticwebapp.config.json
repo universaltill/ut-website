@@ -48,6 +48,11 @@
       "statusCode": 301
     },
     {
+      "route": "/en-gb/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
       "route": "/ar-sa",
       "rewrite": "/ar-sa/index.html"
     },
@@ -91,6 +96,11 @@
     {
       "route": "/ar-sa/support",
       "redirect": "/ar-sa/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/ar-sa/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
       "statusCode": 301
     },
     {
@@ -140,6 +150,11 @@
       "statusCode": 301
     },
     {
+      "route": "/zh-cn/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
       "route": "/fr-fr",
       "rewrite": "/fr-fr/index.html"
     },
@@ -183,6 +198,11 @@
     {
       "route": "/fr-fr/support",
       "redirect": "/fr-fr/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/fr-fr/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
       "statusCode": 301
     },
     {
@@ -232,6 +252,11 @@
       "statusCode": 301
     },
     {
+      "route": "/de-de/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
       "route": "/el-gr",
       "rewrite": "/el-gr/index.html"
     },
@@ -275,6 +300,11 @@
     {
       "route": "/el-gr/support",
       "redirect": "/el-gr/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/el-gr/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
       "statusCode": 301
     },
     {
@@ -324,6 +354,11 @@
       "statusCode": 301
     },
     {
+      "route": "/it-it/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
       "route": "/ms-my",
       "rewrite": "/ms-my/index.html"
     },
@@ -367,6 +402,11 @@
     {
       "route": "/ms-my/support",
       "redirect": "/ms-my/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/ms-my/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
       "statusCode": 301
     },
     {
@@ -416,6 +456,11 @@
       "statusCode": 301
     },
     {
+      "route": "/fa-ir/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
       "route": "/pt-pt",
       "rewrite": "/pt-pt/index.html"
     },
@@ -459,6 +504,11 @@
     {
       "route": "/pt-pt/support",
       "redirect": "/pt-pt/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/pt-pt/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
       "statusCode": 301
     },
     {
@@ -508,6 +558,11 @@
       "statusCode": 301
     },
     {
+      "route": "/es-es/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
       "route": "/tr-tr",
       "rewrite": "/tr-tr/index.html"
     },
@@ -551,6 +606,11 @@
     {
       "route": "/tr-tr/support",
       "redirect": "/tr-tr/contact",
+      "statusCode": 301
+    },
+    {
+      "route": "/tr-tr/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
       "statusCode": 301
     },
     {
@@ -756,6 +816,21 @@
     {
       "route": "/legal/app-privacy",
       "redirect": "/en-gb/legal/app-privacy/",
+      "statusCode": 301
+    },
+    {
+      "route": "/legal/merchant-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
+      "statusCode": 301
+    },
+    {
+      "route": "/legal/dpa",
+      "redirect": "/en-gb/legal/dpa/",
+      "statusCode": 301
+    },
+    {
+      "route": "/legal/cloud-terms",
+      "redirect": "/en-gb/legal/merchant-terms/",
       "statusCode": 301
     },
     {
