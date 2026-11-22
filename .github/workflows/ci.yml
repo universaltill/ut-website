@@ -142,6 +142,8 @@ jobs:
       # rewriting, fallback, prev/next, image checks, ref resolution (no network).
       - run: node --test src/lib/help_test.mjs
       - run: node --test scripts/guard-help_test.mjs
+      # ut-docs#6887: site inventory export (ADR-0211 section 3).
+      - run: node --test scripts/seo-inventory_test.mjs
       # `npm run build` = `astro build && node scripts/postbuild.mjs`. Run
       # the two halves separately so this guard still checks Astro's
       # publicDir pass-through byte-for-byte BEFORE postbuild deliberately
@@ -168,6 +170,8 @@ jobs:
           fi
           echo "OK: every site/ file is present in dist/ byte-for-byte"
       - run: node scripts/postbuild.mjs
+      # ut-docs#6887: must read the final, post-inlined HTML, so it runs right after postbuild.
+      - run: node scripts/seo-inventory.mjs
       # ut-docs#442: the Content-Security-Policy's script-src is a hash
       # allowlist over the site's EXECUTABLE inline <script>s only (see
       # scripts/generate-csp.js's file header — a blog post's JSON-LD

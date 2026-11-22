@@ -39,7 +39,12 @@ const posts = await getLocalizedPosts(lang);
     {posts.length === 0 && <p class="muted" data-i18n="news.empty">{t(lang, 'news.empty')}</p>}
 
     <div class="grid" style="display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
-      {posts.map(({ post, slug }) => (
+      {/* isFallback: the post has no translation in this locale, so its title
+          and excerpt are English: mark them lang="en" dir="ltr" (as the
+          plugin cards do) so screen readers, RTL layout and the SEO
+          inventory's fallbackElements see them as English (ut-docs#6887).
+          The date stays in the page locale (blog-i18n.spec). */}
+      {posts.map(({ post, slug, isFallback }) => (
         <a class="card" style="display:block" href={`/${lang}/blog/${slug}/`}>
           {post.data.coverImage && (
             <img
@@ -49,12 +54,12 @@ const posts = await getLocalizedPosts(lang);
               style="width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:.5rem;margin-bottom:.75rem"
             />
           )}
-          <h3>{post.data.title}</h3>
+          <h3 lang={isFallback ? 'en' : undefined} dir={isFallback ? 'ltr' : undefined}>{post.data.title}</h3>
           <p style="color:var(--muted);font-size:.85rem;margin:.3rem 0">
             <bdi><time datetime={post.data.date.toISOString().slice(0, 10)}>{formatDate(post.data.date, lang)}</time></bdi>
             {' · '}{post.data.author}
           </p>
-          <p>{post.data.excerpt}</p>
+          <p lang={isFallback ? 'en' : undefined} dir={isFallback ? 'ltr' : undefined}>{post.data.excerpt}</p>
         </a>
       ))}
     </div>

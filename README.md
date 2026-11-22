@@ -287,6 +287,26 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   The globe carries the current page (`/language?from=…`) so choosing a
   language returns you where you were.
 
+## SEO site inventory (ADR-0211 §3, ut-docs#6887)
+
+`npm run build` ends with `node scripts/seo-inventory.mjs`, which writes
+`dist/seo/inventory.json`: one row per `sitemap.xml` URL (path, locale, kind,
+title, description, canonical, hreflang, h1–h3, `<main>` body text, links,
+translated/fallback counts), read from the final built HTML. The file is served
+`noindex` (a hand-kept route in `site/staticwebapp.config.json`) so ut-cloud can
+fetch it after a deploy; the deploy's live check asserts 200, `noindex` and
+`buildSha == GITHUB_SHA`. Term-to-page ownership lives in
+`data/seo-keyword-map.json` (`declaredOwners[]` in the file). The header's
+`contentSha256` (hash of `rows` + `declaredOwners`) changes when any content
+does, even on the same `buildSha` (help and plugin pages are cloned at build
+time); the cloud half will key its re-import on it, which needs ADR-0211 §3.1
+and §6.2 amended first. The build fails on a sitemap URL that does not resolve
+or redirects, an off-host URL, a duplicate path, an invalid keyword map or a file
+over 30 MiB; softer findings (`no_main`, `unknown_locale`, `no_build_sha`,
+`owner_not_in_sitemap`) land in `problems[]`. Tests:
+`node --test scripts/seo-inventory_test.mjs`, `tests/seo-inventory.spec.js`.
+The schema is documented in `docs/code-reviews/2026-11-22-seo-inventory-6887.md`.
+
 ## Published locales (ADR-0177, ut-docs#5406) — no locale is named in code
 
 The locale set is **data**: `i18n/published/locales.json` (the file
