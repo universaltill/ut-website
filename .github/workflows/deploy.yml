@@ -161,4 +161,18 @@ jobs:
           # ut-docs#4319: llms.txt is served as UTF-8 (mimeTypes in staticwebapp.config.json).
           ct=$(curl -sS -o /dev/null --max-time 20 --retry 3 --retry-all-errors -w '%{http_code} %{content_type}' https://www.universaltill.com/llms.txt); echo "/llms.txt → $ct"
           [ "$ct" = "200 text/plain; charset=utf-8" ] || { echo "::error::/llms.txt answered '$ct', expected '200 text/plain; charset=utf-8'"; fail=1; }
+          # ut-docs#6887: the SEO inventory is live, noindex, and this build's.
+          # Unlike the route checks above, this file changes on every deploy, so
+          # allow the edge a short window to serve the new copy before failing.
+          inv=$(mktemp); hdr=$(mktemp)
+          for attempt in 1 2 3 4 5 6; do
+            code=$(curl -sS -D "$hdr" -o "$inv" --max-time 30 --retry 3 --retry-all-errors -w '%{http_code}' https://www.universaltill.com/seo/inventory.json || true)
+            sha=$(jq -r .buildSha "$inv" 2>/dev/null || true)
+            echo "/seo/inventory.json → $code buildSha=$sha (attempt $attempt)"
+            { [ "$code" = 200 ] && [ "$sha" = "$GITHUB_SHA" ]; } && break
+            [ "$attempt" = 6 ] || sleep 15
+          done
+          [ "$code" = 200 ] || { echo "::error::/seo/inventory.json answered '$code', expected 200"; fail=1; }
+          grep -qi '^x-robots-tag:.*noindex' "$hdr" || { echo "::error::/seo/inventory.json has no X-Robots-Tag: noindex header"; fail=1; }
+          [ "$sha" = "$GITHUB_SHA" ] || { echo "::error::/seo/inventory.json buildSha is '$sha', expected $GITHUB_SHA"; fail=1; }
           exit $fail

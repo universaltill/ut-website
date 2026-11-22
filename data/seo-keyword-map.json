@@ -1,0 +1,232 @@
+{
+ "schemaVersion": "1.0",
+ "terms": [
+  {
+   "term": "free till",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "free till system",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "free EPOS",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "free EPOS system",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "free EPOS software UK",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "EPOS system small shop",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "EPOS system small business",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "open source EPOS",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "open source POS",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "open source till",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "no monthly fee till",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "EPOS with no contract",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "switch EPOS provider",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "cash register for small shop",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "offline EPOS",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [
+    "/blog/offline-pos-keeps-selling-without-internet/"
+   ],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "POS without internet",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [
+    "/blog/offline-pos-keeps-selling-without-internet/"
+   ],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "till that works offline",
+   "locale": "en-gb",
+   "owner": "/",
+   "supporting": [
+    "/blog/offline-pos-keeps-selling-without-internet/"
+   ],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "EPOS software download",
+   "locale": "en-gb",
+   "owner": "/download",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "POS software for Windows",
+   "locale": "en-gb",
+   "owner": "/download",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "POS software for Mac",
+   "locale": "en-gb",
+   "owner": "/download",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "POS software for Android",
+   "locale": "en-gb",
+   "owner": "/download",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "Raspberry Pi POS",
+   "locale": "en-gb",
+   "owner": "/download",
+   "supporting": [
+    "/blog/pos-on-hardware-you-already-own/"
+   ],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "Raspberry Pi till",
+   "locale": "en-gb",
+   "owner": "/download",
+   "supporting": [
+    "/blog/pos-on-hardware-you-already-own/"
+   ],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "Kassensystem kostenlos",
+   "locale": "de-de",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "kostenloses Kassensystem",
+   "locale": "de-de",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "Kassensystem ohne Internet",
+   "locale": "de-de",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "Kassensystem offline",
+   "locale": "de-de",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "Registrierkasse",
+   "locale": "de-de",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "Kassensystem wechseln",
+   "locale": "de-de",
+   "owner": "/",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "Kassensoftware kostenlos",
+   "locale": "de-de",
+   "owner": "/download",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  },
+  {
+   "term": "Kassensoftware download",
+   "locale": "de-de",
+   "owner": "/download",
+   "supporting": [],
+   "card": "ut-docs#4320"
+  }
+ ]
+}

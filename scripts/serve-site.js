@@ -26,6 +26,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { matches, resolveRequest } from "./lib/swa-routes.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..", "dist");
@@ -39,7 +40,6 @@ if (!fs.existsSync(path.join(ROOT, "index.html"))) {
 const config = JSON.parse(
   fs.readFileSync(path.join(__dirname, "..", "site", "staticwebapp.config.json"), "utf8"),
 );
-const ROUTES = config.routes ?? [];
 const FALLBACK = config.navigationFallback ?? {};
 const GLOBAL_HEADERS = config.globalHeaders ?? {};
 // responseOverrides["404"].rewrite: Azure serves that file, status kept at
@@ -62,17 +62,8 @@ const MIME = {
   ...config.mimeTypes,
 };
 
-// Azure's matcher is richer than this; "exact path, or a trailing /* prefix"
-// covers every pattern this site actually uses.
-// A plain route matches with or without a trailing slash, as on Azure
-// (ut-docs#3809: "/downloads" also answers "/downloads/").
-function matches(pattern, urlPath) {
-  if (pattern.endsWith("/*")) return urlPath.startsWith(pattern.slice(0, -1));
-  return pattern === urlPath || (urlPath.length > 1 && pattern === urlPath.replace(/\/$/, ""));
-}
-
-function send(res, status, body, type) {
-  res.writeHead(status, { ...GLOBAL_HEADERS, "Content-Type": type || "text/plain; charset=utf-8" });
+function send(res, status, body, type, extra = {}) {
+  res.writeHead(status, { ...GLOBAL_HEADERS, ...extra, "Content-Type": type || "text/plain; charset=utf-8" });
   res.end(body);
 }
 
@@ -86,21 +77,15 @@ const server = http.createServer((req, res) => {
   let urlPath = decodeURIComponent((req.url || "/").split("?")[0]);
   const query = (req.url || "").includes("?") ? "?" + req.url.split("?")[1] : "";
 
-  const route = ROUTES.find((r) => matches(r.route, urlPath));
-  if (route?.redirect) {
-    res.writeHead(route.statusCode ?? 302, { ...GLOBAL_HEADERS, Location: route.redirect + query });
+  const r = resolveRequest(ROOT, config, urlPath);
+  const route = r.route;
+  if (r.redirect) {
+    res.writeHead(r.redirect.status, { ...GLOBAL_HEADERS, Location: r.redirect.location + query });
     return res.end();
   }
-  if (route?.rewrite) urlPath = route.rewrite;
-
-  let filePath = path.join(ROOT, urlPath);
-  if (!filePath.startsWith(ROOT)) return send(res, 403, "Forbidden");
-
-  // Astro emits directory-style URLs (dist/en-gb/blog/index.html for
-  // /en-gb/blog), which Static Web Apps resolves in production.
-  if (!path.extname(filePath) && fs.existsSync(path.join(filePath, "index.html"))) {
-    filePath = path.join(filePath, "index.html");
-  }
+  if (r.forbidden) return send(res, 403, "Forbidden");
+  urlPath = r.rewritten;
+  let filePath = r.filePath ?? path.join(ROOT, urlPath);
 
   if (!fs.existsSync(filePath)) {
     const excluded = (FALLBACK.exclude ?? []).some((p) => matches(p, urlPath));
@@ -113,7 +98,7 @@ const server = http.createServer((req, res) => {
 
   fs.readFile(filePath, (err, data) => {
     if (err) return notFound(res);
-    send(res, 200, data, MIME[path.extname(filePath)] || "application/octet-stream");
+    send(res, 200, data, MIME[path.extname(filePath)] || "application/octet-stream", route?.headers);
   });
 });
 

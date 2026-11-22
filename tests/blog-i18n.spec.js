@@ -3,6 +3,7 @@
 // against " · author", and the blog subtitle/empty-state no longer claim
 // things that aren't true or aren't translated.
 import { expect, test } from "@playwright/test";
+import { LOCALES, SOURCE } from "./helpers/locales.js";
 
 const DE_MONTH = /(Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember)/;
 const EN_MONTH = /(January|February|March|April|May|June|July|August|September|October|November|December)/;
@@ -76,4 +77,26 @@ test.describe("blog dates follow the locale", () => {
     // Fallback (English original) → English date
     expect(html.match(/<bdi><time[^>]*>([^<]+)</)[1]).toMatch(EN_MONTH);
   });
+});
+
+// ut-docs#6887 review: on a locale's blog index, an English-fallback post's
+// card marks its title and excerpt lang="en" dir="ltr" (as plugin cards do),
+// so assistive tech, RTL layout and the SEO inventory's fallbackElements see
+// English; a translated post's card does not. Content-independent: a card is
+// a fallback exactly when its post page marks its own <h1> lang="en".
+test.describe("blog index: fallback cards are marked English", () => {
+  for (const locale of LOCALES.filter((l) => l !== SOURCE)) {
+    test(`${locale}/blog/: lang="en" on exactly the fallback cards`, async ({ request }) => {
+      const html = await (await request.get(`/${locale}/blog/`)).text();
+      const cards = [...html.matchAll(/<a class="card"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)];
+      expect(cards.length).toBeGreaterThan(0);
+      for (const [, href, body] of cards) {
+        const post = await (await request.get(href)).text();
+        const fallback = /<h1[^>]*\blang="en"/.test(post);
+        const h3 = body.match(/<h3([^>]*)>/)[1];
+        if (fallback) expect(h3, href).toMatch(/lang="en"[^>]*dir="ltr"|dir="ltr"[^>]*lang="en"/);
+        else expect(h3, href).not.toMatch(/lang="en"/);
+      }
+    });
+  }
 });
