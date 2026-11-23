@@ -64,9 +64,19 @@ const I18N = (window.UT_I18N_DATA && window.UT_I18N_DATA.locales) || {};
   // The language prefix IS the URL, for every page — not just the homepage.
   // Anything else means the Turkish version of a page has no address a search
   // engine can index or a visitor can bookmark.
+  // Locales with no public help pages (scripts/lib/help-locales.mjs, carried
+  // in i18n-data.js as noHelp; ut-docs#6948): their /help paths are the English ones.
+  const noHelp = (window.UT_I18N_DATA && window.UT_I18N_DATA.noHelp) || [];
   function pathFor(lang, path) {
     const p = path || "/";
+    if (noHelp.indexOf(lang) !== -1 && /^\/help(\/|$)/.test(p)) return "/" + DEFAULT + p;
     return p === "/" ? "/" + lang : "/" + lang + p;
+  }
+  // A same-site href with its locale prefix cut off ("", "/", "/help/x/#s")
+  // re-prefixed for `lang`, Help going to the English help where `lang` has none.
+  function relink(lang, rest) {
+    const to = noHelp.indexOf(lang) !== -1 && /^\/help(?=[\/?#]|$)/.test(rest) ? DEFAULT : lang;
+    return "/" + to + rest;
   }
   // `from` arrives in a query string, so treat it as untrusted: same-origin
   // absolute paths only. "//evil.example" is a protocol-relative URL, not a
@@ -165,7 +175,8 @@ const I18N = (window.UT_I18N_DATA && window.UT_I18N_DATA.locales) || {};
       document.querySelectorAll('a[href^="/' + shown + '"]').forEach(function (a) {
         if (a.classList.contains("lang-link")) return;
         const href = a.getAttribute("href");
-        if (/^\/[a-z]{2}-[a-z]{2}(?=[\/?#]|$)/.test(href)) a.setAttribute("href", "/" + lang + href.slice(shown.length + 1));
+        // Through relink, so a Help link never lands on an unpublished-help locale (ut-docs#6948).
+        if (/^\/[a-z]{2}-[a-z]{2}(?=[\/?#]|$)/.test(href)) a.setAttribute("href", relink(lang, href.slice(shown.length + 1)));
       });
     }
     // The fallback note is prerendered for the page's own

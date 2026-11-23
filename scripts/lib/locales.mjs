@@ -13,6 +13,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { hasHelp } from "./help-locales.mjs";
 
 // The repo root. Next to this file when run as a script; the Astro build bundles
 // this module into its own output folder, where "next to this file" is wrong, so
@@ -165,6 +166,10 @@ export function localeRoutes(list) {
     for (const r of PAGE_REDIRECTS.filter(() => l.url !== SOURCE)) out.push({ route: `/${l.url}${r.suffix}`, redirect: `/${l.url}${r.to}`, statusCode: 301 });
     // The retired cloud-terms page is now the English Merchant Terms (ut-docs#3264), in every locale.
     out.push({ route: `/${l.url}/legal/cloud-terms`, redirect: `/${SOURCE}/legal/merchant-terms/`, statusCode: 301 });
+    // A locale whose help is unpublished (scripts/lib/help-locales.mjs, ut-docs#6948)
+    // once served it: its old help URLs 301 to the English help, as a withdrawn
+    // locale's /help/ does, rather than 404 for a crawler or a bookmark.
+    if (!hasHelp(l.url)) for (const r of ["/help", "/help/*"]) out.push({ route: `/${l.url}${r}`, redirect: `/${SOURCE}/help/`, statusCode: 301 });
   }
   const seen = new Set();
   for (const l of websiteLocales(list)) {

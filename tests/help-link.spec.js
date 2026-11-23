@@ -4,9 +4,12 @@
 import { expect, test } from "@playwright/test";
 import { LOCALES, ENGLISH, I18N } from "./helpers/locales.js";
 
+// ut-docs#5355 / #6948: Arabic help is not published, so ar-sa's Help links go to the English help.
+const NO_HELP = { "ar-sa": "en-gb" };
+
 for (const locale of LOCALES) {
   test.describe(`help link - ${locale}`, () => {
-    const help = `/${locale}/help/`;
+    const help = `/${NO_HELP[locale] ?? locale}/help/`;
 
     test("home page: header, footer and body link to this locale's help and it resolves", async ({ page, request }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
@@ -16,7 +19,7 @@ for (const locale of LOCALES) {
       await expect(header).toHaveAttribute("data-i18n", "nav.help");
       await expect(header).toHaveText(I18N[locale]["nav.help"] ?? ENGLISH["nav.help"]);
       await expect(page.locator('footer a[href="' + help + '"]')).toHaveCount(1);
-      await expect(page.locator('main a[href="' + help + '"]')).not.toHaveCount(0);
+      if (!NO_HELP[locale]) await expect(page.locator('main a[href="' + help + '"]')).not.toHaveCount(0);
       const res = await request.get(help);
       expect(res.status()).toBe(200);
     });

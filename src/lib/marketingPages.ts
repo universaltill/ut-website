@@ -21,6 +21,7 @@ import { parse, parseFragment, serialize } from 'parse5';
 // @ts-ignore - plain ESM shared with the node scripts
 import { PAGES } from '../../scripts/lib/locales.mjs';
 import { I18N, LANGS, dirOf, infoOf, myLocaleFor } from './locales';
+import { helpLocaleFor } from './helpLocales';
 import { pricingHtml } from './pricing';
 import { ORIGIN, fallbackNoteHtml, languageGridHtml } from './chrome';
 
@@ -110,6 +111,7 @@ export function localizedHref(href: string, locale: string, suffixes: Set<string
   // Already locale-prefixed: a deliberate link (e.g. to an English original).
   if (/^\/[a-z]{2}-[a-z]{2}(?=\/|$)/.test(p)) return href;
   if (p === '/') return `/${locale}${rest}`;
+  if (p === '/help' || p.startsWith('/help/')) locale = helpLocaleFor(locale); // ut-docs#6948
   if (ASTRO_SECTIONS.some((s) => p === s || p.startsWith(s + '/'))) {
     return `/${locale}${p.endsWith('/') ? p : p + '/'}${rest}`;
   }

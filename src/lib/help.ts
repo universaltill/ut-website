@@ -15,6 +15,7 @@ export const LOCALE_FOLDER: Record<string, string | null> = {
   'fa-ir': 'fa',
   'zh-cn': null,
 };
+export { HELP_UNPUBLISHED, hasHelp, helpLocaleFor } from './helpLocales';
 export const SOURCE_FOLDER = 'en';
 const SOURCE_LOCALE = 'en-gb';
 

@@ -307,3 +307,13 @@ test("meta description is cut on a word boundary; section ids are stable", () =>
   assert.equal(H.sectionId("Setting up your shop"), "sec-setting-up-your-shop");
   assert.equal(H.sectionId("Connecting & extending"), "sec-connecting-extending");
 });
+
+// ut-docs#5355 / #6948: Arabic help is not published; its Help links go to the English help.
+test("a locale in HELP_UNPUBLISHED has no help pages and its Help link targets en-gb", () => {
+  assert.ok(H.HELP_UNPUBLISHED.includes("ar-sa"));
+  assert.equal(H.hasHelp("ar-sa"), false);
+  assert.equal(H.hasHelp("de-de"), true);
+  assert.equal(H.helpLocaleFor("ar-sa"), "en-gb");
+  assert.equal(H.helpLocaleFor("de-de"), "de-de");
+  assert.equal(H.helpLocaleFor("es-es"), "es-es");
+});

@@ -60,7 +60,10 @@ Public website for Universal Till — a product of **Task Runner Technology LTD*
   `web/help/<folder>/*.md` + `web/help/img/<folder>/<id>.png` in the public
   `universaltill/universal-till` repo (folders `en de tr fa`; `zh-cn` has none,
   so English stands in; the product's `ar` folder is deliberately not published
-  and has no site locale). `src/lib/helpSource.ts` makes a sparse, shallow
+  and has no site locale; the site's `ar-sa` locale has **no help pages at all**
+  - `/ar-sa/help/…` is not built (a 301 to `/en-gb/help/` in
+  `staticwebapp.config.json`), not in the sitemap, and ar-sa's Help links go to
+  `/en-gb/help/`; the list is `scripts/lib/help-locales.mjs`, ut-docs#6948). `src/lib/helpSource.ts` makes a sparse, shallow
   clone into `.help-src/` (git-ignored) at **`HELP_REF`** (a tag or branch name, not a SHA), else the product's
   latest release tag (GitHub API, then the highest `vX.Y.Z` from `git ls-remote`),
   else - local builds only, with a warning - `main`; with `CI`/`GITHUB_ACTIONS`

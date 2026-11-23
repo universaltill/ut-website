@@ -1,5 +1,6 @@
 ---
 import BaseLayout, { LANGS, t } from '../../../layouts/BaseLayout.astro';
+import { hasHelp } from '../../../lib/helpLocales';
 import { fillTemplate, loadHelp, localized, metaDescription, neighbours, related, sectionId, sectionLabel, translatedLocales } from '../../../lib/help';
 
 // One page per public topic PER LOCALE, same fallback shape as legal/[slug]
@@ -9,7 +10,7 @@ import { fillTemplate, loadHelp, localized, metaDescription, neighbours, related
 // English text aren't read as duplicates.
 export async function getStaticPaths() {
   const help = await loadHelp();
-  return LANGS.flatMap((lang) =>
+  return LANGS.filter(hasHelp).flatMap((lang) =>
     help.entries.map((entry) => ({
       params: { lang, slug: entry.slug },
       props: { slug: entry.slug, translatedLangs: translatedLocales(entry) },

@@ -3,7 +3,7 @@
 // mailto links to allow-listed aliases only: no form, no third-party service.
 import { expect, test } from "@playwright/test";
 
-import { LOCALES } from "./helpers/locales.js";
+import { LOCALES, hasHelp, helpLocaleFor } from "./helpers/locales.js";
 
 const ALLOWED = ["support@universaltill.com", "hello@universaltill.com", "partners@universaltill.com", "security@universaltill.com"];
 
@@ -18,7 +18,7 @@ test.describe("/contact", () => {
       for (const a of addrs) expect(ALLOWED).toContain(a);
       expect(html).not.toMatch(/<form|<input|<textarea/);
       expect(html).toContain(`href="/${locale}/pilot"`);
-      expect(html).toContain(`href="/${locale}/help/"`);
+      expect(html).toContain(`href="/${helpLocaleFor(locale)}/help/"`);
       expect(html).toContain(`href="/${locale}/download"`);
       expect(html).toContain(`href="/${locale}/legal/impressum/"`);
       expect(html).toContain("Task Runner Technology LTD");
@@ -52,7 +52,7 @@ test.describe("/contact", () => {
 
   test("Contact is linked from the footer of the home page, a marketing page and an Astro page in every locale", async ({ request }) => {
     for (const locale of LOCALES) {
-      for (const p of ["", "/download", "/find-your-setup", "/blog/", "/plugins/", "/help/"]) {
+      for (const p of ["", "/download", "/find-your-setup", "/blog/", "/plugins/", ...(hasHelp(locale) ? ["/help/"] : [])]) {
         const html = await (await request.get(`/${locale}${p}`)).text();
         expect(html, `${locale}${p}`).toMatch(new RegExp(`<footer[\\s\\S]*href="/${locale}/contact"`));
       }

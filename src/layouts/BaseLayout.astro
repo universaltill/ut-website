@@ -1,4 +1,5 @@
 ---
+import { helpLocaleFor } from '../lib/helpLocales';
 import { I18N, langPillLabel, langPillText } from '../lib/marketingPages';
 import { LANGS, SOURCE_LOCALE, dirOf, infoOf } from '../lib/locales';
 import { esc, fallbackNoteHtml } from '../lib/chrome';
@@ -83,6 +84,7 @@ const pagePath = path === '/' ? '' : path;
 // Every link stays inside the current locale, English included: an unprefixed
 // URL says nothing about language, so choosing English after Turkish would
 // land on a page that still renders Turkish from the stored preference.
+const LH = `/${helpLocaleFor(current)}/help/`; // ar has no help pages (ut-docs#6948)
 const L = (p: string) => `/${current}${p === '/' ? '' : p}` || '/';
 
 // hreflang alternates for THIS page in every language — the pairing that
@@ -155,7 +157,7 @@ const alternates = isFallback || noindex
     <a href={`${L('/')}#hardware`} data-i18n="nav.hardware" set:html={F('nav.hardware')}></a>
     <a href={L('/plugins/')} data-i18n="nav.plugins" set:html={F('nav.plugins')}></a>
     <a href={L('/blog/')} data-i18n="nav.news" set:html={F('nav.news')}></a>
-    <a href={L('/help/')} data-i18n="nav.help" set:html={F('nav.help')}></a>
+    <a href={LH} data-i18n="nav.help" set:html={F('nav.help')}></a>
     <a href={L('/pricing')} data-i18n="nav.pricing" set:html={F('nav.pricing')}></a>
     <a href={`${L('/')}#about`} data-i18n="nav.about" set:html={F('nav.about')}></a>
   </nav>
@@ -204,7 +206,7 @@ const alternates = isFallback || noindex
        this footer link-for-link (only .foot-tagline's presence), but no
        reason to let it drift anyway. -->
   <p class="foot-legal">
-    <a href={L('/help/')} data-i18n="nav.help" set:html={F('nav.help')}></a>{' · '}
+    <a href={LH} data-i18n="nav.help" set:html={F('nav.help')}></a>{' · '}
     <a href={L('/pricing')} data-i18n="nav.pricing" set:html={F('nav.pricing')}></a>{' · '}
     <a href={L('/contact')} data-i18n="foot.contact" set:html={F('foot.contact')}></a>{' · '}
     <a href={L('/legal/impressum/')} data-i18n="foot.impressum" set:html={F('foot.impressum')}></a>{' · '}
