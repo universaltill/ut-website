@@ -16,6 +16,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { check } from "./check-locale-consistency.mjs";
 import { ROOT, buildSwaConfig, localeRoutes, legalApproved, htmlProblems, websiteLocales } from "./lib/locales.mjs";
+import { HELP_UNPUBLISHED } from "./lib/help-locales.mjs";
 
 const real = path.join(ROOT, "i18n");
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "ut-locale-fixture-"));
@@ -179,4 +180,14 @@ test("/support redirects to contact in every locale except the source, which has
   const routes = localeRoutes({ locales: [l("en-gb"), l("de-de")], withdrawn: [] });
   assert.ok(routes.some((r) => r.route === "/de-de/support" && r.redirect === "/de-de/contact"));
   assert.ok(!routes.some((r) => r.route === "/en-gb/support"));
+});
+
+test("a published locale whose help is unpublished 301s its help URLs to the English help (ut-docs#6948)", () => {
+  const l = (url) => ({ url, native_name: url, english_name: url, dir: "ltr", surfaces: { website: { published: true } } });
+  const [off] = HELP_UNPUBLISHED;
+  const routes = localeRoutes({ locales: [l("en-gb"), l("de-de"), l(off)], withdrawn: [] });
+  for (const r of [`/${off}/help`, `/${off}/help/*`]) {
+    assert.deepEqual(routes.find((x) => x.route === r), { route: r, redirect: "/en-gb/help/", statusCode: 301 });
+  }
+  assert.ok(!routes.some((r) => /^\/(en-gb|de-de)\/help/.test(r.route)));
 });

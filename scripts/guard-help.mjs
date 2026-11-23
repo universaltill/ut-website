@@ -23,6 +23,7 @@
 //      taken out of data/help-public-allowlist.txt, not edited here;
 //   6. sitemap.xml lists every help page that is its own canonical and none
 //      that canonicalises elsewhere (ut-docs#3811).
+import { HELP_UNPUBLISHED, hasHelp } from "./lib/help-locales.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -38,10 +39,14 @@ function locales() {
   // The published-locale list (ADR-0177) is the only source of the locale set.
   return websiteLocales(loadList()).map((l) => l.url);
 }
-const LOCALES = locales();
+const LOCALES = locales().filter(hasHelp);
 const errors = [];
 const fail = (m) => errors.push(m);
 const read = (f) => fs.readFileSync(f, "utf8");
+// Unpublished-help locales (ut-docs#6948): no page may exist, not even a stray one.
+for (const loc of HELP_UNPUBLISHED) {
+  if (fs.existsSync(path.join(dist, loc, "help"))) fail(`${loc}/help/ was built but its help is unpublished`);
+}
 
 const manifestFile = process.env.HELP_GUARD_MANIFEST ?? path.join(repo, ".help-build/manifest.json");
 let manifest = { topics: [] };
@@ -155,6 +160,9 @@ const sitemapFile = path.join(dist, "sitemap.xml");
 if (!fs.existsSync(sitemapFile)) fail("no sitemap.xml");
 else {
   const listed = new Set([...read(sitemapFile).matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
+  for (const loc of HELP_UNPUBLISHED) {
+    for (const u of listed) if (u.startsWith(`${ORIGIN}/${loc}/help`)) fail(`sitemap lists ${u}, but ${loc} help is unpublished`);
+  }
   for (const p of pages) {
     const url = ORIGIN + p.rel;
     const self = p.canonical === url;

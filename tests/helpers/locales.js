@@ -13,6 +13,8 @@ export const ENGLISH = data.english;
 export const META = data.meta;
 export const MY_SERVED = [...myLocales(data.list)];
 export { PAGES, SOURCE };
+// Locales with no public help pages (ut-docs#6948), single-sourced.
+export { HELP_UNPUBLISHED, hasHelp, helpLocaleFor } from "../../scripts/lib/help-locales.mjs";
 export const infoOf = (url) => data.locales.find((l) => l.url === url);
 export const isLabelled = (url) => hasMachineLabel(infoOf(url));
 export const RTL = data.locales.filter((l) => l.dir === "rtl").map((l) => l.url);

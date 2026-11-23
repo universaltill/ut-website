@@ -25,7 +25,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
-import { LOCALES, SOURCE } from "./helpers/locales.js";
+import { LOCALES, SOURCE, hasHelp } from "./helpers/locales.js";
 
 // Same route table sitemap.xml.ts itself reads — not a second hand-kept
 // copy of the five paths, so this test can't drift from the config the
@@ -169,7 +169,10 @@ test.describe("sitemap.xml", () => {
     // Help pages (ut-docs#5355) come from the product repo at a pinned ref, so
     // their count is not a constant here; tests/help-pages.spec.js and
     // scripts/guard-help.mjs check which of them are listed.
-    for (const locale of LOCALES) expect(text).toContain(`/${locale}/help/</loc>`);
+    for (const locale of LOCALES) {
+      if (hasHelp(locale)) expect(text).toContain(`/${locale}/help/</loc>`);
+      else expect(text).not.toContain(`/${locale}/help`); // ut-docs#6948
+    }
     const locCount = (text.match(/<loc>/g) || []).length - (text.match(/\/help\/[^<]*<\/loc>/g) || []).length;
     expect(locCount).toBe(expected);
   });

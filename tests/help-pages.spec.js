@@ -112,10 +112,6 @@ test.describe("untranslated topics fall back honestly (ut-docs#3811)", () => {
     expect(langs).not.toContain("zh-CN");
     expect(await raw(request, "/sitemap.xml")).toContain(`${ORIGIN}/de-de/help/sell/</loc>`);
   });
-
-  test("ar-sa is a published site locale: its help renders (English text until LOCALE_FOLDER in src/lib/help.ts maps the product's web/help/ar folder; owner call)", async ({ request }) => {
-    expect((await request.get("/ar-sa/help/")).status()).toBe(200);
-  });
 });
 
 test.describe("index filter", () => {
@@ -172,4 +168,46 @@ test("links to a non-public topic or a till route are plain text, not links", as
     expect(html, loc).not.toMatch(/href="\/(?:settings|ui|reports|refund)/);
     expect(html, loc).not.toMatch(/\/help\/(?:claim|fiscal-register|fiscal-device|support-partner|translations|translate-mode)/);
   }
+});
+
+// ut-docs#5355 / #6948: the owner decided Arabic help is NOT published (the
+// connector tools' url stays empty for ar). No page, no sitemap entry, no
+// hreflang; the URLs it had answer a 301 to the English help, not a page.
+test.describe("ar-sa help is unpublished", () => {
+  for (const p of ["/ar-sa/help", "/ar-sa/help/", "/ar-sa/help/catalog/"]) {
+    test(`${p} is not built and 301s to the English help`, async ({ request }) => {
+      const r = await request.get(p, { maxRedirects: 0 });
+      expect(r.status()).toBe(301);
+      expect(r.headers()["location"]).toBe("/en-gb/help/");
+    });
+  }
+  test("the shared 404 page under ar-sa links Help to the English help after i18n.js runs", async ({ page }) => {
+    await page.goto("/ar-sa/no-such-page");
+    await expect(page.locator("html")).toHaveAttribute("lang", /^ar/i);
+    for (const where of ["header", "footer"]) {
+      await expect(page.locator(`${where} a[data-i18n="nav.help"]`)).toHaveAttribute("href", "/en-gb/help/");
+    }
+    expect(await page.locator('a[href^="/ar-sa/help"]').count()).toBe(0);
+  });
+  test("no ar-sa help URL in the sitemap and no ar hreflang on an English help page", async ({ request }) => {
+    const sitemap = await (await request.get("/sitemap.xml")).text();
+    expect(sitemap).not.toContain("/ar-sa/help");
+    const html = await raw(request, "/en-gb/help/");
+    expect(hreflangs(html).some((h) => h.startsWith("ar"))).toBe(false);
+  });
+  test("ar-sa header and footer Help links go to the English help", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/ar-sa/blog/");
+    await expect(page.locator('#site-nav a[data-i18n="nav.help"]')).toHaveAttribute("href", "/en-gb/help/");
+    await expect(page.locator('footer a[data-i18n="nav.help"]')).toHaveAttribute("href", "/en-gb/help/");
+    expect(await page.locator('a[href^="/ar-sa/help"]').count()).toBe(0);
+  });
+  test("switching to Arabic from an English help topic does not land on a 404", async ({ page, request }) => {
+    await page.goto("/en-gb/language?from=" + encodeURIComponent("/help/catalog/"));
+    const href = await page.locator('#locale-grid a[data-code="ar-sa"]').getAttribute("href");
+    expect(href).toBe("/en-gb/help/catalog/");
+    expect((await request.get(href)).status()).toBe(200);
+    // other locales still map to their own help
+    await expect(page.locator('#locale-grid a[data-code="de-de"]')).toHaveAttribute("href", "/de-de/help/catalog/");
+  });
 });

@@ -108,3 +108,8 @@ mustFail("a fallback page in the sitemap", (f) => { f["sitemap.xml"] = f["sitema
 mustFail("a real page missing from the sitemap", (f) => { f["sitemap.xml"] = f["sitemap.xml"].replace(`<url><loc>${O}/de-de/help/a/</loc></url>`, ""); }, /sitemap lacks .*de-de\/help\/a/);
 mustFail("a page with no canonical", (f) => { f["en-gb/help/a/index.html"] = f["en-gb/help/a/index.html"].replace(/<link rel="canonical"[^>]*>/, ""); }, /no canonical/);
 mustFail("a forbidden compliance claim in the text", (f) => { f["en-gb/help/a/index.html"] += "<p>Our till is GoBD-compliant.</p>"; }, /forbidden compliance claim "gobd-compliant"/);
+
+// ut-docs#6948: a locale whose help is unpublished (scripts/lib/help-locales.mjs)
+// must have no built help page and no sitemap entry.
+mustFail("a help page built for an unpublished-help locale", (f) => { f["ar-sa/help/index.html"] = page({ loc: "ar-sa", rel: "/ar-sa/help/" }); }, /ar-sa\/help\/ was built but its help is unpublished/);
+mustFail("an unpublished-help locale in the sitemap", (f) => { f["sitemap.xml"] = f["sitemap.xml"].replace("</urlset>", `<url><loc>${O}/ar-sa/help/</loc></url></urlset>`); }, /sitemap lists .*ar-sa\/help\/, but ar-sa help is unpublished/);

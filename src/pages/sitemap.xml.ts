@@ -5,6 +5,7 @@ import { getAllLocalizedPosts } from '../lib/blogPosts';
 import { getAllLocalizedLegalPages } from '../lib/legalPages';
 import { getAllLocalizedConnectorPages } from '../lib/connectorPages';
 import { loadPlugins } from '../lib/plugins';
+import { hasHelp } from '../lib/helpLocales';
 import { loadHelp, localized } from '../lib/help';
 import { isNoindex, marketingRoutes, templateFor } from '../lib/marketingPages';
 // Marketing pages (site/*.html) are plain HTML served via publicDir and
@@ -51,9 +52,11 @@ export const GET: APIRoute = async ({ site }) => {
   for (const lang of LANGS) {
     entries.push(urlEntry(`${base}/${lang}/blog/`));
     entries.push(urlEntry(`${base}/${lang}/plugins/`));
-    entries.push(urlEntry(`${base}/${lang}/help/`));
-    for (const entry of help.entries.filter((e) => !localized(e, lang).isFallback)) {
-      entries.push(urlEntry(`${base}/${lang}/help/${entry.slug}/`));
+    if (hasHelp(lang)) {
+      entries.push(urlEntry(`${base}/${lang}/help/`));
+      for (const entry of help.entries.filter((e) => !localized(e, lang).isFallback)) {
+        entries.push(urlEntry(`${base}/${lang}/help/${entry.slug}/`));
+      }
     }
     for (const { slug } of plugins) {
       entries.push(urlEntry(`${base}/${lang}/plugins/${slug}/`));
