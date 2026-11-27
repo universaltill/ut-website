@@ -507,6 +507,7 @@
   "pricing.lede": "Start free on your own hardware. Add cloud features when you need them. Our software is never charged per till; in Germany the managed fiscal device (TSE) is billed per main till, shown on the German page.",
   "pricing.billing": "Paid plans are shown with annual billing first: you pay for ten months up front and get two months free. Monthly billing is also available, at the higher monthly price shown on each plan.",
   "pricing.vat": "All prices exclude VAT.",
+  "pricing.cardfee": "Card payments through our Stripe connection: Universal Till charges a platform fee of 0.2% (VAT included) of each successful card payment, taken by Stripe before your payout. Stripe's own fees are separate and are charged by Stripe. Universal Till takes no commission on SumUp payments.",
   "pricing.market.label": "Choose your country",
   "pricing.market.uk": "United Kingdom (GBP)",
   "pricing.market.de": "Germany (EUR)",

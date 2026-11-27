@@ -106,7 +106,7 @@ export function pricingHtml(locale: string, bcp47: string, dict: Record<string, 
 
   const gaps = ['appointments', 'online', 'mobilesync', 'accountant', 'phone'].map((g) => `<li>${tx('wiz.gap.' + g)}</li>`).join('');
   const html =
-    (market ? `<p class="price-intro">${tx('pricing.billing')}</p><p class="price-intro">${tx('pricing.vat')}</p>` : '') +
+    (market ? `<p class="price-intro">${tx('pricing.billing')}</p><p class="price-intro">${tx('pricing.vat')}</p><p class="price-intro">${tx('pricing.cardfee')}</p>` : '') +
     (market ? panel(market) : unpriced()) +
     `<div class="price-gaps"><h2>${tx('wiz.res.gaps')}</h2><ul>${gaps}</ul></div>` +
     (market ? `<p class="price-eff" data-effective-from="${PRICES.effectiveFrom}">${tx('pricing.effective', { date })}</p>` : '') +
