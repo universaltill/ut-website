@@ -81,11 +81,15 @@ test.describe("#partner-de on /contact", () => {
 
   for (const width of [320, 390]) {
     for (const locale of ["en-gb", "de-de", "ar-sa"]) {
-      test(`${locale} at ${width}px: no horizontal overflow, address not italic`, async ({ page }) => {
+      test(`${locale} at ${width}px: card does not overflow, address not italic`, async ({ page }) => {
         await page.setViewportSize({ width, height: 800 });
         await page.goto(`/${locale}/contact`);
         const r = await page.evaluate(() => ({
-          over: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+          // the card itself must fit the viewport (page-wide overflow can come from the shared header, not this card)
+          over: Math.max(
+            document.querySelector("#partner-de").scrollWidth - document.querySelector("#partner-de").clientWidth,
+            document.querySelector("#partner-de").getBoundingClientRect().right - document.documentElement.clientWidth,
+          ),
           style: getComputedStyle(document.querySelector("#partner-de address")).fontStyle,
         }));
         expect(r.over).toBeLessThanOrEqual(0);
