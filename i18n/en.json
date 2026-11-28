@@ -551,6 +551,9 @@
   "contact.pilot.cta": "Join the free pilot",
   "contact.partners.t": "Partners",
   "contact.partners.d": "Resellers and installers who want to work with Universal Till in their country.",
+  "contact.partnerde.t": "Our partner in Germany",
+  "contact.partnerde.country": "Germany",
+  "contact.partnerde.indep": "HAAFT-IT is an independent business. It is not part of Task Runner Technology Ltd and cannot make contracts or commitments in our name.",
   "contact.security.t": "Report a security issue",
   "contact.security.d": "Found a vulnerability? Email us the details and how to reproduce it. Please do not post it publicly first.",
   "contact.privacy": "Emailing us shares your address and message with us."

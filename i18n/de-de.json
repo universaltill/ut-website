@@ -416,5 +416,8 @@
   "help.shot.alt": "Screenshot: {title}",
   "help.back": "Alle Hilfethemen",
   "help.count.filtered": "{n} von {total} Themen",
-  "help.clear": "Suche löschen"
+  "help.clear": "Suche löschen",
+  "contact.partnerde.t": "Unser Partner in Deutschland",
+  "contact.partnerde.country": "Deutschland",
+  "contact.partnerde.indep": "HAAFT-IT ist ein eigenständiges, unabhängiges Unternehmen. Es gehört nicht zur Task Runner Technology Ltd und kann in unserem Namen weder Verträge schließen noch Zusagen machen."
 }

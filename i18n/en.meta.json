@@ -551,6 +551,9 @@
   "contact.pilot.cta": {"description":"Button on the pilot card that opens the Join the pilot page.","review":"legal"},
   "contact.partners.t": {"description":"Heading of the card for partners (resellers and installers).","review":"standard"},
   "contact.partners.d": {"description":"Short text of the partners card.","review":"standard"},
+  "contact.partnerde.t": {"description":"Heading of the card naming our partner in Germany. HAAFT-IT, Trier and Task Runner Technology Ltd are proper nouns: do not translate.","review":"standard"},
+  "contact.partnerde.country": {"description":"Country line of the German partner's postal address on the Contact page.","review":"standard"},
+  "contact.partnerde.indep": {"description":"Statement that the German partner HAAFT-IT is independent and cannot bind Task Runner Technology Ltd. HAAFT-IT and Task Runner Technology Ltd are proper nouns: do not translate.","review":"standard"},
   "contact.security.t": {"description":"Heading of the security card.","review":"standard"},
   "contact.security.d": {"description":"Short text of the security card: a request for a private report with reproduction steps.","review":"standard"},
   "contact.privacy": {"description":"Small note at the foot of the Contact page, before the link to the privacy policy.","review":"legal"}
