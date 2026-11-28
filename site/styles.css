@@ -186,6 +186,9 @@ img { max-width: 100%; }
 }
 .card h3 { margin: 0 0 .5rem; font-size: 1.12rem; }
 .card p { margin: 0; color: var(--ink-soft); font-size: .96rem; }
+.card address { font-style: normal; }
+.card address + p { margin-top: .75rem; }
+#partner-de { scroll-margin-top: 8rem; }
 .card.sol:hover { border-color: var(--brand); box-shadow: 0 10px 30px rgba(79,70,229,.1); transition: .2s; }
 
 /* Solution icons */
